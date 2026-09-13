@@ -1,0 +1,2305 @@
+skysync.html
+100%
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkySync · Centro de Controle</title>
+<meta name="description" content="SkySync — planejamento e replanejamento inteligente de escalas de tripulação aérea.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SKYSYNC — DESIGN TOKENS
+   ============================================================ */
+:root{
+  --font-ui: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  /* Aeronautical blue system — light */
+  --brand-950:#050e1c;
+  --brand-900:#0a1830;
+  --brand-800:#0f2242;
+  --brand-700:#153157;
+  --brand-600:#1c4374;
+  --brand-500:#255693;
+  --brand-400:#3f74b8;
+  --accent-500:#0fb8c9;      /* radar / scan accent — used sparingly */
+  --accent-600:#0c96a4;
+
+  --bg:#eef2f7;
+  --surface:#ffffff;
+  --surface-raised:#ffffff;
+  --surface-sunken:#e4e9f0;
+  --border:#d7dee8;
+  --border-strong:#c1cbd9;
+  --text-primary:#0e1b2e;
+  --text-secondary:#4c5a70;
+  --text-muted:#7c899c;
+  --text-on-brand:#eef3fa;
+  --text-on-brand-muted:#93a7c4;
+
+  --status-ok:#157a52;
+  --status-ok-bg:#e1f4ea;
+  --status-warn:#8a5b06;
+  --status-warn-bg:#fbf0d9;
+  --status-danger:#a3271f;
+  --status-danger-bg:#fbe6e4;
+  --status-info:#1c4d8c;
+  --status-info-bg:#e4edfb;
+  --status-neutral:#5a6579;
+  --status-neutral-bg:#e7ebf1;
+
+  --radius-sm:6px;
+  --radius-md:10px;
+  --radius-lg:14px;
+  --shadow-1: 0 1px 2px rgba(10,24,48,.06);
+  --shadow-2: 0 6px 20px -6px rgba(10,24,48,.16);
+  --shadow-3: 0 16px 40px -12px rgba(10,24,48,.28);
+
+  --sidebar-w: 248px;
+  --sidebar-w-collapsed: 72px;
+  --header-h: 64px;
+
+  --dur-fast: .14s;
+  --dur-base: .22s;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html[data-theme="dark"]{
+  --bg:#08101d;
+  --surface:#0f1c30;
+  --surface-raised:#132339;
+  --surface-sunken:#0a1526;
+  --border:#1e2f47;
+  --border-strong:#2a3f5c;
+  --text-primary:#e8eefb;
+  --text-secondary:#a9b8d0;
+  --text-muted:#7488a5;
+  --text-on-brand:#eef3fa;
+  --text-on-brand-muted:#8ea1c0;
+
+  --status-ok:#4fd39a;
+  --status-ok-bg:#0f2b23;
+  --status-warn:#f0c25a;
+  --status-warn-bg:#302509;
+  --status-danger:#f28b83;
+  --status-danger-bg:#331413;
+  --status-info:#7fb0f2;
+  --status-info-bg:#132840;
+  --status-neutral:#a3b0c4;
+  --status-neutral-bg:#1a2536;
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-2: 0 6px 20px -6px rgba(0,0,0,.5);
+  --shadow-3: 0 20px 48px -12px rgba(0,0,0,.6);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--font-ui);
+  background:var(--bg);
+  color:var(--text-primary);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
+}
+h1,h2,h3,h4,p,ul,ol,figure{ margin:0; }
+button{ font-family:inherit; }
+ul{ padding:0; list-style:none; }
+a{ color:inherit; }
+img{ max-width:100%; display:block; }
+
+:focus{ outline:none; }
+:focus-visible{
+  outline: 2.5px solid var(--accent-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sr-only{
+  position:absolute; width:1px;height:1px; padding:0;margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+.skip-link{
+  position:absolute; left:12px; top:-48px;
+  background:var(--brand-900); color:#fff; padding:10px 16px;
+  border-radius:var(--radius-sm); z-index:999; transition: top var(--dur-base) var(--ease);
+  font-weight:600; font-size:.875rem;
+}
+.skip-link:focus{ top:12px; }
+
+svg.icon{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.app-header{
+  height:var(--header-h);
+  display:flex; align-items:center; gap:16px;
+  padding:0 20px;
+  background:var(--brand-950);
+  color:var(--text-on-brand);
+  position:sticky; top:0; z-index:60;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.header-menu-btn{
+  display:none;
+  background:transparent; border:none; color:var(--text-on-brand);
+  width:36px;height:36px; border-radius:var(--radius-sm); cursor:pointer;
+  align-items:center; justify-content:center;
+}
+.header-menu-btn:hover{ background:rgba(255,255,255,.08); }
+
+.brand{
+  display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.05rem;
+  letter-spacing:.01em; white-space:nowrap;
+}
+.brand-mark{
+  width:32px; height:32px; border-radius:8px;
+  background:linear-gradient(155deg, var(--brand-500), var(--accent-500));
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.brand-mark svg{ width:18px; height:18px; stroke:#fff; }
+.brand small{ display:block; font-size:.6875rem; font-weight:500; color:var(--text-on-brand-muted); letter-spacing:.02em; }
+
+.header-search{
+  flex:1; max-width:420px; position:relative; margin-left:8px;
+}
+.header-search input{
+  width:100%; height:38px; border-radius:var(--radius-md);
+  border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07);
+  color:var(--text-on-brand); padding:0 14px 0 38px; font-size:.875rem;
+}
+.header-search input::placeholder{ color:var(--text-on-brand-muted); }
+.header-search input:focus-visible{ background:rgba(255,255,255,.12); }
+.header-search svg{ position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-on-brand-muted); width:16px;height:16px; }
+
+.header-actions{ display:flex; align-items:center; gap:6px; margin-left:auto; }
+.icon-btn{
+  position:relative; width:38px; height:38px; border-radius:var(--radius-sm);
+  background:transparent; border:none; color:var(--text-on-brand); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:background var(--dur-fast) var(--ease);
+}
+.icon-btn:hover{ background:rgba(255,255,255,.09); }
+.icon-btn .dot{
+  position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%;
+  background:var(--status-danger); border:2px solid var(--brand-950);
+}
+.user-chip{
+  display:flex; align-items:center; gap:8px; height:38px; padding:0 10px 0 4px;
+  border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+  color:var(--text-on-brand); cursor:pointer; font-size:.8125rem; font-weight:600;
+}
+.user-chip .avatar{
+  width:28px;height:28px;border-radius:50%; background:linear-gradient(155deg,var(--accent-500),var(--brand-400));
+  display:flex; align-items:center; justify-content:center; font-size:.75rem; color:#fff;
+}
+.user-chip span.role{ display:block; font-weight:400; font-size:.6875rem; color:var(--text-on-brand-muted); }
+
+.popover{
+  position:absolute; top:calc(var(--header-h) + 6px); right:16px; width:320px;
+  background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-3); z-index:80;
+  opacity:0; visibility:hidden; transform:translateY(-6px);
+  transition: opacity var(--dur-base) var(--ease), transform var(--dur-base) var(--ease), visibility var(--dur-base);
+}
+.popover.open{ opacity:1; visibility:visible; transform:translateY(0); }
+.popover-header{ padding:14px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.popover-header h3{ font-size:.9375rem; font-weight:600; }
+.popover-header button{ background:none;border:none;color:var(--text-muted); font-size:.75rem; cursor:pointer; }
+.popover-body{ max-height:320px; overflow-y:auto; }
+.notif-item{ padding:12px 16px; border-bottom:1px solid var(--border); display:flex; gap:10px; }
+.notif-item:last-child{ border-bottom:none; }
+.notif-dot{ width:8px;height:8px;border-radius:50%; margin-top:6px; flex-shrink:0; }
+.notif-item p{ font-size:.8125rem; color:var(--text-primary); }
+.notif-item time{ font-size:.75rem; color:var(--text-muted); }
+.user-menu-list button{
+  width:100%; text-align:left; background:none; border:none; padding:11px 16px; font-size:.8125rem;
+  color:var(--text-primary); cursor:pointer; display:flex; align-items:center; gap:10px;
+}
+.user-menu-list button:hover{ background:var(--surface-sunken); }
+
+/* ============================================================
+   APP SHELL / SIDEBAR
+   ============================================================ */
+.app-shell{ display:flex; min-height:calc(100vh - var(--header-h)); }
+
+.sidebar{
+  width:var(--sidebar-w); flex-shrink:0; background:var(--brand-950);
+  color:var(--text-on-brand); display:flex; flex-direction:column;
+  position:sticky; top:var(--header-h); height:calc(100vh - var(--header-h));
+  transition:width var(--dur-base) var(--ease);
+  border-right:1px solid rgba(255,255,255,.06);
+  z-index:50;
+}
+.sidebar.collapsed{ width:var(--sidebar-w-collapsed); }
+.sidebar-nav{ flex:1; overflow-y:auto; padding:14px 10px; }
+.nav-group-label{
+  font-size:.6875rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-on-brand-muted);
+  padding:10px 12px 6px; font-weight:600;
+}
+.sidebar.collapsed .nav-group-label{ opacity:0; height:0; padding:0; overflow:hidden; }
+.nav-link{
+  display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:var(--radius-sm);
+  color:var(--text-on-brand-muted); font-size:.875rem; font-weight:500; cursor:pointer;
+  border:none; background:none; width:100%; text-align:left; margin-bottom:2px;
+  position:relative; transition:background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  white-space:nowrap;
+}
+.nav-link svg{ flex-shrink:0; }
+.nav-link:hover{ background:rgba(255,255,255,.06); color:var(--text-on-brand); }
+.nav-link[aria-current="page"]{ background:var(--brand-700); color:#fff; }
+.nav-link[aria-current="page"]::before{
+  content:""; position:absolute; left:-10px; top:6px; bottom:6px; width:3px; border-radius:3px;
+  background:var(--accent-500);
+}
+.nav-link .badge-count{
+  margin-left:auto; background:var(--status-danger); color:#fff; font-size:.6875rem; font-weight:700;
+  padding:1px 6px; border-radius:999px; font-family:var(--font-mono);
+}
+.sidebar.collapsed .nav-link span.label, .sidebar.collapsed .nav-link .badge-count{ display:none; }
+.sidebar.collapsed .nav-link{ justify-content:center; padding:10px; }
+
+.sidebar-footer{ padding:10px; border-top:1px solid rgba(255,255,255,.08); }
+.collapse-btn{
+  display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px; border-radius:var(--radius-sm);
+  background:none; border:none; color:var(--text-on-brand-muted); cursor:pointer; font-size:.8125rem;
+}
+.collapse-btn:hover{ background:rgba(255,255,255,.06); color:#fff; }
+.sidebar.collapsed .collapse-btn span{ display:none; }
+.sidebar.collapsed .collapse-btn{ justify-content:center; }
+.collapse-btn svg{ transition:transform var(--dur-base) var(--ease); }
+.sidebar.collapsed .collapse-btn svg{ transform:rotate(180deg); }
+
+.sidebar-backdrop{
+  display:none; position:fixed; inset:0; background:rgba(4,10,20,.55); z-index:45;
+}
+.sidebar-backdrop.open{ display:block; }
+
+/* tooltip for collapsed sidebar */
+.nav-link[data-tip]{ }
+.sidebar.collapsed .nav-link:hover::after{
+  content: attr(data-tip);
+  position:absolute; left:calc(100% + 10px); top:50%; transform:translateY(-50%);
+  background:var(--brand-900); color:#fff; padding:6px 10px; border-radius:var(--radius-sm);
+  font-size:.75rem; white-space:nowrap; box-shadow:var(--shadow-2); z-index:70; pointer-events:none;
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+.app-main{ flex:1; min-width:0; padding:26px 30px 60px; }
+.page{ display:none; animation: fadeIn .28s var(--ease); }
+.page.active{ display:block; }
+@keyframes fadeIn{ from{ opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+.page-head{ margin-bottom:22px; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.page-head h1{ font-size:1.5rem; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:12px; }
+.page-head p{ color:var(--text-secondary); font-size:.9375rem; margin-top:4px; }
+.page-head-actions{ display:flex; gap:10px; }
+
+/* Radar mark — the one deliberate animated moment */
+.radar-mark{
+  width:30px; height:30px; border-radius:50%; position:relative; flex-shrink:0;
+  background: radial-gradient(circle at 50% 50%, var(--brand-700) 0%, var(--brand-900) 70%);
+  border:1px solid var(--border-strong); overflow:hidden;
+}
+.radar-mark::before{
+  content:""; position:absolute; inset:0;
+  background: conic-gradient(from 0deg, rgba(15,184,201,.85), rgba(15,184,201,0) 32%);
+  animation: radar-spin 3.2s linear infinite;
+}
+.radar-mark::after{
+  content:""; position:absolute; width:4px;height:4px; border-radius:50%; background:var(--accent-500);
+  top:38%; left:60%; box-shadow:0 0 6px 1px var(--accent-500);
+}
+@keyframes radar-spin{ to{ transform:rotate(360deg); } }
+
+/* Buttons */
+.btn{
+  display:inline-flex; align-items:center; gap:8px; height:38px; padding:0 16px;
+  border-radius:var(--radius-sm); font-size:.8438rem; font-weight:600; cursor:pointer;
+  border:1px solid transparent; transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  white-space:nowrap;
+}
+.btn:active{ transform:translateY(1px); }
+.btn-primary{ background:var(--brand-500); color:#fff; }
+.btn-primary:hover{ background:var(--brand-600); }
+.btn-primary:disabled{ background:var(--status-neutral); cursor:not-allowed; opacity:.6; }
+.btn-outline{ background:transparent; border-color:var(--border-strong); color:var(--text-primary); }
+.btn-outline:hover{ background:var(--surface-sunken); }
+.btn-danger-outline{ background:transparent; border-color:var(--status-danger); color:var(--status-danger); }
+.btn-danger-outline:hover{ background:var(--status-danger-bg); }
+.btn-ghost{ background:transparent; border-color:transparent; color:var(--text-secondary); }
+.btn-ghost:hover{ background:var(--surface-sunken); color:var(--text-primary); }
+.btn-sm{ height:32px; padding:0 12px; font-size:.8125rem; }
+.btn:disabled{ cursor:not-allowed; opacity:.55; }
+
+/* ============================================================
+   CARDS / STATS
+   ============================================================ */
+.stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px; }
+.stat-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:16px 18px; box-shadow:var(--shadow-1); position:relative; overflow:hidden;
+}
+.stat-card .stat-icon{
+  width:34px;height:34px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center;
+  margin-bottom:12px;
+}
+.stat-card .stat-value{ font-family:var(--font-mono); font-size:1.75rem; font-weight:600; letter-spacing:-.01em; line-height:1; }
+.stat-card .stat-label{ font-size:.8125rem; color:var(--text-secondary); margin-top:6px; }
+.stat-card .stat-delta{ font-size:.75rem; margin-top:10px; display:flex; align-items:center; gap:5px; font-weight:600; }
+
+.section-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  box-shadow:var(--shadow-1); margin-bottom:20px;
+}
+.section-card-head{
+  padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center;
+  justify-content:space-between; gap:12px; flex-wrap:wrap;
+}
+.section-card-head h2{ font-size:1rem; font-weight:600; }
+.section-card-head p{ font-size:.8125rem; color:var(--text-muted); margin-top:2px; }
+.section-card-body{ padding:18px 20px; }
+.link-more{ font-size:.8125rem; font-weight:600; color:var(--brand-500); background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:4px; }
+.link-more:hover{ text-decoration:underline; }
+
+.two-col{ display:grid; grid-template-columns: 1.5fr 1fr; gap:20px; align-items:start; }
+
+/* ============================================================
+   BADGES / STATUS
+   ============================================================ */
+.badge{
+  display:inline-flex; align-items:center; gap:5px; font-size:.75rem; font-weight:600;
+  padding:3px 9px; border-radius:var(--radius-sm); white-space:nowrap; line-height:1.4;
+}
+.badge svg{ width:13px;height:13px; }
+.badge-ok{ background:var(--status-ok-bg); color:var(--status-ok); }
+.badge-warn{ background:var(--status-warn-bg); color:var(--status-warn); }
+.badge-danger{ background:var(--status-danger-bg); color:var(--status-danger); }
+.badge-info{ background:var(--status-info-bg); color:var(--status-info); }
+.badge-neutral{ background:var(--status-neutral-bg); color:var(--status-neutral); }
+
+.status-dot{ width:8px;height:8px;border-radius:50%; display:inline-block; flex-shrink:0; }
+.status-dot.ok{ background:var(--status-ok); }
+.status-dot.warn{ background:var(--status-warn); }
+.status-dot.danger{ background:var(--status-danger); }
+.status-dot.info{ background:var(--status-info); }
+.status-dot.neutral{ background:var(--status-neutral); }
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.table-wrap{ overflow-x:auto; }
+table.data-table{ width:100%; border-collapse:collapse; font-size:.8438rem; min-width:640px; }
+table.data-table thead th{
+  text-align:left; padding:10px 14px; border-bottom:1px solid var(--border-strong);
+  color:var(--text-muted); font-weight:600; font-size:.75rem; white-space:nowrap;
+  position:sticky; top:0; background:var(--surface);
+}
+table.data-table th.sortable{ cursor:pointer; user-select:none; }
+table.data-table th.sortable:hover{ color:var(--text-primary); }
+table.data-table th .sort-arrow{ margin-left:4px; opacity:.5; font-size:.7rem; }
+table.data-table th.sort-active .sort-arrow{ opacity:1; color:var(--accent-600); }
+table.data-table tbody td{ padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+table.data-table tbody tr{ transition:background var(--dur-fast) var(--ease); }
+table.data-table tbody tr.clickable{ cursor:pointer; }
+table.data-table tbody tr.clickable:hover{ background:var(--surface-sunken); }
+table.data-table tbody tr:last-child td{ border-bottom:none; }
+.mono{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+.cell-strong{ font-weight:600; }
+.cell-muted{ color:var(--text-muted); }
+
+/* ============================================================
+   FILTER BAR
+   ============================================================ */
+.filter-bar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+.filter-bar .input-search{ position:relative; flex:1; min-width:200px; max-width:320px; }
+.filter-bar .input-search svg{ position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text-muted); }
+.filter-bar input[type="text"], .filter-bar input[type="search"]{
+  height:36px; width:100%; padding:0 12px 0 34px; border-radius:var(--radius-sm); border:1px solid var(--border-strong);
+  background:var(--surface); color:var(--text-primary); font-size:.8125rem;
+}
+.filter-bar select{
+  height:36px; padding:0 30px 0 12px; border-radius:var(--radius-sm); border:1px solid var(--border-strong);
+  background:var(--surface); color:var(--text-primary); font-size:.8125rem; cursor:pointer;
+}
+.filter-bar label{ font-size:.75rem; color:var(--text-muted); margin-right:-4px; }
+.chip-group{ display:flex; gap:6px; flex-wrap:wrap; }
+.chip{
+  padding:6px 13px; border-radius:999px; border:1px solid var(--border-strong); background:var(--surface);
+  font-size:.8125rem; font-weight:500; cursor:pointer; color:var(--text-secondary);
+}
+.chip[aria-pressed="true"]{ background:var(--brand-500); border-color:var(--brand-500); color:#fff; }
+.chip:hover:not([aria-pressed="true"]){ background:var(--surface-sunken); }
+
+.pagination{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; font-size:.8125rem; color:var(--text-muted); flex-wrap:wrap; gap:10px; }
+.pagination .pages{ display:flex; gap:4px; }
+.pagination button{
+  width:30px;height:30px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); background:var(--surface);
+  cursor:pointer; color:var(--text-secondary); font-size:.8125rem; font-family:var(--font-mono);
+}
+.pagination button[aria-current="true"]{ background:var(--brand-500); border-color:var(--brand-500); color:#fff; font-weight:600; }
+.pagination button:disabled{ opacity:.4; cursor:not-allowed; }
+.pagination button:hover:not(:disabled):not([aria-current="true"]){ background:var(--surface-sunken); }
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tabs{ display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; }
+.tab-btn{
+  background:none; border:none; padding:10px 4px; margin-right:20px; font-size:.875rem; font-weight:600;
+  color:var(--text-muted); cursor:pointer; position:relative; top:1px;
+}
+.tab-btn[aria-selected="true"]{ color:var(--brand-500); border-bottom:2px solid var(--brand-500); }
+.tab-btn:hover:not([aria-selected="true"]){ color:var(--text-primary); }
+
+/* ============================================================
+   EMPTY / ERROR STATES
+   ============================================================ */
+.empty-state, .error-state{
+  display:flex; flex-direction:column; align-items:center; text-align:center; padding:48px 20px; color:var(--text-muted);
+}
+.empty-state .icon-wrap, .error-state .icon-wrap{
+  width:52px;height:52px; border-radius:50%; background:var(--surface-sunken); display:flex; align-items:center; justify-content:center;
+  margin-bottom:14px; color:var(--text-muted);
+}
+.empty-state h3, .error-state h3{ font-size:.9375rem; color:var(--text-primary); font-weight:600; margin-bottom:4px; }
+.empty-state p, .error-state p{ font-size:.8125rem; max-width:320px; }
+.error-state .icon-wrap{ background:var(--status-danger-bg); color:var(--status-danger); }
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+.spinner{
+  width:16px;height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.35); border-top-color:#fff;
+  animation:spin .7s linear infinite;
+}
+.spinner.dark{ border:2px solid var(--border-strong); border-top-color:var(--brand-500); }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.skeleton{ background:linear-gradient(90deg, var(--surface-sunken) 25%, var(--border) 37%, var(--surface-sunken) 63%); background-size:400% 100%; animation:skeleton-loading 1.4s ease infinite; border-radius:var(--radius-sm); }
+@keyframes skeleton-loading{ 0%{background-position:100% 50%;} 100%{background-position:0 50%;} }
+
+.progress-track{ height:8px; border-radius:999px; background:var(--surface-sunken); overflow:hidden; }
+.progress-fill{ height:100%; background:linear-gradient(90deg, var(--brand-500), var(--accent-500)); border-radius:999px; transition:width .4s var(--ease); }
+
+/* ============================================================
+   CREW CARDS (mobile transform of tables) & general cards
+   ============================================================ */
+.crew-card, .escala-card{
+  border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 16px; margin-bottom:10px; background:var(--surface);
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(5,12,24,.55); backdrop-filter:blur(1px);
+  display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;
+  opacity:0; visibility:hidden; transition:opacity var(--dur-base) var(--ease), visibility var(--dur-base);
+}
+.modal-overlay.open{ opacity:1; visibility:visible; }
+.modal-dialog{
+  background:var(--surface-raised); border-radius:var(--radius-lg); width:100%; max-width:560px;
+  max-height:88vh; display:flex; flex-direction:column; box-shadow:var(--shadow-3);
+  transform:translateY(14px) scale(.98); transition:transform var(--dur-base) var(--ease); border:1px solid var(--border);
+}
+.modal-overlay.open .modal-dialog{ transform:translateY(0) scale(1); }
+.modal-dialog.wide{ max-width:760px; }
+.modal-head{ padding:18px 22px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; border-bottom:1px solid var(--border); }
+.modal-head h2{ font-size:1.0625rem; font-weight:700; }
+.modal-head p{ font-size:.8125rem; color:var(--text-muted); margin-top:3px; }
+.modal-close{ width:32px;height:32px; border-radius:var(--radius-sm); background:none; border:none; color:var(--text-muted); cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.modal-close:hover{ background:var(--surface-sunken); color:var(--text-primary); }
+.modal-body{ padding:20px 22px; overflow-y:auto; }
+.modal-foot{ padding:16px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; }
+
+.detail-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 20px; margin-bottom:18px; }
+.detail-item .lbl{ font-size:.6875rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); font-weight:600; margin-bottom:3px; }
+.detail-item .val{ font-size:.875rem; font-weight:500; }
+.detail-divider{ border:none; border-top:1px solid var(--border); margin:16px 0; }
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+.toast-region{ position:fixed; bottom:20px; right:20px; z-index:300; display:flex; flex-direction:column; gap:10px; width:340px; max-width:calc(100vw - 40px); }
+.toast{
+  background:var(--surface-raised); border:1px solid var(--border); border-left:4px solid var(--status-info);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:13px 14px; display:flex; gap:10px;
+  animation: toast-in .28s var(--ease);
+  position:relative; overflow:hidden;
+}
+@keyframes toast-in{ from{ opacity:0; transform:translateX(14px);} to{opacity:1; transform:translateX(0);} }
+.toast.leaving{ animation: toast-out .2s var(--ease) forwards; }
+@keyframes toast-out{ to{ opacity:0; transform:translateX(14px); } }
+.toast.success{ border-left-color:var(--status-ok); }
+.toast.warning{ border-left-color:var(--status-warn); }
+.toast.danger{ border-left-color:var(--status-danger); }
+.toast .t-icon{ flex-shrink:0; margin-top:1px; }
+.toast.success .t-icon{ color:var(--status-ok); }
+.toast.warning .t-icon{ color:var(--status-warn); }
+.toast.danger .t-icon{ color:var(--status-danger); }
+.toast.info .t-icon{ color:var(--status-info); }
+.toast .t-body{ flex:1; }
+.toast .t-title{ font-size:.8438rem; font-weight:600; }
+.toast .t-msg{ font-size:.8125rem; color:var(--text-secondary); margin-top:2px; }
+.toast .t-close{ background:none;border:none; color:var(--text-muted); cursor:pointer; flex-shrink:0; }
+
+/* ============================================================
+   TOOLTIP
+   ============================================================ */
+[data-tooltip]{ position:relative; }
+[data-tooltip]:hover::after, [data-tooltip]:focus-visible::after{
+  content:attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+  background:var(--brand-900); color:#fff; padding:5px 9px; border-radius:5px; font-size:.75rem; white-space:nowrap; z-index:50;
+}
+
+/* ============================================================
+   OPERAÇÃO — live board
+   ============================================================ */
+.live-indicator{ display:flex; align-items:center; gap:7px; font-size:.75rem; color:var(--text-muted); }
+.live-dot{ width:8px;height:8px; border-radius:50%; background:var(--status-ok); position:relative; }
+.live-dot::after{ content:""; position:absolute; inset:0; border-radius:50%; background:var(--status-ok); animation:live-pulse 1.8s ease-out infinite; }
+@keyframes live-pulse{ 0%{ transform:scale(1); opacity:.7;} 100%{ transform:scale(2.6); opacity:0;} }
+
+/* ============================================================
+   ESCALAS — timeline & calendar
+   ============================================================ */
+.timeline-row{ display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
+.timeline-row:last-child{ border-bottom:none; }
+.timeline-crew{ width:150px; flex-shrink:0; }
+.timeline-crew .name{ font-weight:600; font-size:.8438rem; }
+.timeline-crew .role{ font-size:.75rem; color:var(--text-muted); }
+.timeline-track{ flex:1; display:flex; align-items:center; gap:6px; min-width:0; overflow-x:auto; padding:4px 0; }
+.tl-seg{
+  flex-shrink:0; min-width:92px; border-radius:var(--radius-sm); padding:7px 10px; font-size:.75rem;
+  border:1px solid var(--border-strong); background:var(--surface-sunken); text-align:center;
+}
+.tl-seg .flight{ font-family:var(--font-mono); font-weight:700; }
+.tl-seg .route{ color:var(--text-muted); font-size:.6875rem; margin-top:1px; }
+.tl-rest{ flex-shrink:0; display:flex; flex-direction:column; align-items:center; font-size:.6875rem; color:var(--text-muted); min-width:60px; }
+.tl-rest .line{ width:100%; height:1px; background:var(--border-strong); position:relative; margin:3px 0; }
+.tl-seg.ok{ border-color:var(--status-ok); background:var(--status-ok-bg); }
+.tl-seg.warn{ border-color:var(--status-warn); background:var(--status-warn-bg); }
+.tl-seg.danger{ border-color:var(--status-danger); background:var(--status-danger-bg); }
+
+.cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.cal-dow{ font-size:.6875rem; text-transform:uppercase; color:var(--text-muted); text-align:center; font-weight:600; padding-bottom:4px; }
+.cal-cell{
+  aspect-ratio:1/.82; border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px; cursor:pointer;
+  background:var(--surface); display:flex; flex-direction:column; justify-content:space-between; transition:background var(--dur-fast) var(--ease);
+}
+.cal-cell:hover{ background:var(--surface-sunken); }
+.cal-cell.empty{ background:transparent; border-color:transparent; cursor:default; }
+.cal-cell.selected{ border-color:var(--brand-500); box-shadow:0 0 0 1px var(--brand-500) inset; }
+.cal-cell .d-num{ font-size:.75rem; font-weight:600; color:var(--text-secondary); font-family:var(--font-mono); }
+.cal-cell .d-count{ font-size:.6875rem; color:var(--text-muted); align-self:flex-end; }
+.cal-cell .d-dots{ display:flex; gap:2px; flex-wrap:wrap; }
+.cal-cell .d-dots span{ width:5px;height:5px;border-radius:50%; }
+
+/* ============================================================
+   REPLANEJAMENTO
+   ============================================================ */
+.crew-chip-list{ display:flex; flex-wrap:wrap; gap:6px; }
+.crew-chip{ font-size:.75rem; font-family:var(--font-mono); background:var(--surface-sunken); border:1px solid var(--border-strong); padding:4px 9px; border-radius:999px; }
+
+.processing-panel{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:30px 10px; }
+.processing-ring{
+  width:64px;height:64px; border-radius:50%; border:3px solid var(--border); border-top-color:var(--brand-500);
+  animation:spin 1s linear infinite; margin-bottom:18px;
+}
+.processing-steps{ margin-top:18px; text-align:left; width:100%; max-width:340px; }
+.processing-step{ display:flex; align-items:center; gap:10px; padding:7px 0; font-size:.8438rem; color:var(--text-muted); }
+.processing-step .stp-icon{ width:20px;height:20px; border-radius:50%; border:2px solid var(--border-strong); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.processing-step.done{ color:var(--text-primary); }
+.processing-step.done .stp-icon{ border-color:var(--status-ok); background:var(--status-ok); color:#fff; }
+.processing-step.active{ color:var(--text-primary); font-weight:600; }
+.processing-step.active .stp-icon{ border-color:var(--brand-500); }
+
+.result-banner{ display:flex; align-items:center; gap:14px; background:var(--status-ok-bg); border:1px solid var(--status-ok); border-radius:var(--radius-md); padding:16px 18px; margin-bottom:18px; }
+.result-banner .r-icon{ width:38px;height:38px; border-radius:50%; background:var(--status-ok); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.result-metrics{ display:flex; gap:22px; margin-top:8px; flex-wrap:wrap; }
+.result-metric{ font-size:.8125rem; color:var(--status-ok); font-weight:600; display:flex; align-items:center; gap:6px; }
+
+.compare-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.compare-col h3{ font-size:.8125rem; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:10px; font-weight:600; }
+.compare-col.new h3{ color:var(--accent-600); }
+.compare-chain{ display:flex; flex-direction:column; gap:8px; }
+.compare-node{ display:flex; align-items:center; gap:10px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:9px 12px; background:var(--surface-sunken); font-size:.8125rem; }
+.compare-node .flight{ font-family:var(--font-mono); font-weight:700; min-width:64px; }
+.compare-node.changed{ border-color:var(--accent-500); background:var(--status-info-bg); position:relative; }
+.compare-node.changed::after{ content:"alterado"; margin-left:auto; font-size:.6875rem; font-weight:700; color:var(--accent-600); background:rgba(15,184,201,.15); padding:2px 7px; border-radius:5px; }
+.compare-connector{ align-self:center; color:var(--text-muted); font-size:.75rem; }
+
+/* ============================================================
+   CONFLITOS
+   ============================================================ */
+.conflict-card{ border:1px solid var(--border); border-left:4px solid var(--status-danger); border-radius:var(--radius-md); background:var(--surface); padding:16px 18px; margin-bottom:12px; }
+.conflict-card.warn{ border-left-color:var(--status-warn); }
+.conflict-card.info{ border-left-color:var(--status-info); }
+.conflict-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.conflict-head h3{ font-size:.9375rem; font-weight:700; }
+.conflict-flow{ display:flex; align-items:stretch; gap:0; margin:12px 0; font-size:.8125rem; flex-wrap:wrap; }
+.flow-step{ flex:1; min-width:150px; padding:10px 12px; background:var(--surface-sunken); border-radius:var(--radius-sm); }
+.flow-step .flbl{ font-size:.6875rem; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:4px; }
+.flow-arrow{ display:flex; align-items:center; justify-content:center; padding:0 8px; color:var(--text-muted); }
+.conflict-meta{ display:flex; gap:18px; flex-wrap:wrap; font-size:.8125rem; color:var(--text-secondary); margin-bottom:10px; }
+.conflict-meta b{ color:var(--text-primary); font-family:var(--font-mono); }
+
+/* ============================================================
+   FORMS (Configurações)
+   ============================================================ */
+.form-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding:16px 0; border-bottom:1px solid var(--border); }
+.form-row:last-child{ border-bottom:none; }
+.form-row .frow-label{ font-size:.875rem; font-weight:600; }
+.form-row .frow-desc{ font-size:.8125rem; color:var(--text-muted); margin-top:2px; max-width:420px; }
+.radio-group{ display:flex; gap:8px; }
+.radio-pill{ border:1px solid var(--border-strong); padding:7px 14px; border-radius:999px; font-size:.8125rem; cursor:pointer; background:var(--surface); }
+.radio-pill[aria-pressed="true"]{ background:var(--brand-500); border-color:var(--brand-500); color:#fff; font-weight:600; }
+.switch{ position:relative; width:42px; height:24px; flex-shrink:0; }
+.switch input{ opacity:0; width:100%; height:100%; margin:0; position:absolute; cursor:pointer; }
+.switch .track{ position:absolute; inset:0; background:var(--border-strong); border-radius:999px; transition:background var(--dur-fast) var(--ease); }
+.switch .thumb{ position:absolute; top:3px; left:3px; width:18px;height:18px; background:#fff; border-radius:50%; transition:transform var(--dur-fast) var(--ease); box-shadow:0 1px 3px rgba(0,0,0,.3); }
+.switch input:checked + .track{ background:var(--brand-500); }
+.switch input:checked + .track + .thumb{ transform:translateX(18px); }
+.switch input:focus-visible + .track{ outline:2.5px solid var(--accent-500); outline-offset:2px; }
+
+/* ============================================================
+   RELATÓRIOS
+   ============================================================ */
+.report-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+.report-card{ border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; background:var(--surface); display:flex; flex-direction:column; gap:10px; }
+.report-card .rc-icon{ width:36px;height:36px; border-radius:var(--radius-sm); background:var(--status-info-bg); color:var(--status-info); display:flex; align-items:center; justify-content:center; }
+.report-card h3{ font-size:.9375rem; font-weight:700; }
+.report-card p{ font-size:.8125rem; color:var(--text-muted); flex:1; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.app-footer{ padding:20px 30px 34px; color:var(--text-muted); font-size:.75rem; border-top:1px solid var(--border); margin-top:10px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1180px){
+  .stat-grid{ grid-template-columns:repeat(3,1fr); }
+  .two-col{ grid-template-columns:1fr; }
+  .compare-wrap{ grid-template-columns:1fr; }
+}
+@media (max-width: 880px){
+  .header-menu-btn{ display:flex; }
+  .header-search{ display:none; }
+  .sidebar{ position:fixed; left:0; top:var(--header-h); height:calc(100vh - var(--header-h)); transform:translateX(-100%); transition:transform var(--dur-base) var(--ease); width:var(--sidebar-w); }
+  .sidebar.mobile-open{ transform:translateX(0); box-shadow:var(--shadow-3); }
+  .sidebar.collapsed{ width:var(--sidebar-w); }
+  .sidebar.collapsed .nav-link span.label, .sidebar.collapsed .nav-link .badge-count{ display:flex; }
+  .sidebar.collapsed .nav-group-label{ opacity:1; height:auto; padding:10px 12px 6px; }
+  .collapse-btn{ display:none; }
+  .app-main{ padding:20px 16px 50px; }
+  .stat-grid{ grid-template-columns:repeat(2,1fr); }
+  .detail-grid{ grid-template-columns:1fr; }
+  .report-grid{ grid-template-columns:1fr; }
+  table.data-table{ min-width:560px; }
+}
+@media (max-width: 560px){
+  .stat-grid{ grid-template-columns:1fr 1fr; }
+  .page-head{ flex-direction:column; align-items:flex-start; }
+  .toast-region{ left:12px; right:12px; width:auto; bottom:12px; }
+  .user-chip span.role{ display:none; }
+  .filter-bar .input-search{ max-width:none; }
+}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Pular para o conteúdo</a>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="app-header">
+  <button class="header-menu-btn" id="menuToggle" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="sidebar">
+    <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M2 16l20-7-7 20-3-8-8-3z" stroke-linejoin="round"/></svg>
+    </span>
+    <span>SkySync<small>Planejamento de escalas</small></span>
+  </div>
+  <div class="header-search" role="search">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <label for="globalSearch" class="sr-only">Buscar voos, tripulantes ou escalas</label>
+    <input type="search" id="globalSearch" placeholder="Buscar voo, tripulante ou matrícula…" autocomplete="off">
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="themeToggle" aria-label="Alternar tema claro e escuro" data-tooltip="Alternar tema">
+      <svg class="icon" id="themeIconSun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+      <svg class="icon" id="themeIconMoon" viewBox="0 0 24 24" style="display:none"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+    </button>
+    <div style="position:relative">
+      <button class="icon-btn" id="notifBtn" aria-haspopup="true" aria-expanded="false" aria-label="Notificações, 3 não lidas">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 5.5-2 7-2 7h16s-2-1.5-2-7"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="dot" aria-hidden="true"></span>
+      </button>
+      <div class="popover" id="notifPopover" role="dialog" aria-label="Notificações">
+        <div class="popover-header"><h3>Notificações</h3><button id="clearNotif">Marcar como lidas</button></div>
+        <div class="popover-body" id="notifList"></div>
+      </div>
+    </div>
+    <div style="position:relative">
+      <button class="user-chip" id="userBtn" aria-haspopup="true" aria-expanded="false">
+        <span class="avatar" aria-hidden="true">RM</span>
+        <span>Renata Moraes<span class="role">Planejadora operacional</span></span>
+      </button>
+      <div class="popover" id="userPopover" role="dialog" aria-label="Menu do usuário" style="width:220px">
+        <ul class="user-menu-list">
+          <li><button type="button" data-nav="configuracoes"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Configurações</button></li>
+          <li><button type="button" id="btnHelp"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.3c-.9.4-1.6 1-1.6 2.2"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>Ajuda e documentação</button></li>
+          <li><button type="button" id="btnLogout"><svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="app-shell">
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+    <nav class="sidebar-nav">
+      <p class="nav-group-label">Operação</p>
+      <button class="nav-link" data-nav="dashboard" data-tip="Dashboard" aria-current="page">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span class="label">Dashboard</span>
+      </button>
+      <button class="nav-link" data-nav="operacao" data-tip="Operação">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21"/></svg>
+        <span class="label">Operação</span>
+      </button>
+      <button class="nav-link" data-nav="voos" data-tip="Voos">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M2 16l20-7-7 20-3-8-8-3z" stroke-linejoin="round"/></svg>
+        <span class="label">Voos</span>
+      </button>
+      <p class="nav-group-label">Tripulação</p>
+      <button class="nav-link" data-nav="tripulacao" data-tip="Tripulação">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/><circle cx="18" cy="8.5" r="2.4"/><path d="M16.2 13.6c2.7.4 4.8 2.6 4.8 5.9"/></svg>
+        <span class="label">Tripulação</span>
+      </button>
+      <button class="nav-link" data-nav="escalas" data-tip="Escalas">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/></svg>
+        <span class="label">Escalas</span>
+      </button>
+      <p class="nav-group-label">Inteligência</p>
+      <button class="nav-link" data-nav="replanejamento" data-tip="Replanejamento">
+        <svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.5 9a8.5 8.5 0 0 1 14.6-4.9L23 10M1 14l4.9 5.9A8.5 8.5 0 0 0 20.5 15"/></svg>
+        <span class="label">Replanejamento</span>
+      </button>
+      <button class="nav-link" data-nav="conflitos" data-tip="Conflitos">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2.5 22.5 21H1.5z" stroke-linejoin="round"/><line x1="12" y1="9.5" x2="12" y2="14"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>
+        <span class="label">Conflitos</span>
+        <span class="badge-count" id="navConflictCount">7</span>
+      </button>
+      <p class="nav-group-label">Sistema</p>
+      <button class="nav-link" data-nav="relatorios" data-tip="Relatórios">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M14 2.5H6.5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8.5z"/><polyline points="14 2.5 14 8.5 19.5 8.5"/><line x1="8.5" y1="13" x2="15.5" y2="13"/><line x1="8.5" y1="17" x2="13" y2="17"/></svg>
+        <span class="label">Relatórios</span>
+      </button>
+      <button class="nav-link" data-nav="configuracoes" data-tip="Configurações">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <span class="label">Configurações</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="collapse-btn" id="collapseBtn" aria-label="Recolher menu lateral">
+        <svg class="icon" viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg>
+        <span>Recolher menu</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main class="app-main" id="main-content" tabindex="-1">
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="page active" id="page-dashboard" aria-labelledby="h-dashboard">
+      <div class="page-head">
+        <div>
+          <h1 id="h-dashboard"><span class="radar-mark" aria-hidden="true"></span>Centro de Controle</h1>
+          <p>Visão geral da operação e das escalas de tripulação</p>
+        </div>
+        <div class="page-head-actions">
+          <span class="live-indicator"><span class="live-dot"></span> Atualizado às <span id="dashClock" class="mono"></span></span>
+        </div>
+      </div>
+
+      <div class="stat-grid" id="statGrid"></div>
+
+      <div class="two-col">
+        <div class="section-card">
+          <div class="section-card-head">
+            <div><h2>Status da operação</h2><p>Voos monitorados nas últimas horas</p></div>
+            <button class="link-more" data-nav="operacao">Ver operação completa
+              <svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+          <div class="section-card-body">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Voo</th><th>Origem</th><th>Destino</th><th>Horário</th><th>Status</th></tr></thead>
+                <tbody id="dashFlightsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-head">
+            <div><h2>Conflitos recentes</h2><p>Requerem atenção do planejador</p></div>
+            <button class="link-more" data-nav="conflitos">Ver todos
+              <svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+          <div class="section-card-body" id="dashConflicts" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ OPERAÇÃO ============ -->
+    <section class="page" id="page-operacao" aria-labelledby="h-operacao">
+      <div class="page-head">
+        <div>
+          <h1 id="h-operacao">Operação</h1>
+          <p>Monitoramento em tempo real dos voos ativos</p>
+        </div>
+        <span class="live-indicator"><span class="live-dot"></span> Última atualização: <span id="opClock" class="mono"></span></span>
+      </div>
+      <div class="filter-bar">
+        <div class="chip-group" id="opStatusChips" role="group" aria-label="Filtrar por status">
+          <button class="chip" aria-pressed="true" data-status="todos">Todos</button>
+          <button class="chip" aria-pressed="false" data-status="normal">Normal</button>
+          <button class="chip" aria-pressed="false" data-status="atrasado">Atrasado</button>
+          <button class="chip" aria-pressed="false" data-status="atencao">Atenção</button>
+          <button class="chip" aria-pressed="false" data-status="cancelado">Cancelado</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-card-body" style="padding:0">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Voo</th><th>Origem</th><th>Destino</th><th>Horário</th><th>Status</th><th>Tripulação</th><th>Observações</th></tr></thead>
+              <tbody id="opFlightsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VOOS ============ -->
+    <section class="page" id="page-voos" aria-labelledby="h-voos">
+      <div class="page-head">
+        <div><h1 id="h-voos">Voos</h1><p>Gestão e consulta de todos os voos programados</p></div>
+      </div>
+      <div class="filter-bar">
+        <div class="input-search">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <label for="voosSearch" class="sr-only">Buscar voo</label>
+          <input type="text" id="voosSearch" placeholder="Buscar por número, origem ou destino…">
+        </div>
+        <label for="voosStatusFilter">Status</label>
+        <select id="voosStatusFilter">
+          <option value="todos">Todos</option>
+          <option value="normal">Normal</option>
+          <option value="atrasado">Atrasado</option>
+          <option value="atencao">Atenção</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+      <div class="section-card">
+        <div class="section-card-body" style="padding:0">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="numero">Voo<span class="sort-arrow">▾</span></th>
+                  <th class="sortable" data-sort="origem">Origem<span class="sort-arrow">▾</span></th>
+                  <th class="sortable" data-sort="destino">Destino<span class="sort-arrow">▾</span></th>
+                  <th class="sortable" data-sort="horarioPartida">Horário<span class="sort-arrow">▾</span></th>
+                  <th>Status</th>
+                  <th>Tripulação</th>
+                </tr>
+              </thead>
+              <tbody id="voosBody"></tbody>
+            </table>
+          </div>
+          <div id="voosEmpty" style="display:none"></div>
+        </div>
+      </div>
+      <div class="pagination" id="voosPagination"></div>
+    </section>
+
+    <!-- ============ TRIPULAÇÃO ============ -->
+    <section class="page" id="page-tripulacao" aria-labelledby="h-tripulacao">
+      <div class="page-head">
+        <div><h1 id="h-tripulacao">Tripulação</h1><p>Consulta de jornada, repouso e disponibilidade dos tripulantes</p></div>
+      </div>
+      <div class="filter-bar">
+        <div class="input-search">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <label for="crewSearch" class="sr-only">Buscar tripulante</label>
+          <input type="text" id="crewSearch" placeholder="Buscar por nome ou matrícula…">
+        </div>
+        <label for="crewFuncaoFilter">Função</label>
+        <select id="crewFuncaoFilter">
+          <option value="todos">Todas</option>
+          <option>Comandante</option>
+          <option>Copiloto</option>
+          <option>Comissário</option>
+        </select>
+        <label for="crewBaseFilter">Base</label>
+        <select id="crewBaseFilter">
+          <option value="todos">Todas</option>
+          <option>Manaus</option>
+          <option>São Paulo</option>
+          <option>Brasília</option>
+          <option>Recife</option>
+        </select>
+        <label for="crewStatusFilter">Status</label>
+        <select id="crewStatusFilter">
+          <option value="todos">Todos</option>
+          <option>Disponível</option>
+          <option>Em voo</option>
+          <option>Repouso</option>
+          <option>Indisponível</option>
+        </select>
+      </div>
+      <div class="section-card">
+        <div class="section-card-body" style="padding:0">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="nome">Nome<span class="sort-arrow">▾</span></th>
+                  <th class="sortable" data-sort="matricula">Matrícula<span class="sort-arrow">▾</span></th>
+                  <th>Função</th>
+                  <th>Base</th>
+                  <th>Jornada</th>
+                  <th class="sortable" data-sort="horasTrabalhadas">Horas trab.<span class="sort-arrow">▾</span></th>
+                  <th>Repouso</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="crewBody"></tbody>
+            </table>
+          </div>
+          <div id="crewEmpty" style="display:none"></div>
+        </div>
+      </div>
+      <div class="pagination" id="crewPagination"></div>
+    </section>
+
+    <!-- ============ ESCALAS ============ -->
+    <section class="page" id="page-escalas" aria-labelledby="h-escalas">
+      <div class="page-head">
+        <div><h1 id="h-escalas">Escalas</h1><p>Visualização das jornadas de voo por tripulante</p></div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Modo de visualização das escalas">
+        <button class="tab-btn" role="tab" aria-selected="true" data-view="lista">Lista</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-view="tabela">Tabela</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-view="timeline">Linha do tempo</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-view="calendario">Calendário</button>
+      </div>
+
+      <div id="escalasLista" class="escala-view"></div>
+
+      <div id="escalasTabela" class="escala-view" style="display:none">
+        <div class="section-card">
+          <div class="section-card-body" style="padding:0">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Tripulante</th><th>Voo</th><th>Origem</th><th>Destino</th><th>Saída</th><th>Chegada</th><th>Conexões</th><th>Repouso</th><th>Status</th></tr></thead>
+                <tbody id="escalasTabelaBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="escalasTimeline" class="escala-view section-card" style="display:none">
+        <div class="section-card-body" id="timelineBody"></div>
+      </div>
+
+      <div id="escalasCalendario" class="escala-view" style="display:none">
+        <div class="two-col">
+          <div class="section-card">
+            <div class="section-card-head">
+              <div><h2 id="calMonthLabel">Setembro 2026</h2><p>Volume de escalas por dia</p></div>
+            </div>
+            <div class="section-card-body">
+              <div class="cal-grid" id="calGrid"></div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-head"><div><h2 id="calDayLabel">Selecione um dia</h2><p>Escalas do dia selecionado</p></div></div>
+            <div class="section-card-body" id="calDayList"><div class="empty-state"><div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/></svg></div><h3>Nenhum dia selecionado</h3><p>Clique em um dia do calendário para ver as escalas.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ REPLANEJAMENTO ============ -->
+    <section class="page" id="page-replanejamento" aria-labelledby="h-replanejamento">
+      <div class="page-head">
+        <div><h1 id="h-replanejamento">Replanejamento operacional</h1><p>Motor de otimização baseado em Google OR-Tools / CP-SAT</p></div>
+      </div>
+
+      <div class="section-card" id="situacaoCard">
+        <div class="section-card-head">
+          <div><h2>Situação atual</h2><p>Problema detectado automaticamente pelo sistema</p></div>
+          <span class="badge badge-danger"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2.5 22.5 21H1.5z" stroke-linejoin="round"/><line x1="12" y1="9.5" x2="12" y2="14"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>Conflito ativo</span>
+        </div>
+        <div class="section-card-body">
+          <p style="font-size:.9375rem; margin-bottom:16px; max-width:640px;">O atraso no voo <strong class="mono">SKY205</strong> provocou conflito na escala de <strong>7 tripulantes</strong>, com risco de repouso insuficiente antes da próxima jornada.</p>
+          <div class="detail-grid">
+            <div class="detail-item"><div class="lbl">Voo afetado</div><div class="val mono">SKY205</div></div>
+            <div class="detail-item"><div class="lbl">Aeroporto</div><div class="val">Congonhas (CGH), São Paulo</div></div>
+            <div class="detail-item"><div class="lbl">Horário original</div><div class="val mono">16:10</div></div>
+            <div class="detail-item"><div class="lbl">Duração do atraso</div><div class="val">1h 35min</div></div>
+          </div>
+          <hr class="detail-divider">
+          <div class="detail-item" style="margin-bottom:12px;"><div class="lbl">Tripulantes afetados</div></div>
+          <div class="crew-chip-list" id="affectedCrewChips"></div>
+          <hr class="detail-divider">
+          <div class="detail-item" style="margin-bottom:8px;"><div class="lbl">Restrições identificadas</div></div>
+          <ul style="display:flex; flex-direction:column; gap:6px; font-size:.8438rem;">
+            <li>· Repouso mínimo regulamentar de 10h entre jornadas não atendido para 3 tripulantes.</li>
+            <li>· Conexão SKY310 → SKY412 comprometida para 4 tripulantes.</li>
+            <li>· Base de origem Manaus com disponibilidade reduzida de reservas.</li>
+          </ul>
+        </div>
+        <div class="modal-foot" style="border-top:1px solid var(--border); justify-content:flex-start;">
+          <button class="btn btn-primary" id="btnExecutarReplan">
+            <svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.5 9a8.5 8.5 0 0 1 14.6-4.9L23 10M1 14l4.9 5.9A8.5 8.5 0 0 0 20.5 15"/></svg>
+            Executar replanejamento
+          </button>
+        </div>
+      </div>
+
+      <div class="section-card" id="processingCard" style="display:none">
+        <div class="section-card-body">
+          <div class="processing-panel">
+            <div class="processing-ring" role="status" aria-live="polite" aria-label="Processando replanejamento"></div>
+            <h2 style="font-size:1rem; font-weight:700;">Mecanismo CP-SAT em processamento</h2>
+            <p style="font-size:.8438rem; color:var(--text-muted); margin-top:4px;">Calculando a melhor realocação de tripulação respeitando as restrições regulamentares.</p>
+            <div class="processing-steps" id="processingSteps"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card" id="resultCard" style="display:none">
+        <div class="section-card-head"><div><h2>Resultado do replanejamento</h2><p>Comparação entre a escala anterior e a nova proposta</p></div></div>
+        <div class="section-card-body">
+          <div class="result-banner">
+            <span class="r-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <div>
+              <strong>Replanejamento concluído</strong> — tempo de processamento: <span class="mono">1,42s</span>
+              <div class="result-metrics">
+                <span class="result-metric"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>7 conflitos resolvidos</span>
+                <span class="result-metric"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>0 violações regulamentares</span>
+                <span class="result-metric"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>7 tripulantes realocados</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="compare-wrap">
+            <div class="compare-col old">
+              <h3>Escala anterior</h3>
+              <div class="compare-chain">
+                <div class="compare-node"><span class="flight mono">SKY205</span><span>Manaus → São Paulo · 16:10</span></div>
+                <div class="compare-connector">↓ conexão · 45min de solo</div>
+                <div class="compare-node"><span class="flight mono">SKY310</span><span>São Paulo → Brasília · 18:20</span></div>
+                <div class="compare-connector">↓ conexão · 40min de solo</div>
+                <div class="compare-node"><span class="flight mono">SKY412</span><span>Brasília → Recife · 20:05</span></div>
+              </div>
+            </div>
+            <div class="compare-col new">
+              <h3>Nova escala</h3>
+              <div class="compare-chain">
+                <div class="compare-node"><span class="flight mono">SKY205</span><span>Manaus → São Paulo · 17:45</span></div>
+                <div class="compare-connector">↓ conexão · 1h10min de solo</div>
+                <div class="compare-node changed"><span class="flight mono">SKY415</span><span>São Paulo → Brasília · 20:15</span></div>
+                <div class="compare-connector">↓ conexão · 55min de solo</div>
+                <div class="compare-node"><span class="flight mono">SKY412</span><span>Brasília → Recife · 22:10</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot" style="border-top:1px solid var(--border); justify-content:flex-start;">
+          <button class="btn btn-primary" id="btnAplicarEscala">Aplicar nova escala</button>
+          <button class="btn btn-outline" id="btnRejeitarEscala">Rejeitar alteração</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONFLITOS ============ -->
+    <section class="page" id="page-conflitos" aria-labelledby="h-conflitos">
+      <div class="page-head">
+        <div><h1 id="h-conflitos">Conflitos operacionais</h1><p>Situações que exigem decisão do planejador</p></div>
+      </div>
+      <div class="filter-bar">
+        <div class="chip-group" id="conflictTypeChips" role="group" aria-label="Filtrar por tipo de conflito">
+          <button class="chip" aria-pressed="true" data-type="todos">Todos</button>
+          <button class="chip" aria-pressed="false" data-type="Horário">Horário</button>
+          <button class="chip" aria-pressed="false" data-type="Jornada">Jornada</button>
+          <button class="chip" aria-pressed="false" data-type="Repouso">Repouso</button>
+          <button class="chip" aria-pressed="false" data-type="Incompatibilidade">Incompatibilidade</button>
+          <button class="chip" aria-pressed="false" data-type="Indisponibilidade">Indisponibilidade</button>
+        </div>
+      </div>
+      <div id="conflictsList"></div>
+    </section>
+
+    <!-- ============ RELATÓRIOS ============ -->
+    <section class="page" id="page-relatorios" aria-labelledby="h-relatorios">
+      <div class="page-head">
+        <div><h1 id="h-relatorios">Relatórios</h1><p>Exportação de dados operacionais e de planejamento</p></div>
+      </div>
+      <div class="report-grid" id="reportGrid"></div>
+    </section>
+
+    <!-- ============ CONFIGURAÇÕES ============ -->
+    <section class="page" id="page-configuracoes" aria-labelledby="h-configuracoes">
+      <div class="page-head">
+        <div><h1 id="h-configuracoes">Configurações</h1><p>Preferências do sistema e da conta</p></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><div><h2>Aparência</h2><p>Escolha como o SkySync deve ser exibido</p></div></div>
+        <div class="section-card-body">
+          <div class="form-row">
+            <div><div class="frow-label">Tema</div><div class="frow-desc">Alterna entre modo claro, escuro ou o padrão do sistema operacional.</div></div>
+            <div class="radio-group" id="themeRadioGroup" role="group" aria-label="Selecionar tema">
+              <button class="radio-pill" data-theme-choice="light" aria-pressed="false">Claro</button>
+              <button class="radio-pill" data-theme-choice="dark" aria-pressed="false">Escuro</button>
+              <button class="radio-pill" data-theme-choice="system" aria-pressed="true">Sistema</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div><div class="frow-label">Reduzir movimento</div><div class="frow-desc">Desativa microinterações e animações não essenciais na interface.</div></div>
+            <label class="switch"><input type="checkbox" id="reduceMotionToggle"><span class="track"></span><span class="thumb"></span></label>
+          </div>
+          <div class="form-row">
+            <div><div class="frow-label">Menu lateral recolhido</div><div class="frow-desc">Mantém a barra lateral compacta ao carregar o sistema.</div></div>
+            <label class="switch"><input type="checkbox" id="sidebarDefaultToggle"><span class="track"></span><span class="thumb"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><div><h2>Notificações</h2><p>Escolha quais eventos devem gerar alertas</p></div></div>
+        <div class="section-card-body">
+          <div class="form-row">
+            <div><div class="frow-label">Conflitos críticos</div><div class="frow-desc">Alerta imediato quando um novo conflito de repouso ou jornada for identificado.</div></div>
+            <label class="switch"><input type="checkbox" id="notifConflicts" checked><span class="track"></span><span class="thumb"></span></label>
+          </div>
+          <div class="form-row">
+            <div><div class="frow-label">Atrasos de voo</div><div class="frow-desc">Alerta quando um voo monitorado sofrer atraso relevante.</div></div>
+            <label class="switch"><input type="checkbox" id="notifDelays" checked><span class="track"></span><span class="thumb"></span></label>
+          </div>
+          <div class="form-row">
+            <div><div class="frow-label">Replanejamentos concluídos</div><div class="frow-desc">Alerta quando o mecanismo CP-SAT concluir uma nova proposta de escala.</div></div>
+            <label class="switch"><input type="checkbox" id="notifReplans" checked><span class="track"></span><span class="thumb"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><div><h2>Conta</h2><p>Informações do usuário conectado</p></div></div>
+        <div class="section-card-body">
+          <div class="detail-grid">
+            <div class="detail-item"><div class="lbl">Nome</div><div class="val">Renata Moraes</div></div>
+            <div class="detail-item"><div class="lbl">Função</div><div class="val">Planejadora operacional</div></div>
+            <div class="detail-item"><div class="lbl">Base</div><div class="val">Manaus (MAO)</div></div>
+            <div class="detail-item"><div class="lbl">Matrícula</div><div class="val mono">PL-00842</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="app-footer">
+  SkySync — sistema de apoio ao planejamento e replanejamento de escalas de tripulação. Dados apresentados nesta interface são simulados.
+</footer>
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+<div class="modal-overlay" id="crewModalOverlay" role="dialog" aria-modal="true" aria-labelledby="crewModalTitle">
+  <div class="modal-dialog wide">
+    <div class="modal-head">
+      <div><h2 id="crewModalTitle">Detalhes do tripulante</h2><p id="crewModalSubtitle"></p></div>
+      <button class="modal-close" data-close-modal aria-label="Fechar"><svg class="icon" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="modal-body" id="crewModalBody"></div>
+    <div class="modal-foot"><button class="btn btn-outline" data-close-modal>Fechar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="flightModalOverlay" role="dialog" aria-modal="true" aria-labelledby="flightModalTitle">
+  <div class="modal-dialog">
+    <div class="modal-head">
+      <div><h2 id="flightModalTitle">Detalhes do voo</h2><p id="flightModalSubtitle"></p></div>
+      <button class="modal-close" data-close-modal aria-label="Fechar"><svg class="icon" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="modal-body" id="flightModalBody"></div>
+    <div class="modal-foot"><button class="btn btn-outline" data-close-modal>Fechar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmModalOverlay" role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalBody">
+  <div class="modal-dialog" style="max-width:440px">
+    <div class="modal-head">
+      <div><h2 id="confirmModalTitle">Confirmar ação</h2></div>
+      <button class="modal-close" data-close-modal aria-label="Fechar"><svg class="icon" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="modal-body" id="confirmModalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" data-close-modal>Cancelar</button>
+      <button class="btn btn-primary" id="confirmModalAction">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="conflictModalOverlay" role="dialog" aria-modal="true" aria-labelledby="conflictModalTitle">
+  <div class="modal-dialog wide">
+    <div class="modal-head">
+      <div><h2 id="conflictModalTitle">Detalhes do conflito</h2></div>
+      <button class="modal-close" data-close-modal aria-label="Fechar"><svg class="icon" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="modal-body" id="conflictModalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" data-close-modal>Fechar</button>
+      <button class="btn btn-primary" id="conflictModalGoReplan">Ir para replanejamento</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. DADOS MOCKADOS
+   (organizados para fácil substituição por fetch('/api/...'))
+   ============================================================ */
+const ICONS = {
+  ok: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12.5 11 15 15.5 9.5"/></svg>',
+  warn: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 2.5 22.5 21H1.5z" stroke-linejoin="round"/><line x1="12" y1="9.5" x2="12" y2="14"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>',
+  danger: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  info: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="7.5" x2="12" y2="7.6"/></svg>',
+  neutral: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>',
+  plane: '<svg class="icon" viewBox="0 0 24 24"><path d="M2 16l20-7-7 20-3-8-8-3z" stroke-linejoin="round"/></svg>',
+  users: '<svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/><circle cx="18" cy="8.5" r="2.4"/><path d="M16.2 13.6c2.7.4 4.8 2.6 4.8 5.9"/></svg>',
+  calendar: '<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/></svg>',
+  alert: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 2.5 22.5 21H1.5z" stroke-linejoin="round"/><line x1="12" y1="9.5" x2="12" y2="14"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>',
+  refresh: '<svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.5 9a8.5 8.5 0 0 1 14.6-4.9L23 10M1 14l4.9 5.9A8.5 8.5 0 0 0 20.5 15"/></svg>',
+  file: '<svg class="icon" viewBox="0 0 24 24"><path d="M14 2.5H6.5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8.5z"/><polyline points="14 2.5 14 8.5 19.5 8.5"/></svg>',
+  download: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 3v13"/><polyline points="7 11 12 16 17 11"/><path d="M4 20h16"/></svg>'
+};
+
+const BASES = ["Manaus","São Paulo","Brasília","Recife"];
+const AEROPORTOS = { "Manaus":"MAO","São Paulo":"CGH","Brasília":"BSB","Recife":"REC" };
+
+const voos = [
+  { id:1, numero:"SKY102", origem:"Manaus", destino:"São Paulo", horarioPartida:"14:30", horarioChegada:"18:45", status:"normal", tripulacao:["MT1001","MT1002","MT1003"], observacoes:"Operação dentro do previsto." },
+  { id:2, numero:"SKY205", origem:"São Paulo", destino:"Brasília", horarioPartida:"16:10", horarioChegada:"17:35", status:"atrasado", tripulacao:["MT1004","MT1005","MT1006","MT1007"], observacoes:"Atraso de 1h35min por tráfego em CGH." },
+  { id:3, numero:"SKY310", origem:"Brasília", destino:"Recife", horarioPartida:"17:45", horarioChegada:"19:50", status:"atencao", tripulacao:["MT1004","MT1005","MT1008"], observacoes:"Conexão comprometida pelo atraso do SKY205." },
+  { id:4, numero:"SKY412", origem:"Recife", destino:"Manaus", horarioPartida:"20:05", horarioChegada:"23:40", status:"normal", tripulacao:["MT1004","MT1009"], observacoes:"Sem restrições no momento." },
+  { id:5, numero:"SKY118", origem:"Manaus", destino:"Recife", horarioPartida:"08:20", horarioChegada:"12:10", status:"normal", tripulacao:["MT1010","MT1011","MT1012"], observacoes:"—" },
+  { id:6, numero:"SKY221", origem:"São Paulo", destino:"Manaus", horarioPartida:"09:15", horarioChegada:"13:30", status:"cancelado", tripulacao:["MT1013","MT1014"], observacoes:"Cancelado por manutenção não programada." },
+  { id:7, numero:"SKY330", origem:"Brasília", destino:"São Paulo", horarioPartida:"11:00", horarioChegada:"12:20", status:"normal", tripulacao:["MT1015","MT1016","MT1017"], observacoes:"—" },
+  { id:8, numero:"SKY441", origem:"Recife", destino:"Brasília", horarioPartida:"13:40", horarioChegada:"15:35", status:"atencao", tripulacao:["MT1018","MT1019"], observacoes:"Tripulante próximo do limite de jornada." },
+  { id:9, numero:"SKY515", origem:"Manaus", destino:"Brasília", horarioPartida:"15:00", horarioChegada:"18:10", status:"normal", tripulacao:["MT1020","MT1021","MT1022"], observacoes:"—" },
+  { id:10, numero:"SKY602", origem:"São Paulo", destino:"Recife", horarioPartida:"18:50", horarioChegada:"21:55", status:"atrasado", tripulacao:["MT1002","MT1023"], observacoes:"Atraso de 40min por condições meteorológicas." },
+  { id:11, numero:"SKY703", origem:"Brasília", destino:"Manaus", horarioPartida:"19:30", horarioChegada:"22:15", status:"normal", tripulacao:["MT1006","MT1024","MT1025"], observacoes:"—" },
+  { id:12, numero:"SKY815", origem:"Recife", destino:"São Paulo", horarioPartida:"21:00", horarioChegada:"23:30", status:"normal", tripulacao:["MT1010","MT1026"], observacoes:"—" }
+];
+
+const NOMES = ["João Silva","Marina Costa","Carlos Andrade","Fernanda Lima","Pedro Souza","Aline Ribeiro","Rafael Nunes","Camila Duarte","Bruno Teixeira","Larissa Farias","Diego Martins","Juliana Prado","Thiago Moreira","Patrícia Gomes","Eduardo Rocha","Vanessa Cardoso","Felipe Barros","Bianca Xavier","Rodrigo Assis","Tatiane Vieira","Gustavo Pinheiro","Renata Alves","André Bittencourt","Débora Sales","Marcelo Freitas","Sabrina Nogueira"];
+const FUNCOES = ["Comandante","Copiloto","Comissário"];
+const STATUS_TRIP = ["Disponível","Em voo","Repouso","Indisponível"];
+
+const tripulantes = NOMES.map((nome, i) => {
+  const matricula = "MT" + (1001 + i);
+  const funcao = FUNCOES[i % 3];
+  const base = BASES[i % 4];
+  const horasTrabalhadas = 4 + (i * 7) % 32;
+  const repouso = 6 + (i * 3) % 12;
+  let status = STATUS_TRIP[i % 4];
+  if (repouso < 10 && funcao !== "Comissário" && i % 5 === 0) status = "Repouso";
+  const restricoes = repouso < 10 ? ["Repouso abaixo do mínimo regulamentar de 10h"] : [];
+  const voosAtribuidos = voos.filter(v => v.tripulacao.includes(matricula)).map(v => v.numero);
+  return {
+    id: matricula, nome, matricula, funcao, base,
+    jornada: (funcao === "Comandante" || funcao === "Copiloto") ? "Voo de linha" : "Cabine",
+    horasTrabalhadas, repouso, status, restricoes, voosAtribuidos,
+    historico: [
+      { data:"08/09", desc:"Jornada MAO → CGH → BSB concluída sem intercorrências." },
+      { data:"05/09", desc:"Folga programada." },
+      { data:"02/09", desc:"Jornada BSB → REC, repouso de 11h registrado." }
+    ]
+  };
+});
+
+const escalas = [];
+let escId = 1;
+tripulantes.forEach((t, i) => {
+  const vs = voos.filter(v => v.tripulacao.includes(t.matricula));
+  vs.forEach((v, idx) => {
+    escalas.push({
+      id: escId++, tripulanteId: t.matricula, tripulanteNome: t.nome,
+      voo: v.numero, origem: v.origem, destino: v.destino,
+      saida: v.horarioPartida, chegada: v.horarioChegada,
+      conexoes: idx > 0 ? 1 : 0,
+      repouso: t.repouso,
+      status: v.status,
+      dia: 8 + (i % 6) /* dia do mês, para o calendário */
+    });
+  });
+});
+
+const conflitos = [
+  { id:1, tipo:"Repouso", severidade:"danger", tripulante:"João Silva", vooAnterior:"SKY205", proximoVoo:"SKY310", repousoDisponivel:"06h", repousoNecessario:"10h", impacto:"Impede a operação do próximo voo dentro das normas regulamentares.", solucao:"Substituir por tripulante reserva da base de São Paulo." },
+  { id:2, tipo:"Jornada", severidade:"danger", tripulante:"Marina Costa", vooAnterior:"SKY102", proximoVoo:"SKY602", repousoDisponivel:"—", repousoNecessario:"—", impacto:"Jornada acumulada ultrapassa o limite diário permitido.", solucao:"Reduzir a escala para 2 pernas e realocar o trecho final." },
+  { id:3, tipo:"Horário", severidade:"warn", tripulante:"Carlos Andrade", vooAnterior:"SKY310", proximoVoo:"SKY412", repousoDisponivel:"02h", repousoNecessario:"—", impacto:"Conexão com margem de apenas 15 minutos entre pousada e decolagem.", solucao:"Antecipar embarque e priorizar posição de pátio adjacente." },
+  { id:4, tipo:"Incompatibilidade", severidade:"warn", tripulante:"Fernanda Lima", vooAnterior:"SKY441", proximoVoo:"SKY515", repousoDisponivel:"08h", repousoNecessario:"10h", impacto:"Tripulante não habilitada para a aeronave escalada no SKY515.", solucao:"Trocar por tripulante com habilitação compatível na mesma base." },
+  { id:5, tipo:"Indisponibilidade", severidade:"info", tripulante:"Pedro Souza", vooAnterior:"SKY703", proximoVoo:"SKY815", repousoDisponivel:"—", repousoNecessario:"—", impacto:"Tripulante em licença médica registrada para o período.", solucao:"Acionar tripulante reserva já notificado." },
+  { id:6, tipo:"Repouso", severidade:"danger", tripulante:"Aline Ribeiro", vooAnterior:"SKY118", proximoVoo:"SKY330", repousoDisponivel:"07h", repousoNecessario:"10h", impacto:"Repouso 3h abaixo do mínimo regulamentar antes da próxima jornada.", solucao:"Postergar o SKY330 em 40 minutos ou substituir a comissária." },
+  { id:7, tipo:"Jornada", severidade:"warn", tripulante:"Rafael Nunes", vooAnterior:"SKY221", proximoVoo:"SKY441", repousoDisponivel:"09h", repousoNecessario:"10h", impacto:"Margem apertada de repouso, sob observação.", solucao:"Monitorar; acionar reserva apenas se novo atraso ocorrer." }
+];
+
+const notificacoes = [
+  { tipo:"danger", msg:"Novo conflito de repouso identificado — João Silva.", tempo:"há 4 min" },
+  { tipo:"warn", msg:"Voo SKY205 atrasado em 1h35min.", tempo:"há 12 min" },
+  { tipo:"ok", msg:"Replanejamento do SKY310 concluído com sucesso.", tempo:"há 38 min" },
+  { tipo:"info", msg:"Escala de setembro publicada para a base de Manaus.", tempo:"há 2h" }
+];
+
+/* ============================================================
+   2. ESTADO E UTILITÁRIOS
+   ============================================================ */
+const state = {
+  sidebarCollapsed: false,
+  currentPage: "dashboard",
+  voos: { page:1, pageSize:6, sort:{ col:"numero", dir:"asc" }, search:"", status:"todos" },
+  crew: { page:1, pageSize:8, sort:{ col:"nome", dir:"asc" }, search:"", funcao:"todos", base:"todos", status:"todos" },
+  escalaView: "lista",
+  conflictType: "todos",
+  calSelectedDay: null,
+  lastFocusedEl: null
+};
+
+function statusMeta(status){
+  switch(status){
+    case "normal": return { label:"Normal", cls:"ok" };
+    case "atrasado": return { label:"Atrasado", cls:"warn" };
+    case "atencao": return { label:"Atenção", cls:"danger" };
+    case "cancelado": return { label:"Cancelado", cls:"neutral" };
+    case "Disponível": return { label:"Disponível", cls:"ok" };
+    case "Em voo": return { label:"Em voo", cls:"info" };
+    case "Repouso": return { label:"Repouso", cls:"warn" };
+    case "Indisponível": return { label:"Indisponível", cls:"neutral" };
+    default: return { label:status, cls:"neutral" };
+  }
+}
+function badgeHTML(status){
+  const m = statusMeta(status);
+  return `<span class="badge badge-${m.cls}">${ICONS[m.cls] || ICONS.neutral}${m.label}</span>`;
+}
+function sevMeta(sev){
+  return { danger:{label:"Crítico",cls:"danger"}, warn:{label:"Atenção",cls:"warn"}, info:{label:"Informativo",cls:"info"} }[sev];
+}
+function esc(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function debounce(fn, wait){ let t; return function(...a){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a), wait); }; }
+function nowStr(){
+  return new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+/* ============================================================
+   3. TEMA (claro / escuro / sistema)
+   ============================================================ */
+const THEME_KEY = "skysync-theme";
+const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+function applyTheme(pref){
+  let effective = pref;
+  if(pref === "system"){ effective = mq.matches ? "dark" : "light"; }
+  document.documentElement.setAttribute('data-theme', effective);
+  document.getElementById('themeIconSun').style.display = effective === 'dark' ? 'none' : 'block';
+  document.getElementById('themeIconMoon').style.display = effective === 'dark' ? 'block' : 'none';
+  document.querySelectorAll('[data-theme-choice]').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.themeChoice === pref));
+  });
+}
+function getThemePref(){ return localStorage.getItem(THEME_KEY) || "system"; }
+function setThemePref(pref){ localStorage.setItem(THEME_KEY, pref); applyTheme(pref); }
+mq.addEventListener('change', () => { if(getThemePref() === "system") applyTheme("system"); });
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const current = getThemePref();
+  const effective = document.documentElement.getAttribute('data-theme');
+  setThemePref(effective === 'dark' ? 'light' : 'dark');
+});
+document.querySelectorAll('[data-theme-choice]').forEach(btn => {
+  btn.addEventListener('click', () => setThemePref(btn.dataset.themeChoice));
+});
+applyTheme(getThemePref());
+
+/* ============================================================
+   4. TOASTS
+   ============================================================ */
+function showToast(type, title, msg, duration){
+  duration = duration || 4200;
+  const region = document.getElementById('toastRegion');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.setAttribute('role', type === 'danger' ? 'alert' : 'status');
+  el.innerHTML = `
+    <span class="t-icon">${ICONS[type] || ICONS.info}</span>
+    <div class="t-body"><div class="t-title">${esc(title)}</div>${msg ? `<div class="t-msg">${esc(msg)}</div>` : ''}</div>
+    <button class="t-close" aria-label="Fechar notificação">${ICONS.danger.replace('viewBox="0 0 24 24"','viewBox="0 0 24 24" style="width:14px;height:14px"')}</button>
+  `;
+  region.appendChild(el);
+  const remove = () => { el.classList.add('leaving'); setTimeout(() => el.remove(), 220); };
+  el.querySelector('.t-close').addEventListener('click', remove);
+  const timer = setTimeout(remove, duration);
+  el.addEventListener('mouseenter', () => clearTimeout(timer));
+}
+
+/* ============================================================
+   5. MODAIS (com foco acessível)
+   ============================================================ */
+function openModal(overlay){
+  state.lastFocusedEl = document.activeElement;
+  overlay.classList.add('open');
+  const dialog = overlay.querySelector('.modal-dialog');
+  const focusable = dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if(focusable.length) focusable[0].focus();
+  document.addEventListener('keydown', trapHandler);
+  overlay._trap = trapHandler;
+  function trapHandler(e){
+    if(e.key === 'Escape'){ closeModal(overlay); return; }
+    if(e.key === 'Tab'){
+      const f = Array.from(dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(el => el.offsetParent !== null);
+      if(!f.length) return;
+      const first = f[0], last = f[f.length-1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+  }
+}
+function closeModal(overlay){
+  overlay.classList.remove('open');
+  document.removeEventListener('keydown', overlay._trap);
+  if(state.lastFocusedEl) state.lastFocusedEl.focus();
+}
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('mousedown', e => { if(e.target === overlay) closeModal(overlay); });
+  overlay.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', () => closeModal(overlay)));
+});
+
+function confirmAction(title, bodyHTML, onConfirm, confirmLabel){
+  const overlay = document.getElementById('confirmModalOverlay');
+  document.getElementById('confirmModalTitle').textContent = title;
+  document.getElementById('confirmModalBody').innerHTML = bodyHTML;
+  const btn = document.getElementById('confirmModalAction');
+  btn.textContent = confirmLabel || 'Confirmar';
+  const clone = btn.cloneNode(true);
+  btn.parentNode.replaceChild(clone, btn);
+  clone.addEventListener('click', () => { closeModal(overlay); onConfirm(); });
+  openModal(overlay);
+}
+
+/* ============================================================
+   6. NAVEGAÇÃO / ROTEAMENTO
+   ============================================================ */
+const PAGE_TITLES = {
+  dashboard:"Centro de Controle", operacao:"Operação", voos:"Voos", tripulacao:"Tripulação",
+  escalas:"Escalas", replanejamento:"Replanejamento operacional", conflitos:"Conflitos operacionais",
+  relatorios:"Relatórios", configuracoes:"Configurações"
+};
+
+function navigateTo(pageId, opts){
+  opts = opts || {};
+  if(!document.getElementById('page-' + pageId)) return;
+  state.currentPage = pageId;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    if(l.dataset.nav === pageId) l.setAttribute('aria-current', 'page'); else l.removeAttribute('aria-current');
+  });
+  document.title = "SkySync · " + PAGE_TITLES[pageId];
+  if(!opts.silent) history.pushState({ page: pageId }, '', '#' + pageId);
+  document.getElementById('main-content').focus({ preventScroll:true });
+  window.scrollTo({ top:0, behavior: 'auto' });
+  closeMobileSidebar();
+}
+document.querySelectorAll('[data-nav]').forEach(el => {
+  el.addEventListener('click', () => {
+    navigateTo(el.dataset.nav);
+    closePopovers();
+  });
+});
+window.addEventListener('popstate', (e) => {
+  const page = (e.state && e.state.page) || location.hash.replace('#','') || 'dashboard';
+  navigateTo(page, { silent:true });
+});
+(function initRoute(){
+  const initial = location.hash.replace('#','') || 'dashboard';
+  navigateTo(initial, { silent:true });
+})();
+
+/* ============================================================
+   7. SIDEBAR (recolher / mobile)
+   ============================================================ */
+const sidebar = document.getElementById('sidebar');
+const collapseBtn = document.getElementById('collapseBtn');
+collapseBtn.addEventListener('click', () => {
+  state.sidebarCollapsed = !state.sidebarCollapsed;
+  sidebar.classList.toggle('collapsed', state.sidebarCollapsed);
+  collapseBtn.setAttribute('aria-label', state.sidebarCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral');
+});
+const menuToggle = document.getElementById('menuToggle');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+function openMobileSidebar(){
+  sidebar.classList.add('mobile-open'); sidebarBackdrop.classList.add('open');
+  menuToggle.setAttribute('aria-expanded','true');
+}
+function closeMobileSidebar(){
+  sidebar.classList.remove('mobile-open'); sidebarBackdrop.classList.remove('open');
+  menuToggle.setAttribute('aria-expanded','false');
+}
+menuToggle.addEventListener('click', () => {
+  sidebar.classList.contains('mobile-open') ? closeMobileSidebar() : openMobileSidebar();
+});
+sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+
+/* ============================================================
+   8. HEADER: busca global, notificações, usuário
+   ============================================================ */
+function closePopovers(){
+  document.getElementById('notifPopover').classList.remove('open');
+  document.getElementById('notifBtn').setAttribute('aria-expanded','false');
+  document.getElementById('userPopover').classList.remove('open');
+  document.getElementById('userBtn').setAttribute('aria-expanded','false');
+}
+function renderNotifications(){
+  const list = document.getElementById('notifList');
+  list.innerHTML = notificacoes.map(n => `
+    <div class="notif-item">
+      <span class="notif-dot status-dot ${n.tipo === 'ok' ? 'ok' : n.tipo}"></span>
+      <div><p>${esc(n.msg)}</p><time>${esc(n.tempo)}</time></div>
+    </div>`).join('');
+}
+renderNotifications();
+document.getElementById('notifBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const p = document.getElementById('notifPopover');
+  const willOpen = !p.classList.contains('open');
+  closePopovers();
+  p.classList.toggle('open', willOpen);
+  document.getElementById('notifBtn').setAttribute('aria-expanded', String(willOpen));
+});
+document.getElementById('userBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const p = document.getElementById('userPopover');
+  const willOpen = !p.classList.contains('open');
+  closePopovers();
+  p.classList.toggle('open', willOpen);
+  document.getElementById('userBtn').setAttribute('aria-expanded', String(willOpen));
+});
+document.getElementById('clearNotif').addEventListener('click', () => {
+  document.querySelector('#notifBtn .dot').style.display = 'none';
+  showToast('info', 'Notificações atualizadas', 'Todas as notificações foram marcadas como lidas.');
+});
+document.getElementById('btnHelp').addEventListener('click', () => {
+  closePopovers();
+  showToast('info', 'Ajuda e documentação', 'Consulte o guia rápido do planejador na barra lateral de Relatórios.');
+});
+document.getElementById('btnLogout').addEventListener('click', () => {
+  closePopovers();
+  showToast('info', 'Sessão', 'Encerramento de sessão simulado nesta demonstração.');
+});
+document.addEventListener('click', closePopovers);
+
+const globalSearch = document.getElementById('globalSearch');
+globalSearch.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && globalSearch.value.trim()){
+    const q = globalSearch.value.trim();
+    navigateTo('voos');
+    document.getElementById('voosSearch').value = q;
+    state.voos.search = q.toLowerCase();
+    state.voos.page = 1;
+    renderVoos();
+    showToast('info', 'Busca aplicada', `Resultados para "${q}" na página de Voos.`);
+  }
+});
+
+/* ============================================================
+   9. DASHBOARD
+   ============================================================ */
+function renderStatGrid(){
+  const cards = [
+    { label:"Voos em operação", value:"128", delta:"+8 hoje", deltaCls:"ok", icon: ICONS.plane, bg:"info" },
+    { label:"Tripulantes ativos", value:"342", delta:"estável", deltaCls:"neutral", icon: ICONS.users, bg:"ok" },
+    { label:"Escalas válidas", value:"318", delta:"96,8% do total", deltaCls:"ok", icon: ICONS.calendar, bg:"ok" },
+    { label:"Conflitos identificados", value:"07", delta:"requer atenção", deltaCls:"danger", icon: ICONS.alert, bg:"danger" },
+    { label:"Replanejamentos", value:"12", delta:"últimas 24h", deltaCls:"info", icon: ICONS.refresh, bg:"info" }
+  ];
+  document.getElementById('statGrid').innerHTML = cards.map(c => `
+    <div class="section-card stat-card">
+      <span class="stat-icon badge-${c.bg}" style="background:var(--status-${c.bg}-bg); color:var(--status-${c.bg});">${c.icon}</span>
+      <div class="stat-value mono">${c.value}</div>
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-delta" style="color:var(--status-${c.deltaCls === 'neutral' ? 'neutral' : c.deltaCls})">${c.delta}</div>
+    </div>`).join('');
+}
+function renderDashFlights(){
+  const rows = voos.slice(0,5).map(v => `
+    <tr class="clickable" data-flight="${v.id}">
+      <td class="mono cell-strong">${v.numero}</td>
+      <td>${v.origem}</td>
+      <td>${v.destino}</td>
+      <td class="mono">${v.horarioPartida}</td>
+      <td>${badgeHTML(v.status)}</td>
+    </tr>`).join('');
+  document.getElementById('dashFlightsBody').innerHTML = rows;
+  bindFlightRowClicks(document.getElementById('dashFlightsBody'));
+}
+function renderDashConflicts(){
+  const top = conflitos.slice(0,3);
+  document.getElementById('dashConflicts').innerHTML = top.map(c => {
+    const s = sevMeta(c.severidade);
+    return `<div style="display:flex; align-items:flex-start; gap:10px; padding:10px; border:1px solid var(--border); border-left:3px solid var(--status-${s.cls}); border-radius:var(--radius-sm);">
+      <span class="badge badge-${s.cls}" style="flex-shrink:0">${ICONS[s.cls]}${esc(c.tipo)}</span>
+      <div style="font-size:.8125rem;"><strong>${esc(c.tripulante)}</strong><br><span style="color:var(--text-muted)">${esc(c.impacto)}</span></div>
+    </div>`;
+  }).join('');
+}
+function tickClock(){
+  const t = nowStr();
+  const a = document.getElementById('dashClock'); if(a) a.textContent = t;
+  const b = document.getElementById('opClock'); if(b) b.textContent = t;
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+function bindFlightRowClicks(container){
+  container.querySelectorAll('tr[data-flight]').forEach(tr => {
+    tr.setAttribute('tabindex','0');
+    tr.setAttribute('role','button');
+    const open = () => openFlightModal(parseInt(tr.dataset.flight,10));
+    tr.addEventListener('click', open);
+    tr.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
+  });
+}
+
+/* ============================================================
+   10. OPERAÇÃO (board ao vivo)
+   ============================================================ */
+function renderOperacao(){
+  const activeChip = document.querySelector('#opStatusChips .chip[aria-pressed="true"]');
+  const filter = activeChip ? activeChip.dataset.status : 'todos';
+  const list = voos.filter(v => filter === 'todos' || v.status === filter);
+  document.getElementById('opFlightsBody').innerHTML = list.map(v => `
+    <tr class="clickable" data-flight="${v.id}">
+      <td class="mono cell-strong">${v.numero}</td>
+      <td>${v.origem}</td>
+      <td>${v.destino}</td>
+      <td class="mono">${v.horarioPartida} – ${v.horarioChegada}</td>
+      <td>${badgeHTML(v.status)}</td>
+      <td class="cell-muted mono">${v.tripulacao.length} tripulantes</td>
+      <td class="cell-muted">${esc(v.observacoes)}</td>
+    </tr>`).join('');
+  bindFlightRowClicks(document.getElementById('opFlightsBody'));
+}
+document.querySelectorAll('#opStatusChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#opStatusChips .chip').forEach(c => c.setAttribute('aria-pressed','false'));
+    chip.setAttribute('aria-pressed','true');
+    renderOperacao();
+  });
+});
+
+/* ============================================================
+   11. VOOS
+   ============================================================ */
+function openFlightModal(id){
+  const v = voos.find(f => f.id === id);
+  if(!v) return;
+  document.getElementById('flightModalTitle').textContent = `Voo ${v.numero}`;
+  document.getElementById('flightModalSubtitle').textContent = `${v.origem} (${AEROPORTOS[v.origem]}) → ${v.destino} (${AEROPORTOS[v.destino]})`;
+  const crew = v.tripulacao.map(m => tripulantes.find(t => t.matricula === m)).filter(Boolean);
+  document.getElementById('flightModalBody').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="lbl">Partida</div><div class="val mono">${v.horarioPartida}</div></div>
+      <div class="detail-item"><div class="lbl">Chegada</div><div class="val mono">${v.horarioChegada}</div></div>
+      <div class="detail-item"><div class="lbl">Status</div><div class="val">${badgeHTML(v.status)}</div></div>
+      <div class="detail-item"><div class="lbl">Tripulantes</div><div class="val">${crew.length}</div></div>
+    </div>
+    <hr class="detail-divider">
+    <div class="detail-item" style="margin-bottom:8px"><div class="lbl">Observações</div><div class="val" style="font-weight:400">${esc(v.observacoes)}</div></div>
+    <hr class="detail-divider">
+    <div class="detail-item" style="margin-bottom:10px"><div class="lbl">Tripulação escalada</div></div>
+    <div class="crew-chip-list">${crew.map(c => `<span class="crew-chip">${esc(c.nome)} · ${esc(c.funcao)}</span>`).join('')}</div>
+  `;
+  openModal(document.getElementById('flightModalOverlay'));
+}
+
+function sortData(arr, col, dir){
+  const sorted = [...arr].sort((a,b) => {
+    let va = a[col], vb = b[col];
+    if(typeof va === 'string') va = va.toLowerCase();
+    if(typeof vb === 'string') vb = vb.toLowerCase();
+    if(va < vb) return dir === 'asc' ? -1 : 1;
+    if(va > vb) return dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+  return sorted;
+}
+function paginate(arr, page, pageSize){
+  const start = (page - 1) * pageSize;
+  return arr.slice(start, start + pageSize);
+}
+function renderPagination(container, total, page, pageSize, onChange){
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  page = Math.min(page, pages);
+  let btns = '';
+  for(let i = 1; i <= pages; i++){
+    btns += `<button aria-current="${i === page}" data-page="${i}">${i}</button>`;
+  }
+  container.innerHTML = `
+    <span>${total} registro${total === 1 ? '' : 's'} · página ${page} de ${pages}</span>
+    <div class="pages">
+      <button data-page="prev" ${page <= 1 ? 'disabled' : ''} aria-label="Página anterior">‹</button>
+      ${btns}
+      <button data-page="next" ${page >= pages ? 'disabled' : ''} aria-label="Próxima página">›</button>
+    </div>`;
+  container.querySelectorAll('button[data-page]').forEach(b => {
+    b.addEventListener('click', () => {
+      let target = page;
+      if(b.dataset.page === 'prev') target = page - 1;
+      else if(b.dataset.page === 'next') target = page + 1;
+      else target = parseInt(b.dataset.page, 10);
+      onChange(target);
+    });
+  });
+  return pages;
+}
+
+function renderVoos(){
+  let list = voos.filter(v => {
+    const matchesStatus = state.voos.status === 'todos' || v.status === state.voos.status;
+    const q = state.voos.search;
+    const matchesSearch = !q || v.numero.toLowerCase().includes(q) || v.origem.toLowerCase().includes(q) || v.destino.toLowerCase().includes(q);
+    return matchesStatus && matchesSearch;
+  });
+  list = sortData(list, state.voos.sort.col, state.voos.sort.dir);
+  const tbody = document.getElementById('voosBody');
+  const emptyEl = document.getElementById('voosEmpty');
+  if(!list.length){
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    emptyEl.innerHTML = `<div class="empty-state"><div class="icon-wrap">${ICONS.plane}</div><h3>Nenhum voo encontrado</h3><p>Ajuste a busca ou os filtros para ver outros resultados.</p></div>`;
+    document.getElementById('voosPagination').innerHTML = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  const pageItems = paginate(list, state.voos.page, state.voos.pageSize);
+  tbody.innerHTML = pageItems.map(v => `
+    <tr class="clickable" data-flight="${v.id}">
+      <td class="mono cell-strong">${v.numero}</td>
+      <td>${v.origem}</td>
+      <td>${v.destino}</td>
+      <td class="mono">${v.horarioPartida}</td>
+      <td>${badgeHTML(v.status)}</td>
+      <td class="cell-muted mono">${v.tripulacao.length} tripulantes</td>
+    </tr>`).join('');
+  bindFlightRowClicks(tbody);
+  renderPagination(document.getElementById('voosPagination'), list.length, state.voos.page, state.voos.pageSize, (p) => { state.voos.page = p; renderVoos(); });
+
+  document.querySelectorAll('#page-voos th.sortable').forEach(th => {
+    th.classList.toggle('sort-active', th.dataset.sort === state.voos.sort.col);
+    th.querySelector('.sort-arrow').textContent = (th.dataset.sort === state.voos.sort.col && state.voos.sort.dir === 'desc') ? '▴' : '▾';
+  });
+}
+document.querySelectorAll('#page-voos th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    if(state.voos.sort.col === th.dataset.sort) state.voos.sort.dir = state.voos.sort.dir === 'asc' ? 'desc' : 'asc';
+    else { state.voos.sort.col = th.dataset.sort; state.voos.sort.dir = 'asc'; }
+    renderVoos();
+  });
+});
+document.getElementById('voosSearch').addEventListener('input', debounce((e) => {
+  state.voos.search = e.target.value.trim().toLowerCase(); state.voos.page = 1; renderVoos();
+}, 180));
+document.getElementById('voosStatusFilter').addEventListener('change', (e) => {
+  state.voos.status = e.target.value; state.voos.page = 1; renderVoos();
+});
+
+/* ============================================================
+   12. TRIPULAÇÃO
+   ============================================================ */
+function openCrewModal(matricula){
+  const t = tripulantes.find(x => x.matricula === matricula);
+  if(!t) return;
+  document.getElementById('crewModalTitle').textContent = t.nome;
+  document.getElementById('crewModalSubtitle').textContent = `${t.funcao} · Matrícula ${t.matricula} · Base ${t.base}`;
+  document.getElementById('crewModalBody').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="lbl">Jornada</div><div class="val">${esc(t.jornada)}</div></div>
+      <div class="detail-item"><div class="lbl">Status</div><div class="val">${badgeHTML(t.status)}</div></div>
+      <div class="detail-item"><div class="lbl">Horas trabalhadas (7 dias)</div><div class="val mono">${t.horasTrabalhadas}h</div></div>
+      <div class="detail-item"><div class="lbl">Repouso atual</div><div class="val mono">${t.repouso}h</div></div>
+    </div>
+    <hr class="detail-divider">
+    <div class="detail-item" style="margin-bottom:10px"><div class="lbl">Voos atribuídos</div></div>
+    <div class="crew-chip-list">${t.voosAtribuidos.length ? t.voosAtribuidos.map(v => `<span class="crew-chip">${esc(v)}</span>`).join('') : '<span class="cell-muted" style="font-size:.8125rem">Nenhum voo atribuído no período.</span>'}</div>
+    <hr class="detail-divider">
+    <div class="detail-item" style="margin-bottom:8px"><div class="lbl">Restrições</div></div>
+    ${t.restricoes.length ? `<div class="badge badge-warn">${ICONS.warn}${esc(t.restricoes[0])}</div>` : '<span class="cell-muted" style="font-size:.8125rem">Nenhuma restrição identificada.</span>'}
+    <hr class="detail-divider">
+    <div class="detail-item" style="margin-bottom:8px"><div class="lbl">Histórico recente de escalas</div></div>
+    <ul style="display:flex; flex-direction:column; gap:8px;">
+      ${t.historico.map(h => `<li style="font-size:.8125rem; display:flex; gap:10px;"><span class="mono cell-muted" style="min-width:44px">${h.data}</span><span>${esc(h.desc)}</span></li>`).join('')}
+    </ul>
+  `;
+  openModal(document.getElementById('crewModalOverlay'));
+}
+
+function renderCrew(){
+  let list = tripulantes.filter(t => {
+    const q = state.crew.search;
+    const matchesSearch = !q || t.nome.toLowerCase().includes(q) || t.matricula.toLowerCase().includes(q);
+    const matchesFuncao = state.crew.funcao === 'todos' || t.funcao === state.crew.funcao;
+    const matchesBase = state.crew.base === 'todos' || t.base === state.crew.base;
+    const matchesStatus = state.crew.status === 'todos' || t.status === state.crew.status;
+    return matchesSearch && matchesFuncao && matchesBase && matchesStatus;
+  });
+  list = sortData(list, state.crew.sort.col, state.crew.sort.dir);
+  const tbody = document.getElementById('crewBody');
+  const emptyEl = document.getElementById('crewEmpty');
+  if(!list.length){
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    emptyEl.innerHTML = `<div class="empty-state"><div class="icon-wrap">${ICONS.users}</div><h3>Nenhum tripulante encontrado</h3><p>Tente remover algum filtro ou revisar o termo buscado.</p></div>`;
+    document.getElementById('crewPagination').innerHTML = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  const pageItems = paginate(list, state.crew.page, state.crew.pageSize);
+  tbody.innerHTML = pageItems.map(t => `
+    <tr class="clickable" data-crew="${t.matricula}">
+      <td class="cell-strong">${esc(t.nome)}</td>
+      <td class="mono">${t.matricula}</td>
+      <td>${esc(t.funcao)}</td>
+      <td>${esc(t.base)}</td>
+      <td class="cell-muted">${esc(t.jornada)}</td>
+      <td class="mono">${t.horasTrabalhadas}h</td>
+      <td class="mono ${t.repouso < 10 ? 'cell-danger' : ''}" style="${t.repouso < 10 ? 'color:var(--status-danger); font-weight:600' : ''}">${t.repouso}h</td>
+      <td>${badgeHTML(t.status)}</td>
+    </tr>`).join('');
+  tbody.querySelectorAll('tr[data-crew]').forEach(tr => {
+    tr.setAttribute('tabindex','0'); tr.setAttribute('role','button');
+    const open = () => openCrewModal(tr.dataset.crew);
+    tr.addEventListener('click', open);
+    tr.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
+  });
+  renderPagination(document.getElementById('crewPagination'), list.length, state.crew.page, state.crew.pageSize, (p) => { state.crew.page = p; renderCrew(); });
+  document.querySelectorAll('#page-tripulacao th.sortable').forEach(th => {
+    th.classList.toggle('sort-active', th.dataset.sort === state.crew.sort.col);
+    th.querySelector('.sort-arrow').textContent = (th.dataset.sort === state.crew.sort.col && state.crew.sort.dir === 'desc') ? '▴' : '▾';
+  });
+}
+document.querySelectorAll('#page-tripulacao th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    if(state.crew.sort.col === th.dataset.sort) state.crew.sort.dir = state.crew.sort.dir === 'asc' ? 'desc' : 'asc';
+    else { state.crew.sort.col = th.dataset.sort; state.crew.sort.dir = 'asc'; }
+    renderCrew();
+  });
+});
+document.getElementById('crewSearch').addEventListener('input', debounce((e) => {
+  state.crew.search = e.target.value.trim().toLowerCase(); state.crew.page = 1; renderCrew();
+}, 180));
+['crewFuncaoFilter','crewBaseFilter','crewStatusFilter'].forEach(id => {
+  document.getElementById(id).addEventListener('change', (e) => {
+    const map = { crewFuncaoFilter:'funcao', crewBaseFilter:'base', crewStatusFilter:'status' };
+    state.crew[map[id]] = e.target.value; state.crew.page = 1; renderCrew();
+  });
+});
+
+/* ============================================================
+   13. ESCALAS (lista / tabela / timeline / calendário)
+   ============================================================ */
+document.querySelectorAll('#page-escalas .tab-btn').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#page-escalas .tab-btn').forEach(t => t.setAttribute('aria-selected','false'));
+    tab.setAttribute('aria-selected','true');
+    state.escalaView = tab.dataset.view;
+    document.querySelectorAll('.escala-view').forEach(v => v.style.display = 'none');
+    const map = { lista:'escalasLista', tabela:'escalasTabela', timeline:'escalasTimeline', calendario:'escalasCalendario' };
+    document.getElementById(map[state.escalaView]).style.display = 'block';
+    if(state.escalaView === 'calendario') renderCalendar();
+  });
+});
+
+function renderEscalasLista(){
+  document.getElementById('escalasLista').innerHTML = escalas.slice(0,24).map(e => `
+    <div class="escala-card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+        <div><strong>${esc(e.tripulanteNome)}</strong> <span class="cell-muted" style="font-size:.8125rem"> · voo ${e.voo}</span></div>
+        ${badgeHTML(e.status)}
+      </div>
+      <div style="display:flex; align-items:center; gap:10px; font-size:.8438rem; flex-wrap:wrap;">
+        <span class="mono cell-strong">${e.origem}</span>
+        <svg class="icon" style="width:14px;height:14px; color:var(--text-muted)" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        <span class="mono cell-strong">${e.destino}</span>
+        <span class="cell-muted">· ${e.saida} – ${e.chegada}</span>
+        ${e.conexoes ? `<span class="badge badge-info">${e.conexoes} conexão</span>` : ''}
+        <span class="badge ${e.repouso < 10 ? 'badge-danger' : 'badge-ok'}">${ICONS[e.repouso < 10 ? 'danger' : 'ok']}Repouso ${e.repouso}h</span>
+      </div>
+    </div>`).join('');
+}
+function renderEscalasTabela(){
+  document.getElementById('escalasTabelaBody').innerHTML = escalas.map(e => `
+    <tr>
+      <td class="cell-strong">${esc(e.tripulanteNome)}</td>
+      <td class="mono">${e.voo}</td>
+      <td>${e.origem}</td>
+      <td>${e.destino}</td>
+      <td class="mono">${e.saida}</td>
+      <td class="mono">${e.chegada}</td>
+      <td class="cell-muted">${e.conexoes}</td>
+      <td class="mono">${e.repouso}h</td>
+      <td>${badgeHTML(e.status)}</td>
+    </tr>`).join('');
+}
+function renderEscalasTimeline(){
+  const byCrew = {};
+  escalas.forEach(e => { (byCrew[e.tripulanteId] = byCrew[e.tripulanteId] || []).push(e); });
+  const rows = Object.keys(byCrew).slice(0,10).map(mid => {
+    const list = byCrew[mid];
+    const t = tripulantes.find(x => x.matricula === mid);
+    const segs = list.map((e,i) => {
+      const cls = e.repouso < 10 ? 'danger' : (e.status === 'atencao' ? 'warn' : 'ok');
+      const rest = i < list.length - 1 ? `<div class="tl-rest"><span>${e.repouso}h solo</span><div class="line"></div></div>` : '';
+      return `<div class="tl-seg ${cls}"><div class="flight mono">${e.voo}</div><div class="route">${e.origem.slice(0,3).toUpperCase()}→${e.destino.slice(0,3).toUpperCase()}</div></div>${rest}`;
+    }).join('');
+    return `<div class="timeline-row">
+      <div class="timeline-crew"><div class="name">${esc(t.nome)}</div><div class="role">${esc(t.funcao)}</div></div>
+      <div class="timeline-track">${segs}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('timelineBody').innerHTML = rows;
+}
+
+const MONTH_NAMES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+function renderCalendar(){
+  const ref = new Date(2026, 8, 1); // Setembro 2026
+  document.getElementById('calMonthLabel').textContent = `${MONTH_NAMES[ref.getMonth()]} ${ref.getFullYear()}`;
+  const daysInMonth = new Date(ref.getFullYear(), ref.getMonth()+1, 0).getDate();
+  const firstDow = new Date(ref.getFullYear(), ref.getMonth(), 1).getDay();
+  const countByDay = {};
+  escalas.forEach(e => { countByDay[e.dia] = (countByDay[e.dia] || 0) + 1; });
+  const dows = ['D','S','T','Q','Q','S','S'];
+  let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<firstDow;i++) html += `<div class="cal-cell empty"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const count = countByDay[d] || 0;
+    const level = count >= 5 ? 'danger' : count >= 3 ? 'warn' : count >= 1 ? 'ok' : 'neutral';
+    const dots = count ? `<div class="d-dots">${Array.from({length:Math.min(count,4)}).map(()=>`<span style="background:var(--status-${level})"></span>`).join('')}</div>` : '';
+    html += `<button class="cal-cell ${state.calSelectedDay === d ? 'selected' : ''}" data-day="${d}" aria-label="Dia ${d}, ${count} escalas">
+      <span class="d-num">${String(d).padStart(2,'0')}</span>
+      ${dots}
+      ${count ? `<span class="d-count">${count}</span>` : ''}
+    </button>`;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+  document.querySelectorAll('.cal-cell[data-day]').forEach(cell => {
+    cell.addEventListener('click', () => {
+      state.calSelectedDay = parseInt(cell.dataset.day, 10);
+      renderCalendar();
+      renderCalDay();
+    });
+  });
+}
+function renderCalDay(){
+  const day = state.calSelectedDay;
+  const label = document.getElementById('calDayLabel');
+  const list = document.getElementById('calDayList');
+  if(!day){ return; }
+  label.textContent = `${String(day).padStart(2,'0')} de setembro`;
+  const items = escalas.filter(e => e.dia === day);
+  if(!items.length){
+    list.innerHTML = `<div class="empty-state"><div class="icon-wrap">${ICONS.calendar}</div><h3>Sem escalas neste dia</h3><p>Nenhuma jornada de tripulação registrada para a data selecionada.</p></div>`;
+    return;
+  }
+  list.innerHTML = items.map(e => `
+    <div class="crew-card" style="margin-bottom:8px;">
+      <div style="display:flex; justify-content:space-between; gap:8px; margin-bottom:6px;"><strong style="font-size:.8438rem">${esc(e.tripulanteNome)}</strong>${badgeHTML(e.status)}</div>
+      <div class="cell-muted mono" style="font-size:.8125rem">${e.voo} · ${e.origem} → ${e.destino} · ${e.saida}–${e.chegada}</div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   14. REPLANEJAMENTO
+   ============================================================ */
+const affectedIds = ["MT1004","MT1005","MT1006","MT1007","MT1008","MT1009","MT1002"];
+function renderAffectedCrew(){
+  document.getElementById('affectedCrewChips').innerHTML = affectedIds.map(mid => {
+    const t = tripulantes.find(x => x.matricula === mid);
+    return `<span class="crew-chip">${t ? esc(t.nome) : mid}</span>`;
+  }).join('');
+}
+renderAffectedCrew();
+
+let replanApplied = false;
+document.getElementById('btnExecutarReplan').addEventListener('click', function(){
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Processando…';
+  document.getElementById('situacaoCard').querySelector('.section-card-body').style.opacity = '.55';
+  document.getElementById('processingCard').style.display = 'block';
+  document.getElementById('resultCard').style.display = 'none';
+
+  const steps = [
+    "Analisando restrições regulamentares",
+    "Consultando disponibilidade de tripulação",
+    "Executando modelo de otimização CP-SAT",
+    "Validando solução encontrada"
+  ];
+  const stepsEl = document.getElementById('processingSteps');
+  stepsEl.innerHTML = steps.map((s,i) => `<div class="processing-step" data-i="${i}"><span class="stp-icon"></span>${esc(s)}</div>`).join('');
+  let i = 0;
+  const stepInterval = setInterval(() => {
+    const rows = stepsEl.querySelectorAll('.processing-step');
+    rows.forEach(r => r.classList.remove('active'));
+    if(i > 0) rows[i-1].classList.add('done');
+    if(i < rows.length){ rows[i].classList.add('active'); i++; }
+    else{
+      clearInterval(stepInterval);
+      setTimeout(() => {
+        document.getElementById('processingCard').style.display = 'none';
+        document.getElementById('resultCard').style.display = 'block';
+        document.getElementById('resultCard').scrollIntoView({ behavior:'smooth', block:'start' });
+        showToast('success', 'Replanejamento concluído', '7 conflitos resolvidos em 1,42s, sem violações regulamentares.');
+      }, 500);
+    }
+  }, 650);
+});
+
+document.getElementById('btnAplicarEscala').addEventListener('click', () => {
+  if(replanApplied) return;
+  confirmAction(
+    'Aplicar nova escala',
+    '<p style="font-size:.875rem;">Esta ação substituirá a escala atual de <strong>7 tripulantes</strong> pela nova proposta gerada pelo mecanismo CP-SAT. Deseja continuar?</p>',
+    () => {
+      replanApplied = true;
+      const btnA = document.getElementById('btnAplicarEscala');
+      const btnR = document.getElementById('btnRejeitarEscala');
+      btnA.disabled = true; btnA.textContent = 'Escala aplicada';
+      btnR.disabled = true;
+      showToast('success', 'Nova escala aplicada', 'A tripulação foi notificada automaticamente sobre a alteração.');
+    },
+    'Aplicar escala'
+  );
+});
+document.getElementById('btnRejeitarEscala').addEventListener('click', () => {
+  if(replanApplied) return;
+  confirmAction(
+    'Rejeitar alteração',
+    '<p style="font-size:.875rem;">A escala anterior será mantida e o conflito continuará em aberto para uma nova tentativa de replanejamento. Deseja continuar?</p>',
+    () => {
+      showToast('warning', 'Alteração rejeitada', 'A escala anterior foi mantida. O conflito permanece em aberto.');
+      document.getElementById('resultCard').style.display = 'none';
+      document.getElementById('situacaoCard').querySelector('.section-card-body').style.opacity = '1';
+      const btn = document.getElementById('btnExecutarReplan');
+      btn.disabled = false;
+      btn.innerHTML = ICONS.refresh + ' Executar replanejamento';
+    },
+    'Rejeitar'
+  );
+});
+
+/* ============================================================
+   15. CONFLITOS
+   ============================================================ */
+function renderConflicts(){
+  const list = conflitos.filter(c => state.conflictType === 'todos' || c.tipo === state.conflictType);
+  const container = document.getElementById('conflictsList');
+  if(!list.length){
+    container.innerHTML = `<div class="empty-state"><div class="icon-wrap">${ICONS.ok}</div><h3>Nenhum conflito deste tipo</h3><p>Não há conflitos operacionais registrados para o filtro selecionado.</p></div>`;
+    return;
+  }
+  container.innerHTML = list.map(c => {
+    const s = sevMeta(c.severidade);
+    return `<div class="conflict-card ${s.cls === 'danger' ? '' : s.cls}">
+      <div class="conflict-head">
+        ${ICONS[s.cls]}
+        <h3>${esc(c.tipo)} · ${esc(c.tripulante)}</h3>
+        <span class="badge badge-${s.cls}" style="margin-left:auto">${s.label}</span>
+      </div>
+      <div class="conflict-meta">
+        <span>Voo anterior: <b>${esc(c.vooAnterior)}</b></span>
+        <span>Próximo voo: <b>${esc(c.proximoVoo)}</b></span>
+        ${c.repousoDisponivel !== '—' ? `<span>Repouso disponível: <b>${c.repousoDisponivel}</b></span>` : ''}
+        ${c.repousoNecessario !== '—' ? `<span>Repouso necessário: <b>${c.repousoNecessario}</b></span>` : ''}
+      </div>
+      <div class="conflict-flow">
+        <div class="flow-step"><div class="flbl">Problema</div>${esc(c.tipo)} identificado na conexão ${esc(c.vooAnterior)} → ${esc(c.proximoVoo)}.</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="flbl">Impacto</div>${esc(c.impacto)}</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="flbl">Possível solução</div>${esc(c.solucao)}</div>
+      </div>
+      <button class="btn btn-outline btn-sm" data-conflict="${c.id}">Visualizar solução</button>
+    </div>`;
+  }).join('');
+  container.querySelectorAll('[data-conflict]').forEach(btn => {
+    btn.addEventListener('click', () => openConflictModal(parseInt(btn.dataset.conflict,10)));
+  });
+}
+document.querySelectorAll('#conflictTypeChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#conflictTypeChips .chip').forEach(c => c.setAttribute('aria-pressed','false'));
+    chip.setAttribute('aria-pressed','true');
+    state.conflictType = chip.dataset.type;
+    renderConflicts();
+  });
+});
+function openConflictModal(id){
+  const c = conflitos.find(x => x.id === id);
+  if(!c) return;
+  const s = sevMeta(c.severidade);
+  document.getElementById('conflictModalTitle').textContent = `Conflito de ${c.tipo.toLowerCase()} — ${c.tripulante}`;
+  document.getElementById('conflictModalBody').innerHTML = `
+    <span class="badge badge-${s.cls}" style="margin-bottom:14px">${ICONS[s.cls]}${s.label}</span>
+    <div class="detail-grid" style="margin-top:14px">
+      <div class="detail-item"><div class="lbl">Voo anterior</div><div class="val mono">${esc(c.vooAnterior)}</div></div>
+      <div class="detail-item"><div class="lbl">Próximo voo</div><div class="val mono">${esc(c.proximoVoo)}</div></div>
+      <div class="detail-item"><div class="lbl">Repouso disponível</div><div class="val mono">${esc(c.repousoDisponivel)}</div></div>
+      <div class="detail-item"><div class="lbl">Repouso necessário</div><div class="val mono">${esc(c.repousoNecessario)}</div></div>
+    </div>
+    <hr class="detail-divider">
+    <div class="detail-item" style="margin-bottom:6px"><div class="lbl">Impacto</div><div class="val" style="font-weight:400">${esc(c.impacto)}</div></div>
+    <hr class="detail-divider">
+    <div class="detail-item" style="margin-bottom:6px"><div class="lbl">Solução sugerida</div><div class="val" style="font-weight:400">${esc(c.solucao)}</div></div>
+  `;
+  document.getElementById('conflictModalGoReplan').onclick = () => {
+    closeModal(document.getElementById('conflictModalOverlay'));
+    navigateTo('replanejamento');
+  };
+  openModal(document.getElementById('conflictModalOverlay'));
+}
+
+/* ============================================================
+   16. RELATÓRIOS
+   ============================================================ */
+const reports = [
+  { title:"Relatório de escalas", desc:"Consolidado de todas as escalas ativas por tripulante e base operacional.", icon:ICONS.calendar },
+  { title:"Relatório de conflitos", desc:"Histórico de conflitos identificados, severidade e soluções aplicadas.", icon:ICONS.alert },
+  { title:"Relatório de repouso", desc:"Indicadores de conformidade de repouso regulamentar por período.", icon:ICONS.users },
+  { title:"Relatório de replanejamentos", desc:"Execuções do mecanismo CP-SAT, tempo de processamento e resultados.", icon:ICONS.refresh }
+];
+document.getElementById('reportGrid').innerHTML = reports.map((r,i) => `
+  <div class="report-card">
+    <span class="rc-icon">${r.icon}</span>
+    <h3>${r.title}</h3>
+    <p>${r.desc}</p>
+    <button class="btn btn-outline btn-sm" data-report="${i}">${ICONS.download} Exportar</button>
+  </div>`).join('');
+document.querySelectorAll('[data-report]').forEach(btn => {
+  btn.addEventListener('click', function(){
+    const title = reports[this.dataset.report].title;
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner dark"></span> Exportando…';
+    showToast('info', 'Exportação iniciada', `Gerando "${title}"…`, 2600);
+    setTimeout(() => {
+      this.disabled = false;
+      this.innerHTML = ICONS.download + ' Exportar';
+      showToast('success', 'Relatório pronto', `"${title}" foi gerado com sucesso.`);
+    }, 2200);
+  });
+});
+
+/* ============================================================
+   17. CONFIGURAÇÕES — preferências adicionais
+   ============================================================ */
+const REDUCE_MOTION_KEY = 'skysync-reduce-motion';
+const SIDEBAR_DEFAULT_KEY = 'skysync-sidebar-collapsed';
+function applyReduceMotion(v){
+  document.documentElement.style.setProperty('--dur-fast', v ? '.001ms' : '.14s');
+  document.documentElement.style.setProperty('--dur-base', v ? '.001ms' : '.22s');
+}
+const rmToggle = document.getElementById('reduceMotionToggle');
+rmToggle.checked = localStorage.getItem(REDUCE_MOTION_KEY) === '1';
+applyReduceMotion(rmToggle.checked);
+rmToggle.addEventListener('change', () => {
+  localStorage.setItem(REDUCE_MOTION_KEY, rmToggle.checked ? '1' : '0');
+  applyReduceMotion(rmToggle.checked);
+});
+const sbToggle = document.getElementById('sidebarDefaultToggle');
+sbToggle.checked = localStorage.getItem(SIDEBAR_DEFAULT_KEY) === '1';
+if(sbToggle.checked){ state.sidebarCollapsed = true; sidebar.classList.add('collapsed'); }
+sbToggle.addEventListener('change', () => {
+  localStorage.setItem(SIDEBAR_DEFAULT_KEY, sbToggle.checked ? '1' : '0');
+});
+['notifConflicts','notifDelays','notifReplans'].forEach(id => {
+  document.getElementById(id).addEventListener('change', function(){
+    showToast('info', 'Preferência atualizada', this.checked ? 'Notificação ativada.' : 'Notificação desativada.', 2200);
+  });
+});
+
+/* ============================================================
+   18. INICIALIZAÇÃO
+   ============================================================ */
+renderStatGrid();
+renderDashFlights();
+renderDashConflicts();
+renderOperacao();
+renderVoos();
+renderCrew();
+renderEscalasLista();
+renderEscalasTabela();
+renderEscalasTimeline();
+renderConflicts();
+
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){ closePopovers(); }
+});
+
+})();
+</script>
+</body>
+</html>
