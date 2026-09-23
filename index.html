@@ -292,9 +292,14 @@
   .progress-fill { height: 100%; background: var(--green); border-radius: 999px; }
   .progress-value { font-family: var(--mono); font-size: 0.82rem; font-weight: 600; }
 
-  .info-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-width: 460px; }
-  .info-list li { display: flex; justify-content: space-between; gap: 10px; font-size: 0.88rem; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-s); }
-  .info-list .soon { font-size: 0.72rem; color: var(--text-400); }
+  .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px 28px; }
+  .settings-group .section-sub { margin-top: 0; }
+  .info-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .info-list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.86rem; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-s); color: var(--text-900); }
+  .info-list li > span:first-child { color: var(--text-600-solid); }
+  .info-list .value { font-weight: 600; text-align: right; }
+  .info-list .value-on { color: var(--green); }
+  .info-list .value-off { color: var(--text-400); font-weight: 500; }
 
   @media (max-width: 880px) {
     .monitor-grid { grid-template-columns: 1fr; }
@@ -499,13 +504,66 @@
 
     <section class="screen" id="screen-configuracoes" aria-labelledby="config-h" tabindex="-1" hidden>
       <h1 id="config-h">Configurações</h1>
-      <p class="lede">Esta área ainda está em desenvolvimento. As opções abaixo ficarão configuráveis em breve — tela somente de visualização.</p>
-      <ul class="info-list">
-        <li>Notificações de disrupção <span class="soon">Em breve</span></li>
-        <li>Integração com escala mestre <span class="soon">Em breve</span></li>
-        <li>Permissões de coordenador <span class="soon">Em breve</span></li>
-        <li>Exportação de relatórios RBAC 117 <span class="soon">Em breve</span></li>
-      </ul>
+      <p class="lede">Preferências da conta e do sistema. Tela somente de visualização.</p>
+
+      <div class="settings-grid">
+        <div class="settings-group">
+          <h2 class="section-sub">Perfil</h2>
+          <ul class="info-list">
+            <li><span>Nome</span><span class="value">Marina Costa</span></li>
+            <li><span>Cargo</span><span class="value">Coordenadora Operacional</span></li>
+            <li><span>Base</span><span class="value">GRU — Guarulhos</span></li>
+            <li><span>E-mail</span><span class="value">marina.costa@skysync.aero</span></li>
+          </ul>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="section-sub">Notificações</h2>
+          <ul class="info-list">
+            <li><span>Alertas de disrupção</span><span class="value value-on">Ativado</span></li>
+            <li><span>Alertas de risco de fadiga</span><span class="value value-on">Ativado</span></li>
+            <li><span>Resumo diário por e-mail</span><span class="value value-off">Desativado</span></li>
+            <li><span>Notificações push no navegador</span><span class="value value-on">Ativado</span></li>
+          </ul>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="section-sub">Aparência</h2>
+          <ul class="info-list">
+            <li><span>Tema</span><span class="value" id="settingsThemeValue">Claro</span></li>
+            <li><span>Alto contraste</span><span class="value" id="settingsContrastValue">Desativado</span></li>
+            <li><span>Tamanho da fonte</span><span class="value" id="settingsFontValue">Padrão</span></li>
+            <li><span>Densidade da tabela</span><span class="value">Confortável</span></li>
+          </ul>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="section-sub">Idioma e região</h2>
+          <ul class="info-list">
+            <li><span>Idioma</span><span class="value">Português (Brasil)</span></li>
+            <li><span>Fuso horário padrão</span><span class="value">Local (GRU) + UTC</span></li>
+            <li><span>Formato de hora</span><span class="value">24 horas</span></li>
+          </ul>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="section-sub">Segurança</h2>
+          <ul class="info-list">
+            <li><span>Autenticação em duas etapas</span><span class="value value-on">Ativada</span></li>
+            <li><span>Último acesso</span><span class="value">Hoje, 13:05 (GRU)</span></li>
+            <li><span>Sessões ativas</span><span class="value">1 dispositivo</span></li>
+          </ul>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="section-sub">Sistema</h2>
+          <ul class="info-list">
+            <li><span>Motor de otimização</span><span class="value">CP-SAT v4.2</span></li>
+            <li><span>Última sincronização com a escala mestre</span><span class="value">Hoje, 13:40 (GRU)</span></li>
+            <li><span>Conformidade normativa</span><span class="value">RBAC 117 · Lei do Aeronauta</span></li>
+          </ul>
+        </div>
+      </div>
     </section>
   </main>
 </div>
@@ -598,6 +656,18 @@
 
   // Modo noturno
   const darkSwitch = document.getElementById('darkSwitch');
+  const settingsThemeValue = document.getElementById('settingsThemeValue');
+  const settingsContrastValue = document.getElementById('settingsContrastValue');
+  const settingsFontValue = document.getElementById('settingsFontValue');
+  const fontNames = { '0.9': 'Pequeno', '1': 'Padrão', '1.2': 'Grande' };
+  function syncSettingsScreen() {
+    if (settingsThemeValue) settingsThemeValue.textContent = darkSwitch.checked ? 'Escuro' : 'Claro';
+    if (settingsContrastValue) settingsContrastValue.textContent = contrastSwitch.checked ? 'Ativado' : 'Desativado';
+    if (settingsFontValue) {
+      const scale = document.documentElement.style.getPropertyValue('--scale') || '1';
+      settingsFontValue.textContent = fontNames[scale.trim()] || 'Padrão';
+    }
+  }
   try {
     const savedTheme = localStorage.getItem('skysync-theme');
     if (savedTheme === 'dark') {
@@ -613,6 +683,7 @@
     const on = darkSwitch.checked;
     document.documentElement.setAttribute('data-theme', on ? 'dark' : 'light');
     try { localStorage.setItem('skysync-theme', on ? 'dark' : 'light'); } catch (err) {}
+    syncSettingsScreen();
   });
 
   // Roteamento entre telas — Painel, Disrupções, Escalas, Configurações
@@ -642,6 +713,7 @@
     const on = contrastSwitch.checked;
     document.documentElement.setAttribute('data-contrast', on ? 'high' : 'normal');
     try { localStorage.setItem('skysync-contrast', on ? 'high' : 'normal'); } catch (err) {}
+    syncSettingsScreen();
   });
 
   const fontButtons = document.querySelectorAll('.font-steps button');
@@ -651,6 +723,7 @@
       fontButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
       btn.setAttribute('aria-pressed', 'true');
       try { localStorage.setItem('skysync-scale', btn.dataset.scale); } catch (err) {}
+      syncSettingsScreen();
     });
   });
   try {
@@ -660,6 +733,7 @@
       fontButtons.forEach(b => b.setAttribute('aria-pressed', b.dataset.scale === savedScale ? 'true' : 'false'));
     }
   } catch (err) {}
+  syncSettingsScreen();
 
   // Simulação / aplicação / undo
   const btnSimular = document.getElementById('btnSimular');
