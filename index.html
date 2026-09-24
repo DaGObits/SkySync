@@ -187,22 +187,23 @@
   .alert-card p { margin: 0 0 10px; font-size: 0.86rem; color: var(--text-600-solid); }
   .alert-card .meta { display: flex; gap: 14px; font-size: 0.76rem; color: var(--text-400); font-family: var(--mono); flex-wrap: wrap; }
 
+  /* CONTAINER DA TABELA OTIMIZADO PARA MOBILE */
   .table-wrap { 
     background: var(--surface); 
     border: 1px solid var(--border); 
     border-radius: var(--radius-m); 
-    overflow-x: auto; 
     width: 100%; 
-    -webkit-overflow-scrolling: touch; 
     margin-bottom: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  table { width: 100%; border-collapse: collapse; min-width: 680px; }
+  table { width: 100%; border-collapse: collapse; min-width: 720px; }
   caption { text-align: left; padding: 14px 16px 0; font-size: 0.8rem; color: var(--text-400); }
   thead th {
     text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: .04em;
     color: var(--text-400); padding: 12px 14px; border-bottom: 1px solid var(--border); font-weight: 600;
-    background: var(--surface-alt); position: sticky; top: 0; white-space: nowrap;
+    background: var(--surface-alt); position: sticky; top: 0; white-space: nowrap; z-index: 2;
   }
   tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 0.85rem; vertical-align: middle; }
   table.dense-table tbody td { padding: 8px 10px; font-size: 0.78rem; }
@@ -245,15 +246,15 @@
 
   /* BOTÃO FLUTUANTE DE ACESSIBILIDADE */
   .a11y-fab {
-    position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 100;
-    width: 52px; height: 52px; border-radius: 50%; 
+    position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 100;
+    width: 48px; height: 48px; border-radius: 50%; 
     background: #FFFFFF; color: var(--navy-950);
     border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer;
-    box-shadow: 0 4px 14px rgba(10,25,48,.15);
+    box-shadow: 0 4px 14px rgba(10,25,48,.2);
   }
-  .a11y-fab svg { width: 24px; height: 24px; }
+  .a11y-fab svg { width: 22px; height: 22px; }
   .a11y-panel {
-    position: fixed; right: 20px; bottom: calc(82px + env(safe-area-inset-bottom, 0px)); z-index: 100;
+    position: fixed; right: 16px; bottom: calc(74px + env(safe-area-inset-bottom, 0px)); z-index: 100;
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m);
     box-shadow: 0 8px 24px rgba(10,25,48,.18); padding: 16px; width: 240px; display: none;
   }
@@ -324,17 +325,17 @@
   .info-list-clean li { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.86rem; }
   .info-list-clean li > span:first-child { color: var(--text-600-solid); }
 
-  /* RESPONSIVIDADE AVANÇADA PARA CELULARES */
+  /* RESPONSIVIDADE PARA CELULARES */
   @media (max-width: 900px) {
     .monitor-grid { grid-template-columns: 1fr; }
-    .app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
-    header.topbar { grid-column: 1; grid-row: 1; flex-wrap: wrap; padding: 10px 14px; height: auto; gap: 8px; }
+    .app { display: block; }
+    header.topbar { display: flex; flex-wrap: wrap; padding: 10px 14px; height: auto; gap: 8px; }
     .clock { display: none; }
-    nav.sidebar { grid-column: 1; grid-row: 2; display: flex; overflow-x: auto; padding: 8px 14px; gap: 12px; align-items: center; white-space: nowrap; border-right: none; border-bottom: 1px solid rgba(255,255,255,.06); }
+    nav.sidebar { display: flex; overflow-x: auto; padding: 8px 14px; gap: 12px; align-items: center; white-space: nowrap; border-right: none; border-bottom: 1px solid rgba(255,255,255,.06); }
     nav.sidebar h2 { display: none; }
     nav.sidebar ul { display: flex; gap: 6px; }
     .nav-btn { width: auto; padding: 6px 10px; font-size: 0.82rem; }
-    main { grid-column: 1; grid-row: 3; padding: 14px 12px 60px; max-width: 100%; }
+    main { padding: 14px 10px 60px; max-width: 100%; }
     .actions-note { display: none; }
     .actions { flex-direction: column; align-items: stretch; }
     .btn { width: 100%; min-width: 100%; }
