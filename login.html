@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkySync — Acesso ao Sistema</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0d1117; color: #c9d1d9; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background-color: #161b22; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 1px solid #30363d; }
+        h2 { margin-bottom: 24px; color: #f0f6fc; text-align: center; }
+        .input-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-size: 14px; color: #8b949e; }
+        input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #30363d; background-color: #0d1117; color: #fff; font-size: 14px; }
+        input:focus { border-color: #58a6ff; outline: none; }
+        button { width: 100%; padding: 12px; background-color: #238636; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #2ea043; }
+        .switch { text-align: center; margin-top: 20px; font-size: 14px; color: #8b949e; }
+        .switch a { color: #58a6ff; text-decoration: none; cursor: pointer; }
+        .switch a:hover { text-decoration: underline; }
+        .hidden { display: none; }
+        .msg { margin-bottom: 15px; font-size: 13px; text-align: center; color: #f85149; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <!-- TELA DE LOGIN -->
+        <div id="login-section">
+            <h2>SkySync — Login</h2>
+            <div id="login-msg" class="msg"></div>
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" id="login-email" placeholder="seu.email@exemplo.com">
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="login-senha" placeholder="••••••••">
+            </div>
+            <button onclick="fazerLogin()">Entrar</button>
+            <div class="switch">
+                Não tem uma conta? <a onclick="alternarTela()">Criar cadastro</a>
+            </div>
+        </div>
+
+        <!-- TELA DE CADASTRO -->
+        <div id="register-section" class="hidden">
+            <h2>Criar Conta</h2>
+            <div id="register-msg" class="msg" style="color: #2ea043;"></div>
+            <div class="input-group">
+                <label>Nome Completo</label>
+                <input type="text" id="reg-nome" placeholder="Seu Nome">
+            </div>
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" id="reg-email" placeholder="seu.email@exemplo.com">
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="reg-senha" placeholder="••••••••">
+            </div>
+            <button onclick="fazerCadastro()">Cadastrar</button>
+            <div class="switch">
+                Já tem uma conta? <a onclick="alternarTela()">Fazer login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:5000/api";
+
+        function alternarTela() {
+            document.getElementById('login-section').classList.toggle('hidden');
+            document.getElementById('register-section').classList.toggle('hidden');
+        }
+
+        async function fazerLogin() {
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+            const msgBox = document.getElementById('login-msg');
+
+            try {
+                const resposta = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha })
+                });
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
+                    window.location.href = "index.html"; // Redireciona para o painel principal do TCC
+                } else {
+                    msgBox.style.color = "#f85149";
+                    msgBox.innerText = dados.erro;
+                }
+            } catch (e) {
+                msgBox.style.color = "#f85149";
+                msgBox.innerText = "Erro ao conectar com o servidor local.";
+            }
+        }
+
+        async function fazerCadastro() {
+            const nome = document.getElementById('reg-nome').value;
+            const email = document.getElementById('reg-email').value;
+            const senha = document.getElementById('reg-senha').value;
+            const msgBox = document.getElementById('register-msg');
+
+            try {
+                const resposta = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    msgBox.style.color = "#2ea043";
+                    msgBox.innerText = dados.mensagem;
+                    setTimeout(alternarTela, 1500); // Volta para o login após 1.5s
+                } else {
+                    msgBox.style.color = "#f85149";
+                    msgBox.innerText = dados.erro;
+                }
+            } catch (e) {
+                msgBox.style.color = "#f85149";
+                msgBox.innerText = "Erro ao conectar com o servidor local.";
+            }
+        }
+    </script>
+</body>
+</html>
