@@ -181,7 +181,6 @@
   .user-meta { font-size: 0.78rem; line-height: 1.3; }
   .user-meta .role { color: #9FB0CC; }
 
-  /* BOTÃO DE SAIR (LOGOUT) */
   .btn-logout {
     background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.15);
     padding: 6px 12px; border-radius: var(--radius-s); font-size: 0.78rem; font-weight: 600;
@@ -238,7 +237,14 @@
     -webkit-overflow-scrolling: touch;
   }
   table { width: 100%; border-collapse: collapse; min-width: 720px; }
-  caption { text-align: left; padding: 14px 16px 0; font-size: 0.8rem; color: var(--text-400); }
+  caption { text-align: left; padding: 14px 16px 0; font-size: 0.8rem; color: var(--text-400); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .btn-refresh-table {
+    background: var(--surface-alt); border: 1px solid var(--border); color: var(--text-600-solid);
+    font-size: 0.75rem; padding: 5px 10px; border-radius: var(--radius-s); cursor: pointer; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px; transition: background .15s, color .15s;
+  }
+  .btn-refresh-table:hover { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
+
   thead th {
     text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: .04em;
     color: var(--text-400); padding: 12px 14px; border-bottom: 1px solid var(--border); font-weight: 600;
@@ -283,10 +289,17 @@
   }
   .setting-input:focus, .setting-select:focus { outline: 2px solid var(--focus); }
 
+  .setting-static-text {
+    font-size: 0.86rem;
+    color: var(--text-600-solid);
+    font-family: var(--mono);
+    text-align: right;
+  }
+
   .a11y-fab {
     position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 100;
     width: 48px; height: 48px; border-radius: 50%; 
-    background: #FFFFFF; color: var(--navy-950);
+    background: #FFFFFF; color: var(--bg);
     border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer;
     box-shadow: 0 4px 14px rgba(10,25,48,.2);
   }
@@ -335,11 +348,25 @@
   .feed-list li { font-size: 0.85rem; color: var(--text-600-solid); padding-left: 14px; border-left: 2px solid var(--border); line-height: 1.5; }
   .feed-time { display: block; font-family: var(--mono); font-size: 0.74rem; color: var(--text-400); }
 
+  .interactive-widget { 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    border: 1px solid transparent; 
+    border-radius: var(--radius-m); 
+    padding: 8px; 
+  }
+  .interactive-widget:hover { 
+    border-color: var(--navy-700); 
+    background: var(--surface-alt); 
+    box-shadow: 0 4px 12px rgba(10,25,48,0.08);
+  }
+
   .fatigue-widget { display: flex; align-items: center; gap: 20px; margin-bottom: 22px; flex-wrap: wrap; }
   .fatigue-donut {
     width: 108px; height: 108px; border-radius: 50%; flex-shrink: 0;
-    background: conic-gradient(var(--red) 0 33%, var(--green) 33% 100%);
+    background: conic-gradient(var(--green) 0% 67%, var(--red) 67% 100%);
     display: flex; align-items: center; justify-content: center; position: relative;
+    transition: background 0.4s ease;
   }
   .fatigue-donut::before { content: ''; position: absolute; inset: 15px; border-radius: 50%; background: var(--surface); }
   .fatigue-center { position: relative; font-family: var(--mono); font-size: 1.25rem; font-weight: 700; }
@@ -352,8 +379,15 @@
 
   .progress-row { display: flex; align-items: center; gap: 10px; width: 100%; }
   .progress-track { flex: 1; height: 8px; border-radius: 999px; background: var(--surface-alt); border: 1px solid var(--border); overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--green); border-radius: 999px; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width 0.4s ease; }
   .progress-value { font-family: var(--mono); font-size: 0.82rem; font-weight: 600; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(10,25,48,0.6); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+  .modal-overlay.open { display: flex; }
+  .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m); padding: 24px; width: 90%; max-width: 480px; box-shadow: 0 12px 32px rgba(10,25,48,.25); }
+  .modal-card h3 { margin-top: 0; font-size: 1.1rem; color: var(--text-900); }
+  .modal-card p { font-size: 0.9rem; color: var(--text-600-solid); line-height: 1.6; }
+  .modal-close { background: var(--navy-900); color: #fff; border: none; padding: 8px 16px; border-radius: var(--radius-s); font-weight: 600; cursor: pointer; float: right; margin-top: 16px; }
 
   .settings-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; width: 100%; }
   .setting-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m); padding: 20px; display: flex; flex-direction: column; gap: 14px; }
@@ -474,7 +508,7 @@
       <div class="kpi-grid">
         <button type="button" class="kpi-card" data-screen="disrupcoes">
           <span class="kpi-label" data-i18n="kpiActiveDisruptions">Disrupções ativas</span>
-          <span class="kpi-value">5</span>
+          <span class="kpi-value" id="kpiActiveCount">5</span>
           <span class="kpi-hint" data-i18n="kpiHighFatigue">2 com risco alto de fadiga</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
@@ -484,8 +518,8 @@
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
           <span class="kpi-label" data-i18n="kpiCrewCompliance">Conformidade da tripulação</span>
-          <span class="kpi-value">66%</span>
-          <span class="kpi-hint" data-i18n="kpiCompliantCount">6 de 9 tripulantes conformes</span>
+          <span class="kpi-value" id="kpiComplianceVal">66%</span>
+          <span class="kpi-hint" id="kpiComplianceHint">6 de 9 tripulantes conformes</span>
         </button>
         <div class="kpi-card kpi-static">
           <span class="kpi-label" data-i18n="kpiMonitoredFlights">Voos monitorados hoje</span>
@@ -498,67 +532,41 @@
         <div class="monitor-card">
           <h2 class="section-sub monitor-h" data-i18n="realtimeActivity">Atividade em tempo real</h2>
           <ul class="feed-list" id="feedList">
-            <li><span class="feed-time">14:45</span>Voo JJ-4412 pousou normalmente em Confins (CNF) dentro do horário previsto.</li>
-            <li><span class="feed-time">14:32</span>Disrupção JJ-5590 registrada: fechamento parcial de pista em Recife.</li>
-            <li><span class="feed-time">14:15</span>Motor CP-SAT recalculou a rota do voo JJ-3482.</li>
-            <li><span class="feed-time">13:58</span>Comandante Eduardo Silveira atingiu 90% do limite da RBAC 117.</li>
-            <li><span class="feed-time">13:22</span>Início de turno: 42 voos sob monitoramento na base GRU.</li>
+            <!-- Gerido dinamicamente -->
           </ul>
         </div>
 
         <div class="monitor-card">
-          <div>
+          <div class="interactive-widget" id="widgetFatigue" title="Clique para ver detalhes do risco de fadiga">
             <h2 class="section-sub monitor-h" data-i18n="fatigueRiskTitle">Risco de fadiga da tripulação</h2>
             <div class="fatigue-widget">
-              <div class="fatigue-donut" role="img" aria-label="3 de 9 tripulantes com jornada bloqueada pela RBAC 117; 6 de 9 conformes">
-                <span class="fatigue-center">3<small>/9</small></span>
+              <div class="fatigue-donut" id="fatigueDonut" role="img" aria-label="3 de 9 tripulantes com jornada bloqueada pela RBAC 117; 6 de 9 conformes">
+                <span class="fatigue-center"><span id="blockedCountNum">3</span><small>/9</small></span>
               </div>
               <ul class="legend-list">
-                <li><span class="legend-dot dot-red" aria-hidden="true"></span><span data-i18n="blockedLegend">Bloqueados</span> — 3</li>
-                <li><span class="legend-dot dot-green" aria-hidden="true"></span><span data-i18n="compliantLegend">Conformes</span> — 6</li>
+                <li><span class="legend-dot dot-red" aria-hidden="true"></span><span data-i18n="blockedLegend">Bloqueados</span> — <span id="blockedTextNum">3</span></li>
+                <li><span class="legend-dot dot-green" aria-hidden="true"></span><span data-i18n="compliantLegend">Conformes</span> — <span id="compliantTextNum">6</span></li>
               </ul>
             </div>
           </div>
-          <div>
+          
+          <div class="interactive-widget" id="widgetCompliance" title="Clique para ver o relatório de conformidade RBAC 117" style="margin-top: 10px;">
             <h2 class="section-sub monitor-h" data-i18n="rbacComplianceTitle">Conformidade RBAC 117</h2>
             <div class="progress-row" role="img" aria-label="66% de conformidade da tripulação com a RBAC 117">
-              <div class="progress-track"><div class="progress-fill" style="width:66%"></div></div>
-              <span class="progress-value">66%</span>
+              <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:66%"></div></div>
+              <span class="progress-value" id="progressValText">66%</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ABA DE DISRUPÇÕES CONECTADA DINAMICAMENTE -->
     <section class="screen" id="screen-disrupcoes" aria-labelledby="disrupcoes-h" tabindex="-1" hidden>
       <h1 id="disrupcoes-h"><span data-i18n="disruptionsTitle">Disrupções</span> <span class="count-pill" id="alertCount">5 ativos</span></h1>
-      <p class="lede" data-i18n="disruptionsSubtitle">Ocorrências operacionais que impactam jornada e conformidade da tripulação. Inclui voos em rota normal e com alertas.</p>
-      <div class="alert-grid">
-        <article class="alert-card risk-alto">
-          <div class="flight-row"><span class="flight-id">JJ-3482</span><span class="risk-badge alto" data-i18n="highFatigueRisk">Risco alto de fadiga</span></div>
-          <p>Atraso de 2h10 por tempestade em Manaus (SBEG). Tripulação aproxima o limite de jornada da RBAC 117.</p>
-          <div class="meta"><span>MAO → GRU</span><span data-i18n="depPlanned">Partida prevista</span> 23:40</div>
-        </article>
-        <article class="alert-card risk-medio">
-          <div class="flight-row"><span class="flight-id">JJ-1207</span><span class="risk-badge medio" data-i18n="moderateRisk">Risco moderado</span></div>
-          <p>Troca de aeronave por manutenção não programada. Tripulação reserva acionada em Congonhas.</p>
-          <div class="meta"><span>CGH → SSA</span><span data-i18n="depPlanned">Partida prevista</span> 06:15</div>
-        </article>
-        <article class="alert-card risk-alto">
-          <div class="flight-row"><span class="flight-id">JJ-5590</span><span class="risk-badge alto" data-i18n="highFatigueRisk">Risco alto de fadiga</span></div>
-          <p>Fechamento parcial de pista em Recife estende o pouso em 55 min, aproximando o limite diário do comandante.</p>
-          <div class="meta"><span>REC → GRU</span><span data-i18n="arrRevised">Chegada revisada</span> 21:05</div>
-        </article>
-        <article class="alert-card risk-medio">
-          <div class="flight-row"><span class="flight-id">JJ-2210</span><span class="risk-badge medio" data-i18n="moderateRisk">Risco moderado</span></div>
-          <p>Restrição de tráfego aéreo em Brasília (BSB) gerando espera em órbita de 30 minutos.</p>
-          <div class="meta"><span>BSB → GIG</span><span data-i18n="depPlanned">Partida prevista</span> 18:20</div>
-        </article>
-        <article class="alert-card risk-baixo">
-          <div class="flight-row"><span class="flight-id">JJ-4412</span><span class="risk-badge baixo" data-i18n="normalOperation">Operação normal</span></div>
-          <p>Voo operando sem restrições meteorológicas ou de escala. Tripulação dentro dos parâmetros padrão.</p>
-          <div class="meta"><span>GRU → CNF</span><span data-i18n="depPlanned">Partida prevista</span> 15:00</div>
-        </article>
+      <p class="lede" data-i18n="disruptionsSubtitle">Ocorrências operacionais que impactam jornada e conformidade da tripulação. Inclui voos em rota normal e com alertas para a base selecionada.</p>
+      <div class="alert-grid" id="disruptionsGrid">
+        <!-- O JS preenche dinamicamente ao iniciar e ao trocar de base -->
       </div>
     </section>
 
@@ -567,7 +575,10 @@
       <p class="lede" data-i18n="schedulesSubtitle">Jornada acumulada e conformidade dos tripulantes envolvidos nas disrupções ativas e rotas regulares.</p>
       <div class="table-wrap">
         <table id="mainCrewTable" aria-label="Tripulantes afetados pelas disrupções, jornadas acumuladas e nova rota sugerida">
-          <caption data-i18n="tableCaption">9 tripulantes monitorados — valores atualizados às <span id="tableTime">--:--</span> UTC</caption>
+          <caption>
+            <span>9 tripulantes monitorados — valores atualizados às <span id="tableTime">--:--</span> UTC</span>
+            <button type="button" class="btn-refresh-table" id="btnRefreshTable">🔄 Atualizar Escalas Agora</button>
+          </caption>
           <thead>
             <tr>
               <th scope="col" data-i18n="thCrew">Tripulante</th>
@@ -579,78 +590,7 @@
             </tr>
           </thead>
           <tbody id="crewTable">
-            <tr data-row="1">
-              <td><span class="crew-name">Rafael Nunes</span><span class="crew-role" data-i18n="roleCommander">Comandante</span></td>
-              <td class="hours">JJ-3482</td>
-              <td class="hours over">11h40</td>
-              <td class="limit-tag" data-i18n="nightLandingLimit">11h00 (pouso à noite)</td>
-              <td><span class="status-chip bloqueado"><span class="dot2"></span> <span data-i18n="statusBlocked">Bloqueado</span></span></td>
-              <td class="new-route">MAO→GRU <span class="arrow">→</span> <span data-i18n="routeFix1">reserva assume trecho final</span></td>
-            </tr>
-            <tr data-row="2">
-              <td><span class="crew-name">Beatriz Lima</span><span class="crew-role" data-i18n="roleCopilot">Copiloto</span></td>
-              <td class="hours">JJ-3482</td>
-              <td class="hours">9h20</td>
-              <td class="limit-tag" data-i18n="nightLandingLimit">11h00 (pouso à noite)</td>
-              <td><span class="status-chip ok"><span class="dot2"></span> <span data-i18n="statusCompliant">Conforme ANAC</span></span></td>
-              <td class="new-route"><span data-i18n="keptRoute">Mantido</span> MAO <span class="arrow">→</span> GRU</td>
-            </tr>
-            <tr data-row="3">
-              <td><span class="crew-name">Carlos Mendonça</span><span class="crew-role" data-i18n="roleChiefPurser">Comissário-chefe</span></td>
-              <td class="hours">JJ-1207</td>
-              <td class="hours">7h05</td>
-              <td class="limit-tag" data-i18n="standardDutyLimit">14h00 (jornada padrão)</td>
-              <td><span class="status-chip ok"><span class="dot2"></span> <span data-i18n="statusCompliant">Conforme ANAC</span></span></td>
-              <td class="new-route">CGH→SSA <span class="arrow">→</span> <span data-i18n="noChange">sem alteração</span></td>
-            </tr>
-            <tr data-row="4">
-              <td><span class="crew-name">Juliana Prado</span><span class="crew-role" data-i18n="roleFlightAttendant">Comissária</span></td>
-              <td class="hours">JJ-5590</td>
-              <td class="hours">10h50</td>
-              <td class="limit-tag" data-i18n="nightLandingLimit">11h00 (pouso à noite)</td>
-              <td><span class="status-chip ok"><span class="dot2"></span> <span data-i18n="statusCompliant">Conforme ANAC</span></span></td>
-              <td class="new-route">REC→GRU <span class="arrow">→</span> <span data-i18n="routeFix2">descanso reduzido em 20 min</span></td>
-            </tr>
-            <tr data-row="5">
-              <td><span class="crew-name">Eduardo Silveira</span><span class="crew-role" data-i18n="roleCommander">Comandante</span></td>
-              <td class="hours">JJ-5590</td>
-              <td class="hours over">11h15</td>
-              <td class="limit-tag" data-i18n="nightLandingLimit">11h00 (pouso à noite)</td>
-              <td><span class="status-chip bloqueado"><span class="dot2"></span> <span data-i18n="statusBlocked">Bloqueado</span></span></td>
-              <td class="new-route">REC→GRU <span class="arrow">→</span> <span data-i18n="routeFix3">troca por comandante reserva</span></td>
-            </tr>
-            <tr data-row="6">
-              <td><span class="crew-name">Marcos Vinicius</span><span class="crew-role" data-i18n="roleCommander">Comandante</span></td>
-              <td class="hours">JJ-2210</td>
-              <td class="hours over">11h05</td>
-              <td class="limit-tag" data-i18n="nightLandingLimit">11h00 (pouso à noite)</td>
-              <td><span class="status-chip bloqueado"><span class="dot2"></span> <span data-i18n="statusBlocked">Bloqueado</span></span></td>
-              <td class="new-route">BSB→GIG <span class="arrow">→</span> <span data-i18n="routeFix4">tripulação de apoio acionada</span></td>
-            </tr>
-            <tr data-row="7">
-              <td><span class="crew-name">Larissa Martins</span><span class="crew-role" data-i18n="roleCopilot">Copiloto</span></td>
-              <td class="hours">JJ-2210</td>
-              <td class="hours">8h40</td>
-              <td class="limit-tag" data-i18n="nightLandingLimit">11h00 (pouso à noite)</td>
-              <td><span class="status-chip ok"><span class="dot2"></span> <span data-i18n="statusCompliant">Conforme ANAC</span></span></td>
-              <td class="new-route">BSB→GIG <span class="arrow">→</span> <span data-i18n="noChange">sem alteração</span></td>
-            </tr>
-            <tr data-row="8">
-              <td><span class="crew-name">Roberto Sampaio</span><span class="crew-role" data-i18n="roleCommander">Comandante</span></td>
-              <td class="hours">JJ-4412</td>
-              <td class="hours">6h30</td>
-              <td class="limit-tag" data-i18n="standardDutyLimit">14h00 (jornada padrão)</td>
-              <td><span class="status-chip ok"><span class="dot2"></span> <span data-i18n="statusCompliant">Conforme ANAC</span></span></td>
-              <td class="new-route">GRU→CNF <span class="arrow">→</span> <span data-i18n="noChange">sem alteração</span></td>
-            </tr>
-            <tr data-row="9">
-              <td><span class="crew-name">Camila Dias</span><span class="crew-role" data-i18n="roleFlightAttendant">Comissária</span></td>
-              <td class="hours">JJ-4412</td>
-              <td class="hours">6h30</td>
-              <td class="limit-tag" data-i18n="standardDutyLimit">14h00 (jornada padrão)</td>
-              <td><span class="status-chip ok"><span class="dot2"></span> <span data-i18n="statusCompliant">Conforme ANAC</span></span></td>
-              <td class="new-route">GRU→CNF <span class="arrow">→</span> <span data-i18n="noChange">sem alteração</span></td>
-            </tr>
+            <!-- Gerado dinamicamente -->
           </tbody>
         </table>
       </div>
@@ -660,6 +600,7 @@
         <button class="btn btn-ghost" id="btnSimular" type="button" data-i18n="btnSimulate">Simular replanejamento</button>
         <button class="btn btn-success" id="btnAplicar" type="button" data-i18n="btnApply">Aplicar escala automática</button>
         <button class="btn btn-primary" id="btnDesfazer" type="button" disabled data-i18n="btnUndo">Desfazer</button>
+        <span class="actions-note" data-i18n="actionsNote">A simulação recalcula jornadas sem alterar a escala publicada.</span>
       </div>
       <div id="liveStatus" role="status" aria-live="polite"></div>
     </section>
@@ -670,14 +611,13 @@
       <p class="lede" data-i18n="settingsSubtitle">Modifique as informações abaixo. As alterações são aplicadas instantaneamente em todo o painel.</p>
 
       <div class="settings-layout">
-        <!-- Card 1: Perfil e Base -->
         <div class="setting-card">
           <h2 class="setting-card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span data-i18n="profileSection">Perfil</span>
           </h2>
           <ul class="info-list-clean">
-            <li><span data-i18n="labelName">Nome</span><input type="text" id="inputName" class="setting-input" value="Marina Costa"></li>
+            <li><span data-i18n="labelName">Nome</span><input type="text" id="inputName" class="setting-input"></li>
             <li><span data-i18n="labelRole">Cargo</span><input type="text" id="inputRole" class="setting-input" value="Coordenadora Operacional"></li>
             <li>
               <span data-i18n="labelBase">Base</span>
@@ -686,7 +626,7 @@
                 <option value="MAO — Manaus">MAO — Manaus (AM)</option>
                 <option value="BSB — Brasília">BSB — Brasília (DF)</option>
                 <option value="CGH — Congonhas">CGH — Congonhas (SP)</option>
-                <option value="GIG — Galeão">GIG — Galeão (RJ)</option>
+                <option value="GIG — Galeão">Galeão (RJ)</option>
                 <option value="FOR — Fortaleza">FOR — Fortaleza (CE)</option>
                 <option value="REC — Recife">REC — Recife (PE)</option>
                 <option value="SSA — Salvador">SSA — Salvador (BA)</option>
@@ -695,14 +635,13 @@
                 <option value="PVH — Porto Velho">PVH — Porto Velho (RO)</option>
                 <option value="RBR — Rio Branco">RBR — Rio Branco (AC)</option>
                 <option value="FLN — Florianópolis">FLN — Florianópolis (SC)</option>
-                <option value="IGU — Foz do Iguaçu">IGU — Foz do Iguaçu (PR)</option>
+                <option value="IGU — Foz do Iguaçu">Foz do Iguaçu (PR)</option>
               </select>
             </li>
-            <li><span data-i18n="labelEmail">E-mail</span><input type="email" id="inputEmail" class="setting-input" value="marina.costa@skysync.aero"></li>
+            <li><span data-i18n="labelEmail">E-mail</span><span id="staticEmail" class="setting-static-text">usuario@exemplo.com</span></li>
           </ul>
         </div>
 
-        <!-- Card 2: Notificações -->
         <div class="setting-card">
           <h2 class="setting-card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
@@ -736,7 +675,6 @@
           </ul>
         </div>
 
-        <!-- Card 3: Aparência -->
         <div class="setting-card">
           <h2 class="setting-card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2m-4.22-7.78l-1.42 1.42M5.64 18.36l-1.42 1.42"/></svg>
@@ -775,7 +713,6 @@
           </ul>
         </div>
 
-        <!-- Card 4: Idioma e Região -->
         <div class="setting-card">
           <h2 class="setting-card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
@@ -794,7 +731,6 @@
           </ul>
         </div>
 
-        <!-- Card 5: Segurança -->
         <div class="setting-card">
           <h2 class="setting-card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -807,7 +743,6 @@
           </ul>
         </div>
 
-        <!-- Card 6: Sistema -->
         <div class="setting-card">
           <h2 class="setting-card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
@@ -822,6 +757,15 @@
       </div>
     </section>
   </main>
+</div>
+
+<!-- Modal interativo -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-card">
+    <h3 id="modalTitle">Detalhes Operacionais</h3>
+    <p id="modalDescription">Conteúdo detalhado sobre o status atual da frota, tripulação e regulamentações.</p>
+    <button class="modal-close" id="modalCloseBtn" type="button">Fechar</button>
+  </div>
 </div>
 
 <button class="a11y-fab" id="a11yToggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="a11yPanel" aria-label="Abrir opções de acessibilidade">
@@ -857,661 +801,912 @@
 
 <script>
 window.addEventListener('DOMContentLoaded', () => {
-  // Verificação de sessão e Logout
-  const usuarioLogado = localStorage.getItem('usuario_logado');
-  if (!usuarioLogado) {
-      window.location.href = "login.html";
-  }
-
-  const btnLogout = document.getElementById('btnLogout');
-  if (btnLogout) {
-      btnLogout.addEventListener('click', () => {
-          localStorage.removeItem('usuario_logado');
-          window.location.href = "login.html";
-      });
-  }
-
-  const translations = {
-    'pt-BR': {
-      skipLink: 'Pular para o conteúdo principal',
-      engineActive: 'Ativo — otimizado com sucesso',
-      navOperation: 'Operação',
-      menuPanel: 'Painel',
-      menuDisruptions: 'Disrupções',
-      menuSchedules: 'Escalas',
-      navSystem: 'Sistema',
-      menuSettings: 'Configurações',
-      panelTitle: 'Painel de replanejamento — Base',
-      panelSubtitle: 'Acompanhamento em tempo real de disrupções, jornadas e conformidade com a Lei do Aeronauta e a RBAC 117.',
-      kpiActiveDisruptions: 'Disrupções ativas',
-      kpiHighFatigue: '2 com risco alto de fadiga',
-      kpiImpactedCrew: 'Tripulantes impactados',
-      kpiBlockedRbac: '3 bloqueados pela RBAC 117',
-      kpiCrewCompliance: 'Conformidade da tripulação',
-      kpiCompliantCount: '6 de 9 tripulantes conformes',
-      kpiMonitoredFlights: 'Voos monitorados hoje',
-      baseWord: 'Base',
-      currentShift: 'turno atual',
-      realtimeActivity: 'Atividade em tempo real',
-      fatigueRiskTitle: 'Risco de fadiga da tripulação',
-      blockedLegend: 'Bloqueados',
-      compliantLegend: 'Conformes',
-      rbacComplianceTitle: 'Conformidade RBAC 117',
-      disruptionsTitle: 'Disrupções',
-      disruptionsSubtitle: 'Ocorrências operacionais que impactam jornada e conformidade da tripulação. Inclui voos em rota normal e com alertas.',
-      highFatigueRisk: 'Risco alto de fadiga',
-      moderateRisk: 'Risco moderado',
-      normalOperation: 'Operação normal',
-      depPlanned: 'Partida prevista',
-      arrRevised: 'Chegada revisada',
-      schedulesTitle: 'Escalas cruzadas afetadas',
-      schedulesSubtitle: 'Jornada acumulada e conformidade dos tripulantes envolvidos nas disrupções ativas e rotas regulares.',
-      tableCaption: '9 tripulantes monitorados — valores atualizados às',
-      thCrew: 'Tripulante',
-      thFlight: 'Voo',
-      thAccumulatedDuty: 'Jornada acumulada',
-      thRbacLimit: 'Limite RBAC 117',
-      thCompliance: 'Conformidade',
-      thAiRoute: 'Rota sugerida pela IA',
-      roleCommander: 'Comandante',
-      roleCopilot: 'Copiloto',
-      roleChiefPurser: 'Comissário-chefe',
-      roleFlightAttendant: 'Comissária',
-      nightLandingLimit: '11h00 (pouso à noite)',
-      standardDutyLimit: '14h00 (jornada padrão)',
-      statusBlocked: 'Bloqueado',
-      statusCompliant: 'Conforme ANAC',
-      routeFix1: 'reserva assume trecho final',
-      routeFix4: 'tripulação de apoio acionada',
-      keptRoute: 'Mantido',
-      noChange: 'sem alteração',
-      routeFix2: 'descanso reduzido em 20 min',
-      routeFix3: 'troca por comandante reserva',
-      simulationActionsTitle: 'Simulação e ações',
-      btnSimulate: 'Simular replanejamento',
-      btnAplicar: 'Aplicar escala automática',
-      btnUndo: 'Desfazer',
-      actionsNote: 'A simulação recalcula jornadas sem alterar a escala publicada.',
-      settingsTitle: 'Configurações',
-      settingsSubtitle: 'Modifique as informações abaixo. As alterações são aplicadas instantaneamente em todo o painel.',
-      profileSection: 'Perfil',
-      labelName: 'Nome',
-      labelRole: 'Cargo',
-      labelBase: 'Base',
-      labelEmail: 'E-mail',
-      notificationsSection: 'Notificações',
-      notifAlerts: 'Alertas de disrupção',
-      notifFatigue: 'Alertas de risco de fadiga',
-      notifDaily: 'Resumo diário por e-mail',
-      notifPush: 'Notificações push no navegador',
-      appearanceSection: 'Aparência',
-      labelTheme: 'Tema',
-      labelContrast: 'Alto contraste',
-      labelFontSize: 'Tamanho da fonte',
-      labelTableDensity: 'Densidade da tabela',
-      densityComfortable: 'Confortável',
-      densityDense: 'Compacta',
-      langRegionSection: 'Idioma e região',
-      labelLanguage: 'Idioma',
-      labelTimezone: 'Fuso horário padrão',
-      labelTimeFormat: 'Formato de hora',
-      timeFormat24h: '24 horas',
-      securitySection: 'Segurança',
-      label2FA: 'Autenticação em duas etapas',
-      statusEnabled: 'Ativada',
-      labelLastAccess: 'Último acesso',
-      todayWord: 'Hoje',
-      labelActiveSessions: 'Sessões ativas',
-      deviceWord: 'dispositivo',
-      systemSection: 'Sistema',
-      labelOptimizerEngine: 'Motor de otimização',
-      standardWord: 'Padrão',
-      labelLastSync: 'Última sincronização',
-      labelNormativeCompliance: 'Conformidade normativa',
-      a11yTitle: 'Acessibilidade',
-      nightMode: 'Modo noturno',
-      highContrast: 'Alto contraste',
-      fontSize: 'Tamanho da fonte'
-    },
-    'en-US': {
-      skipLink: 'Skip to main content',
-      engineActive: 'Active — successfully optimized',
-      navOperation: 'Operation',
-      menuPanel: 'Dashboard',
-      menuDisruptions: 'Disruptions',
-      menuSchedules: 'Schedules',
-      navSystem: 'System',
-      menuSettings: 'Settings',
-      panelTitle: 'Rescheduling Dashboard — Base',
-      panelSubtitle: 'Real-time tracking of disruptions, crew duties, and compliance with aviation regulations.',
-      kpiActiveDisruptions: 'Active disruptions',
-      kpiHighFatigue: '2 with high fatigue risk',
-      kpiImpactedCrew: 'Impacted crew members',
-      kpiBlockedRbac: '3 blocked by regulations',
-      kpiCrewCompliance: 'Crew compliance',
-      kpiCompliantCount: '6 of 9 crew compliant',
-      kpiMonitoredFlights: 'Monitored flights today',
-      baseWord: 'Base',
-      currentShift: 'current shift',
-      realtimeActivity: 'Real-time activity',
-      fatigueRiskTitle: 'Crew fatigue risk',
-      blockedLegend: 'Blocked',
-      compliantLegend: 'Compliant',
-      rbacComplianceTitle: 'Regulatory Compliance',
-      disruptionsTitle: 'Disruptions',
-      disruptionsSubtitle: 'Operational events impacting crew duty and compliance. Includes normal and alerted flights.',
-      highFatigueRisk: 'High fatigue risk',
-      moderateRisk: 'Moderate risk',
-      normalOperation: 'Normal operation',
-      depPlanned: 'Scheduled departure',
-      arrRevised: 'Revised arrival',
-      schedulesTitle: 'Affected Cross-Schedules',
-      schedulesSubtitle: 'Accumulated duty time and compliance of crew members involved in active disruptions.',
-      tableCaption: '9 monitored crew members — values updated at',
-      thCrew: 'Crew Member',
-      thFlight: 'Flight',
-      thAccumulatedDuty: 'Accumulated Duty',
-      thRbacLimit: 'Regulatory Limit',
-      thCompliance: 'Compliance',
-      thAiRoute: 'AI Suggested Route',
-      roleCommander: 'Captain',
-      roleCopilot: 'First Officer',
-      roleChiefPurser: 'Chief Purser',
-      roleFlightAttendant: 'Flight Attendant',
-      nightLandingLimit: '11h00 (night landing)',
-      standardDutyLimit: '14h00 (standard duty)',
-      statusBlocked: 'Blocked',
-      statusCompliant: 'Compliant',
-      routeFix1: 'reserve crew takes final leg',
-      routeFix4: 'support crew called',
-      keptRoute: 'Maintained',
-      noChange: 'no change',
-      routeFix2: 'rest reduced by 20 min',
-      routeFix3: 'swap with reserve captain',
-      simulationActionsTitle: 'Simulation & Actions',
-      btnSimulate: 'Simulate rescheduling',
-      btnApply: 'Apply automatic schedule',
-      btnUndo: 'Undo',
-      actionsNote: 'Simulation recalculates duties without altering the published schedule.',
-      settingsTitle: 'Settings',
-      settingsSubtitle: 'Modify information below. Changes apply instantly across the entire panel.',
-      profileSection: 'Profile',
-      labelName: 'Name',
-      labelRole: 'Role',
-      labelBase: 'Base',
-      labelEmail: 'E-mail',
-      notificationsSection: 'Notifications',
-      notifAlerts: 'Disruption alerts',
-      notifFatigue: 'Fatigue risk alerts',
-      notifDaily: 'Daily email summary',
-      notifPush: 'Browser push notifications',
-      appearanceSection: 'Appearance',
-      labelTheme: 'Theme',
-      labelContrast: 'High contrast',
-      labelFontSize: 'Font size',
-      labelTableDensity: 'Table density',
-      densityComfortable: 'Comfortable',
-      densityDense: 'Compact',
-      langRegionSection: 'Language & Region',
-      labelLanguage: 'Language',
-      labelTimezone: 'Standard timezone',
-      labelTimeFormat: 'Time format',
-      timeFormat24h: '24 hours',
-      securitySection: 'Security',
-      label2FA: 'Two-factor authentication',
-      statusEnabled: 'Enabled',
-      labelLastAccess: 'Last access',
-      todayWord: 'Today',
-      labelActiveSessions: 'Active sessions',
-      deviceWord: 'device',
-      systemSection: 'System',
-      labelOptimizerEngine: 'Optimization engine',
-      standardWord: 'Standard',
-      labelLastSync: 'Last synchronization',
-      labelNormativeCompliance: 'Normative compliance',
-      a11yTitle: 'Accessibility',
-      nightMode: 'Dark mode',
-      highContrast: 'High contrast',
-      fontSize: 'Font size'
-    },
-    'es-ES': {
-      skipLink: 'Saltar al contenido principal',
-      engineActive: 'Activo — optimizado con éxito',
-      navOperation: 'Operación',
-      menuPanel: 'Panel',
-      menuDisruptions: 'Disrupciones',
-      menuSchedules: 'Tripulaciones',
-      navSystem: 'Sistema',
-      menuSettings: 'Configuración',
-      panelTitle: 'Panel de reprogramación — Base',
-      panelSubtitle: 'Seguimiento en tiempo real de disrupciones, jornadas y cumplimiento normativo.',
-      kpiActiveDisruptions: 'Disrupciones activas',
-      kpiHighFatigue: '2 con alto riesgo de fatiga',
-      kpiImpactedCrew: 'Tripulantes afectados',
-      kpiBlockedRbac: '3 bloqueados por regulaciones',
-      kpiCrewCompliance: 'Cumplimiento de tripulación',
-      kpiCompliantCount: '6 de 9 tripulantes conformes',
-      kpiMonitoredFlights: 'Vuelos monitoreados hoy',
-      baseWord: 'Base',
-      currentShift: 'turno actual',
-      realtimeActivity: 'Actividad en tiempo real',
-      fatigueRiskTitle: 'Riesgo de fatiga de la tripulación',
-      blockedLegend: 'Bloqueados',
-      compliantLegend: 'Conformes',
-      rbacComplianceTitle: 'Cumplimiento Normativo',
-      disruptionsTitle: 'Disrupciones',
-      disruptionsSubtitle: 'Incidencias operativas que afectan la jornada. Incluye vuelos normales y con alertas.',
-      highFatigueRisk: 'Alto riesgo de fatiga',
-      moderateRisk: 'Riesgo moderado',
-      normalOperation: 'Operación normal',
-      depPlanned: 'Salida prevista',
-      arrRevised: 'Llegada revisada',
-      schedulesTitle: 'Tripulaciones afectadas',
-      schedulesSubtitle: 'Jornada acumulada y cumplimiento de los tripulantes involucrados.',
-      tableCaption: '9 tripulantes monitoreados — valores atualizados a las',
-      thCrew: 'Tripulante',
-      thFlight: 'Vuelo',
-      thAccumulatedDuty: 'Jornada acumulada',
-      thRbacLimit: 'Límite regulatorio',
-      thCompliance: 'Cumplimiento',
-      thAiRoute: 'Ruta sugerida por IA',
-      roleCommander: 'Comandante',
-      roleCopilot: 'Copiloto',
-      roleChiefPurser: 'Jefe de cabina',
-      roleFlightAttendant: 'Tripulante de cabina',
-      nightLandingLimit: '11h00 (aterrizaje nocturno)',
-      standardDutyLimit: '14h00 (jornada estándar)',
-      statusBlocked: 'Bloqueado',
-      statusCompliant: 'Conforme ANAC',
-      routeFix1: 'reserva asume tramo final',
-      routeFix4: 'tripulación de apoyo activada',
-      keptRoute: 'Mantenido',
-      noChange: 'sin alteración',
-      routeFix2: 'descanso reducido en 20 min',
-      routeFix3: 'cambio por comandante reserva',
-      simulationActionsTitle: 'Simulación y acciones',
-      btnSimulate: 'Simular reprogramación',
-      btnApply: 'Aplicar escala automática',
-      btnUndo: 'Deshacer',
-      actionsNote: 'La simulación recalcula jornadas sin alterar la escala publicada.',
-      settingsTitle: 'Configuración',
-      settingsSubtitle: 'Modifique la información abajo. Los cambios se aplican al instante en todo el panel.',
-      profileSection: 'Perfil',
-      labelName: 'Nombre',
-      labelRole: 'Cargo',
-      labelBase: 'Base',
-      labelEmail: 'Correo electrónico',
-      notificationsSection: 'Notificaciones',
-      notifAlerts: 'Alertas de disrupción',
-      notifFatigue: 'Alertas de risco de fadiga',
-      notifDaily: 'Resumen diario por correo',
-      notifPush: 'Notificaciones push en navegador',
-      appearanceSection: 'Apariencia',
-      labelTheme: 'Tema',
-      labelContrast: 'Alto contraste',
-      labelFontSize: 'Tamaño de fuente',
-      labelTableDensity: 'Densidad de tabla',
-      densityComfortable: 'Cómoda',
-      densityDense: 'Compacta',
-      langRegionSection: 'Idioma y región',
-      labelLanguage: 'Idioma',
-      labelTimezone: 'Zona horaria estándar',
-      labelTimeFormat: 'Formato de hora',
-      timeFormat24h: '24 horas',
-      securitySection: 'Seguridad',
-      label2FA: 'Autenticação de dos factores',
-      statusEnabled: 'Activada',
-      labelLastAccess: 'Último acceso',
-      todayWord: 'Hoy',
-      labelActiveSessions: 'Sesiones activas',
-      deviceWord: 'dispositivo',
-      systemSection: 'Sistema',
-      labelOptimizerEngine: 'Motor de optimización',
-      standardWord: 'Estándar',
-      labelLastSync: 'Última sincronização',
-      labelNormativeCompliance: 'Cumplimiento normativo',
-      a11yTitle: 'Accesibilidad',
-      nightMode: 'Modo nocturno',
-      highContrast: 'Alto contraste',
-      fontSize: 'Tamaño de fuente'
-    }
-  };
-
-  const timezonesMap = {
-    'GRU': 'America/Sao_Paulo',
-    'MAO': 'America/Manaus',
-    'BSB': 'America/Sao_Paulo',
-    'CGH': 'America/Sao_Paulo',
-    'GIG': 'America/Sao_Paulo',
-    'FOR': 'America/Fortaleza',
-    'REC': 'America/Recife',
-    'SSA': 'America/Bahia',
-    'BEL': 'America/Belem',
-    'CGB': 'America/Cuiaba',
-    'PVH': 'America/Porto_Velho',
-    'RBR': 'America/Rio_Branco',
-    'FLN': 'America/Sao_Paulo',
-    'IGU': 'America/Sao_Paulo'
-  };
-
-  const defaultSettings = {
-    name: 'Marina Costa',
-    role: 'Coordenadora Operacional',
-    base: 'GRU — Guarulhos',
-    email: 'marina.costa@skysync.aero',
-    idioma: 'pt-BR'
-  };
-
-  let settings = Object.assign({}, defaultSettings);
   try {
-    const saved = localStorage.getItem('skysync-custom-settings');
-    if (saved) settings = JSON.parse(saved);
-  } catch(e) {}
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado') || '{"nome":"Marina Costa","email":"marina.costa@skysync.aero"}');
 
-  const inputName = document.getElementById('inputName');
-  const inputRole = document.getElementById('inputRole');
-  const selBase = document.getElementById('selBase');
-  const inputEmail = document.getElementById('inputEmail');
-  const selIdioma = document.getElementById('selIdioma');
-  const selTheme = document.getElementById('selTheme');
-  const selContrast = document.getElementById('selContrast');
-  const selFontSize = document.getElementById('selFontSize');
-  const selDensity = document.getElementById('selDensity');
-
-  const headerUserName = document.getElementById('headerUserName');
-  const headerUserRole = document.getElementById('headerUserRole');
-  const userAvatar = document.getElementById('userAvatar');
-  const headerBaseCode = document.getElementById('headerBaseCode');
-  const panelBaseTitle = document.getElementById('panelBaseTitle');
-  const kpiBaseLabel = document.getElementById('kpiBaseLabel');
-  const baseCodeDynamics = document.querySelectorAll('.base-code-dynamic');
-
-  if (inputName) inputName.value = settings.name;
-  if (inputRole) inputRole.value = settings.role;
-  if (selBase) selBase.value = settings.base;
-  if (inputEmail) inputEmail.value = settings.email;
-  if (selIdioma) selIdioma.value = settings.idioma || 'pt-BR';
-
-  function getInitials(fullName) {
-    const parts = fullName.trim().split(' ');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            localStorage.removeItem('usuario_logado');
+            window.location.href = "login.html";
+        });
     }
-    return fullName.substring(0, 2).toUpperCase();
-  }
 
-  function getBaseCode(baseFull) {
-    return baseFull.split('—')[0].trim();
-  }
-
-  function translatePage(lang) {
-    const dict = translations[lang] || translations['pt-BR'];
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      if (dict[key]) {
-        el.textContent = dict[key];
+    const translations = {
+      'pt-BR': {
+        skipLink: 'Pular para o conteúdo principal',
+        engineActive: 'Ativo — otimizado com sucesso',
+        navOperation: 'Operação',
+        menuPanel: 'Painel',
+        menuDisruptions: 'Disrupções',
+        menuSchedules: 'Escalas',
+        navSystem: 'Sistema',
+        menuSettings: 'Configurações',
+        panelTitle: 'Painel de replanejamento — Base',
+        panelSubtitle: 'Acompanhamento em tempo real de disrupções, jornadas e conformidade com a Lei do Aeronauta e a RBAC 117.',
+        kpiActiveDisruptions: 'Disrupções ativas',
+        kpiHighFatigue: '2 com risco alto de fadiga',
+        kpiImpactedCrew: 'Tripulantes impactados',
+        kpiBlockedRbac: '3 bloqueados pela RBAC 117',
+        kpiCrewCompliance: 'Conformidade da tripulação',
+        kpiMonitoredFlights: 'Voos monitorados hoje',
+        baseWord: 'Base',
+        currentShift: 'turno atual',
+        realtimeActivity: 'Atividade em tempo real',
+        fatigueRiskTitle: 'Risco de fadiga da tripulação',
+        blockedLegend: 'Bloqueados',
+        compliantLegend: 'Conformes',
+        rbacComplianceTitle: 'Conformidade RBAC 117',
+        disruptionsTitle: 'Disrupções',
+        disruptionsSubtitle: 'Ocorrências operacionais que impactam jornada e conformidade da tripulação. Inclui voos em rota normal e com alertas.',
+        highFatigueRisk: 'Risco alto de fadiga',
+        moderateRisk: 'Risco moderado',
+        normalOperation: 'Operação normal',
+        depPlanned: 'Partida prevista',
+        arrRevised: 'Chegada revisada',
+        schedulesTitle: 'Escalas cruzadas afetadas',
+        schedulesSubtitle: 'Jornada acumulada e conformidade dos tripulantes envolvidos nas disrupções ativas e rotas regulares.',
+        thCrew: 'Tripulante',
+        thFlight: 'Voo',
+        thAccumulatedDuty: 'Jornada acumulada',
+        thRbacLimit: 'Limite RBAC 117',
+        thCompliance: 'Conformidade',
+        thAiRoute: 'Rota sugerida pela IA',
+        simulationActionsTitle: 'Simulação e ações',
+        btnSimulate: 'Simular replanejamento',
+        btnApply: 'Aplicar escala automática',
+        btnUndo: 'Desfazer',
+        actionsNote: 'A simulação recalcula jornadas sem alterar a escala publicada.',
+        settingsTitle: 'Configurações',
+        settingsSubtitle: 'Modifique as informações abaixo. As alterações são aplicadas instantaneamente em todo o painel.',
+        profileSection: 'Perfil',
+        labelName: 'Nome',
+        labelRole: 'Cargo',
+        labelBase: 'Base',
+        labelEmail: 'E-mail',
+        notificationsSection: 'Notificações',
+        notifAlerts: 'Alertas de disrupção',
+        notifFatigue: 'Alertas de risco de fadiga',
+        notifDaily: 'Resumo diário por e-mail',
+        notifPush: 'Notificações push no navegador',
+        appearanceSection: 'Aparência',
+        labelTheme: 'Tema',
+        labelContrast: 'Alto contraste',
+        labelFontSize: 'Tamanho da fonte',
+        labelTableDensity: 'Densidade da tabela',
+        densityComfortable: 'Confortável',
+        densityDense: 'Compacta',
+        langRegionSection: 'Idioma e região',
+        labelLanguage: 'Idioma',
+        labelTimezone: 'Fuso horário padrão',
+        labelTimeFormat: 'Formato de hora',
+        timeFormat24h: '24 horas',
+        securitySection: 'Segurança',
+        label2FA: 'Autenticação em duas etapas',
+        statusEnabled: 'Ativada',
+        labelLastAccess: 'Último acesso',
+        todayWord: 'Hoje',
+        labelActiveSessions: 'Sessões ativas',
+        deviceWord: 'dispositivo',
+        systemSection: 'Sistema',
+        labelOptimizerEngine: 'Motor de otimização',
+        standardWord: 'Padrão',
+        labelLastSync: 'Última sincronização',
+        labelNormativeCompliance: 'Conformidade normativa',
+        a11yTitle: 'Acessibilidade',
+        nightMode: 'Modo noturno',
+        highContrast: 'Alto contraste',
+        fontSize: 'Tamanho da fonte'
+      },
+      'en-US': {
+        skipLink: 'Skip to main content',
+        engineActive: 'Active — successfully optimized',
+        navOperation: 'Operation',
+        menuPanel: 'Dashboard',
+        menuDisruptions: 'Disruptions',
+        menuSchedules: 'Schedules',
+        navSystem: 'System',
+        menuSettings: 'Settings',
+        panelTitle: 'Rescheduling Dashboard — Base',
+        panelSubtitle: 'Real-time tracking of disruptions, crew duties, and compliance with aviation regulations.',
+        kpiActiveDisruptions: 'Active disruptions',
+        kpiHighFatigue: '2 with high fatigue risk',
+        kpiImpactedCrew: 'Impacted crew members',
+        kpiBlockedRbac: '3 blocked by regulations',
+        kpiCrewCompliance: 'Crew compliance',
+        kpiMonitoredFlights: 'Monitored flights today',
+        baseWord: 'Base',
+        currentShift: 'current shift',
+        realtimeActivity: 'Real-time activity',
+        fatigueRiskTitle: 'Crew fatigue risk',
+        blockedLegend: 'Blocked',
+        compliantLegend: 'Compliant',
+        rbacComplianceTitle: 'Regulatory Compliance',
+        disruptionsTitle: 'Disruptions',
+        disruptionsSubtitle: 'Operational events impacting crew duty and compliance. Includes normal and alerted flights.',
+        highFatigueRisk: 'High fatigue risk',
+        moderateRisk: 'Moderate risk',
+        normalOperation: 'Normal operation',
+        depPlanned: 'Scheduled departure',
+        arrRevised: 'Revised arrival',
+        schedulesTitle: 'Affected Cross-Schedules',
+        schedulesSubtitle: 'Accumulated duty time and compliance of crew members involved in active disruptions.',
+        thCrew: 'Crew Member',
+        thFlight: 'Flight',
+        thAccumulatedDuty: 'Accumulated Duty',
+        thRbacLimit: 'Regulatory Limit',
+        thCompliance: 'Compliance',
+        thAiRoute: 'AI Suggested Route',
+        simulationActionsTitle: 'Simulation & Actions',
+        btnSimulate: 'Simulate rescheduling',
+        btnApply: 'Apply automatic schedule',
+        btnUndo: 'Undo',
+        actionsNote: 'Simulation recalculates duties without altering the published schedule.',
+        settingsTitle: 'Settings',
+        settingsSubtitle: 'Modify information below. Changes apply instantly across the entire panel.',
+        profileSection: 'Profile',
+        labelName: 'Name',
+        labelRole: 'Role',
+        labelBase: 'Base',
+        labelEmail: 'E-mail',
+        notificationsSection: 'Notifications',
+        notifAlerts: 'Disruption alerts',
+        notifFatigue: 'Fatigue risk alerts',
+        notifDaily: 'Daily email summary',
+        notifPush: 'Browser push notifications',
+        appearanceSection: 'Appearance',
+        labelTheme: 'Theme',
+        labelContrast: 'High contrast',
+        labelFontSize: 'Font size',
+        labelTableDensity: 'Table density',
+        densityComfortable: 'Comfortable',
+        densityDense: 'Compact',
+        langRegionSection: 'Language & Region',
+        labelLanguage: 'Language',
+        labelTimezone: 'Standard timezone',
+        labelTimeFormat: 'Time format',
+        timeFormat24h: '24 hours',
+        securitySection: 'Security',
+        label2FA: 'Two-factor authentication',
+        statusEnabled: 'Enabled',
+        labelLastAccess: 'Last access',
+        todayWord: 'Today',
+        labelActiveSessions: 'Active sessions',
+        deviceWord: 'device',
+        systemSection: 'System',
+        labelOptimizerEngine: 'Optimization engine',
+        standardWord: 'Standard',
+        labelLastSync: 'Last synchronization',
+        labelNormativeCompliance: 'Normative compliance',
+        a11yTitle: 'Accessibility',
+        nightMode: 'Dark mode',
+        highContrast: 'High contrast',
+        fontSize: 'Font size'
+      },
+      'es-ES': {
+        skipLink: 'Saltar al contenido principal',
+        engineActive: 'Activo — optimizado con éxito',
+        navOperation: 'Operación',
+        menuPanel: 'Panel',
+        menuDisruptions: 'Disrupciones',
+        menuSchedules: 'Tripulaciones',
+        navSystem: 'Sistema',
+        menuSettings: 'Configuración',
+        panelTitle: 'Panel de reprogramación — Base',
+        panelSubtitle: 'Seguimiento en tiempo real de disrupciones, jornadas y cumplimiento normativo.',
+        kpiActiveDisruptions: 'Disrupciones activas',
+        kpiHighFatigue: '2 con alto riesgo de fatiga',
+        kpiImpactedCrew: 'Tripulantes afectados',
+        kpiBlockedRbac: '3 bloqueados por regulaciones',
+        kpiCrewCompliance: 'Cumplimiento de tripulación',
+        kpiMonitoredFlights: 'Vuelos monitoreados hoy',
+        baseWord: 'Base',
+        currentShift: 'turno actual',
+        realtimeActivity: 'Actividad en tiempo real',
+        fatigueRiskTitle: 'Riesgo de fatiga de la tripulación',
+        blockedLegend: 'Bloqueados',
+        compliantLegend: 'Conformes',
+        rbacComplianceTitle: 'Cumplimiento Normativo',
+        disruptionsTitle: 'Disrupciones',
+        disruptionsSubtitle: 'Incidencias operativas que afectan la jornada. Incluye vuelos normales y con alertas.',
+        highFatigueRisk: 'Alto riesgo de fatiga',
+        moderateRisk: 'Riesgo moderado',
+        normalOperation: 'Operación normal',
+        depPlanned: 'Salida prevista',
+        arrRevised: 'Llegada revisada',
+        schedulesTitle: 'Tripulaciones afectadas',
+        schedulesSubtitle: 'Jornada acumulada y cumplimiento de los tripulantes involucrados.',
+        thCrew: 'Tripulante',
+        thFlight: 'Vuelo',
+        thAccumulatedDuty: 'Jornada acumulada',
+        thRbacLimit: 'Límite regulatorio',
+        thCompliance: 'Cumplimiento',
+        thAiRoute: 'Ruta sugerida por IA',
+        simulationActionsTitle: 'Simulación y acciones',
+        btnSimulate: 'Simular reprogramación',
+        btnApply: 'Aplicar escala automática',
+        btnUndo: 'Deshacer',
+        actionsNote: 'La simulación recalcula jornadas sin alterar la escala publicada.',
+        settingsTitle: 'Configuración',
+        settingsSubtitle: 'Modifique la información abajo. Los cambios se aplican al instante en todo el panel.',
+        profileSection: 'Perfil',
+        labelName: 'Nombre',
+        labelRole: 'Cargo',
+        labelBase: 'Base',
+        labelEmail: 'Correo electrónico',
+        notificationsSection: 'Notificaciones',
+        notifAlerts: 'Alertas de disrupción',
+        notifFatigue: 'Alertas de risco de fadiga',
+        notifDaily: 'Resumen diario por correo',
+        notifPush: 'Notificaciones push en navegador',
+        appearanceSection: 'Apariencia',
+        labelTheme: 'Tema',
+        labelContrast: 'Alto contraste',
+        labelFontSize: 'Tamaño de fuente',
+        labelTableDensity: 'Densidad de tabla',
+        densityComfortable: 'Cómoda',
+        densityDense: 'Compacta',
+        langRegionSection: 'Idioma y región',
+        labelLanguage: 'Idioma',
+        labelTimezone: 'Zona horaria estándar',
+        labelTimeFormat: 'Formato de hora',
+        timeFormat24h: '24 horas',
+        securitySection: 'Seguridad',
+        label2FA: 'Autenticação de dos factores',
+        statusEnabled: 'Activada',
+        labelLastAccess: 'Último acesso',
+        todayWord: 'Hoy',
+        labelActiveSessions: 'Sesiones activas',
+        deviceWord: 'dispositivo',
+        systemSection: 'Sistema',
+        labelOptimizerEngine: 'Motor de optimización',
+        standardWord: 'Estándar',
+        labelLastSync: 'Última sincronização',
+        labelNormativeCompliance: 'Cumplimiento normativo',
+        a11yTitle: 'Accesibilidad',
+        nightMode: 'Modo nocturno',
+        highContrast: 'Alto contraste',
+        fontSize: 'Tamaño de fuente'
       }
-    });
-    document.documentElement.lang = lang;
-  }
+    };
 
-  function applySettingsToDOM() {
-    if (headerUserName) headerUserName.textContent = settings.name;
-    if (headerUserRole) headerUserRole.textContent = settings.role;
-    if (userAvatar) userAvatar.textContent = getInitials(settings.name);
+    const timezonesMap = {
+      'GRU': 'America/Sao_Paulo', 'MAO': 'America/Manaus', 'BSB': 'America/Sao_Paulo',
+      'CGH': 'America/Sao_Paulo', 'GIG': 'America/Sao_Paulo', 'FOR': 'America/Fortaleza',
+      'REC': 'America/Recife', 'SSA': 'America/Bahia', 'BEL': 'America/Belem',
+      'CGB': 'America/Cuiaba', 'PVH': 'America/Porto_Velho', 'RBR': 'America/Rio_Branco',
+      'FLN': 'America/Sao_Paulo', 'IGU': 'America/Sao_Paulo'
+    };
 
-    const bCode = getBaseCode(settings.base);
-    if (headerBaseCode) headerBaseCode.textContent = bCode;
-    if (panelBaseTitle) panelBaseTitle.textContent = bCode;
-    if (kpiBaseLabel) kpiBaseLabel.textContent = bCode;
-    baseCodeDynamics.forEach(el => el.textContent = bCode);
+    let settings = {
+      name: usuarioLogado.nome || 'Marina Costa',
+      role: 'Coordenadora Operacional',
+      base: 'GRU — Guarulhos',
+      email: usuarioLogado.email || 'marina.costa@skysync.aero',
+      idioma: 'pt-BR'
+    };
 
-    translatePage(settings.idioma);
-  }
+    try {
+      const saved = localStorage.getItem('skysync-custom-settings');
+      if (saved) {
+        const parsedSaved = JSON.parse(saved);
+        settings = Object.assign({}, parsedSaved, {
+          name: usuarioLogado.nome || parsedSaved.name,
+          email: usuarioLogado.email || parsedSaved.email
+        });
+      } else {
+        settings.email = usuarioLogado.email || 'marina.costa@skysync.aero';
+      }
+    } catch(e) {}
 
-  applySettingsToDOM();
+    const inputName = document.getElementById('inputName');
+    const inputRole = document.getElementById('inputRole');
+    const selBase = document.getElementById('selBase');
+    const staticEmail = document.getElementById('staticEmail');
+    const selIdioma = document.getElementById('selIdioma');
+    const selTheme = document.getElementById('selTheme');
+    const selContrast = document.getElementById('selContrast');
+    const selFontSize = document.getElementById('selFontSize');
+    const selDensity = document.getElementById('selDensity');
 
-  function handleSettingChange() {
-    settings.name = inputName.value;
-    settings.role = inputRole.value;
-    settings.base = selBase.value;
-    settings.email = inputEmail.value;
-    settings.idioma = selIdioma.value;
+    const headerUserName = document.getElementById('headerUserName');
+    const headerUserRole = document.getElementById('headerUserRole');
+    const userAvatar = document.getElementById('userAvatar');
+    const headerBaseCode = document.getElementById('headerBaseCode');
+    const panelBaseTitle = document.getElementById('panelBaseTitle');
+    const kpiBaseLabel = document.getElementById('kpiBaseLabel');
+    const baseCodeDynamics = document.querySelectorAll('.base-code-dynamic');
+
+    if (inputName) inputName.value = settings.name;
+    if (inputRole) inputRole.value = settings.role;
+    if (selBase) selBase.value = settings.base;
+    if (staticEmail) staticEmail.textContent = settings.email;
+    if (selIdioma) selIdioma.value = settings.idioma || 'pt-BR';
+
+    function getInitials(fullName) {
+      try {
+        const parts = (fullName || 'Marina Costa').trim().split(' ');
+        if (parts.length >= 2) {
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+        return fullName.substring(0, 2).toUpperCase();
+      } catch(e) { return 'MC'; }
+    }
+
+    function getBaseCode(baseFull) {
+      try {
+        return (baseFull || 'GRU').split('—')[0].trim();
+      } catch(e) { return 'GRU'; }
+    }
+
+    function translatePage(lang) {
+      try {
+        const dict = translations[lang] || translations['pt-BR'];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (dict[key]) {
+            el.textContent = dict[key];
+          }
+        });
+        document.documentElement.lang = lang;
+      } catch(e) {}
+    }
+
+    // Função ultra robusta de geração e atualização da tela de disrupções
+    function gerarDisruptionsDinamicas() {
+      const grid = document.getElementById('disruptionsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const bCode = getBaseCode(settings.base || 'GRU');
+      
+      const disrupcoesBase = [
+        { voo: 'JJ-3482', risco: 'alto', classeRisco: 'alto', badge: 'Risco alto de fadiga', desc: `Atraso operacional crítico na base ${bCode} devido a restrições meteorológicas severas. Tripulação aproxima o limite máximo de jornada da RBAC 117.`, rota: `${bCode} → GRU`, horario: 'Partida prevista 23:40' },
+        { voo: 'JJ-1207', risco: 'medio', classeRisco: 'medio', badge: 'Risco moderado', desc: `Manutenção não programada de aeronave oriunda de ${bCode}. Tripulação reserva acionada em aeroporto alternativo.`, rota: 'CGH → SSA', horario: 'Partida prevista 06:15' },
+        { voo: 'JJ-5590', risco: 'alto', classeRisco: 'alto', badge: 'Risco alto de fadiga', desc: `Fechamento parcial de pista afetando conexões diretas com ${bCode}, estendendo o tempo de toque e repouso.`, rota: `REC → ${bCode}`, horario: 'Chegada revisada 21:05' },
+        { voo: 'JJ-2210', risco: 'medio', classeRisco: 'medio', badge: 'Risco moderado', desc: 'Congestionamento e restrição de tráfego aéreo no setor gerando espera em órbita de 30 minutos.', rota: 'BSB → GIG', horario: 'Partida prevista 18:20' },
+        { voo: 'JJ-4412', risco: 'baixo', classeRisco: 'baixo', badge: 'Operação normal', desc: `Voo operando perfeitamente sem restrições ou alertas na malha da base ${bCode}. Tripulação dentro dos parâmetros padrão.`, rota: `${bCode} → CNF`, horario: 'Partida prevista 15:00' }
+      ];
+
+      disrupcoesBase.forEach(d => {
+        const article = document.createElement('article');
+        article.className = `alert-card risk-${d.risco}`;
+        article.innerHTML = `
+          <div class="flight-row"><span class="flight-id">${d.voo}</span><span class="risk-badge ${d.classeRisco}">${d.badge}</span></div>
+          <p>${d.desc}</p>
+          <div class="meta"><span>${d.rota}</span><span>${d.horario}</span></div>
+        `;
+        grid.appendChild(article);
+      });
+
+      const alertCount = document.getElementById('alertCount');
+      const kpiActiveCount = document.getElementById('kpiActiveCount');
+      if (alertCount) alertCount.textContent = `${disrupcoesBase.length} ativos`;
+      if (kpiActiveCount) kpiActiveCount.textContent = disrupcoesBase.length;
+    }
+
+    function applySettingsToDOM() {
+      try {
+        if (headerUserName) headerUserName.textContent = settings.name;
+        if (headerUserRole) headerUserRole.textContent = settings.role;
+        if (userAvatar) userAvatar.textContent = getInitials(settings.name);
+        if (staticEmail) staticEmail.textContent = settings.email;
+
+        const bCode = getBaseCode(settings.base);
+        if (headerBaseCode) headerBaseCode.textContent = bCode;
+        if (panelBaseTitle) panelBaseTitle.textContent = bCode;
+        if (kpiBaseLabel) kpiBaseLabel.textContent = bCode;
+        baseCodeDynamics.forEach(el => el.textContent = bCode);
+
+        translatePage(settings.idioma);
+        gerarDisruptionsDinamicas();
+        gerarEscalasDinamicas();
+      } catch(e) {}
+    }
 
     applySettingsToDOM();
-    try {
-      localStorage.setItem('skysync-custom-settings', JSON.stringify(settings));
-    } catch(e) {}
-    tick();
-  }
 
-  if (inputName) inputName.addEventListener('input', handleSettingChange);
-  if (inputRole) inputRole.addEventListener('input', handleSettingChange);
-  if (selBase) selBase.addEventListener('change', handleSettingChange);
-  if (inputEmail) inputEmail.addEventListener('input', handleSettingChange);
-  if (selIdioma) selIdioma.addEventListener('change', handleSettingChange);
+    function handleSettingChange() {
+      try {
+        if (inputName) settings.name = inputName.value;
+        if (inputRole) settings.role = inputRole.value;
+        if (selBase) settings.base = selBase.value;
+        if (selIdioma) settings.idioma = selIdioma.value;
 
-  // Relógios
-  function tick() {
-    const now = new Date();
-    const bCode = getBaseCode(settings.base || 'GRU');
-    const tz = timezonesMap[bCode] || 'America/Sao_Paulo';
-
-    const utcTimeStr = now.toLocaleTimeString('pt-BR', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const utcDateStr = now.toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
-    
-    const localTimeStr = now.toLocaleTimeString('pt-BR', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const localDateStr = now.toLocaleDateString('pt-BR', { timeZone: tz, day: '2-digit', month: '2-digit', year: 'numeric' });
-
-    const utcClock = document.getElementById('utcClock');
-    const utcDate = document.getElementById('utcDate');
-    const localClock = document.getElementById('localClock');
-    const localDate = document.getElementById('localDate');
-    const tableTime = document.getElementById('tableTime');
-
-    if (utcClock) utcClock.textContent = utcTimeStr;
-    if (utcDate) utcDate.textContent = utcDateStr;
-    if (localClock) localClock.textContent = localTimeStr;
-    if (localDate) localDate.textContent = localDateStr;
-    if (tableTime) tableTime.textContent = utcTimeStr;
-  }
-  tick();
-  setInterval(tick, 1000);
-
-  // Navegação entre telas
-  const screens = document.querySelectorAll('.screen');
-  const navButtons = document.querySelectorAll('.nav-btn[data-screen]');
-  function switchScreen(name) {
-    screens.forEach(s => { s.hidden = (s.id !== 'screen-' + name); });
-    navButtons.forEach(btn => {
-      if (btn.dataset.screen === name) btn.setAttribute('aria-current', 'page');
-      else btn.removeAttribute('aria-current');
-    });
-    const target = document.getElementById('screen-' + name);
-    if (target) target.focus();
-  }
-  document.querySelectorAll('[data-screen]').forEach(el => {
-    el.addEventListener('click', () => switchScreen(el.dataset.screen));
-  });
-
-  // Acessibilidade / Tema / Escala / Densidade
-  const fab = document.getElementById('a11yToggle');
-  const panel = document.getElementById('a11yPanel');
-  if (fab && panel) {
-    fab.addEventListener('click', () => {
-      const open = panel.classList.toggle('open');
-      fab.setAttribute('aria-expanded', String(open));
-    });
-  }
-
-  const darkSwitch = document.getElementById('darkSwitch');
-  const contrastSwitch = document.getElementById('contrastSwitch');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-  const mainCrewTable = document.getElementById('mainCrewTable');
-
-  function updateThemeState(isDark) {
-    if (isDark) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      if (darkSwitch) darkSwitch.checked = true;
-      if (selTheme) selTheme.value = 'dark';
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      if (darkSwitch) darkSwitch.checked = false;
-      if (selTheme) selTheme.value = 'light';
+        applySettingsToDOM();
+        localStorage.setItem('skysync-custom-settings', JSON.stringify(settings));
+        tick();
+      } catch(e) {}
     }
-  }
 
-  function updateContrastState(isHigh) {
-    document.documentElement.setAttribute('data-contrast', isHigh ? 'high' : 'normal');
-    if (contrastSwitch) contrastSwitch.checked = isHigh;
-    if (selContrast) selContrast.value = isHigh ? 'high' : 'normal';
-  }
+    if (inputName) inputName.addEventListener('input', handleSettingChange);
+    if (inputRole) inputRole.addEventListener('input', handleSettingChange);
+    if (selBase) selBase.addEventListener('change', handleSettingChange);
+    if (selIdioma) selIdioma.addEventListener('change', handleSettingChange);
 
-  function updateScaleState(scale) {
-    document.documentElement.style.setProperty('--scale', scale);
-    if (selFontSize) selFontSize.value = scale;
-    const fontButtons = document.querySelectorAll('.font-steps button');
-    fontButtons.forEach(b => {
-      b.setAttribute('aria-pressed', b.dataset.scale === scale ? 'true' : 'false');
-    });
-  }
+    // Modal Interativo
+    const infoModal = document.getElementById('infoModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDescription = document.getElementById('modalDescription');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-  function updateDensityState(density) {
-    if (mainCrewTable) {
-      if (density === 'dense') mainCrewTable.classList.add('dense-table');
-      else mainCrewTable.classList.remove('dense-table');
+    function openModal(title, text) {
+      try {
+        if (modalTitle) modalTitle.textContent = title;
+        if (modalDescription) modalDescription.textContent = text;
+        if (infoModal) infoModal.classList.add('open');
+      } catch(e) {}
     }
-    if (selDensity) selDensity.value = density;
-  }
 
-  const savedTheme = localStorage.getItem('skysync-theme');
-  if (savedTheme) {
-    updateThemeState(savedTheme === 'dark');
-  } else {
-    updateThemeState(prefersDark.matches);
-  }
-
-  const savedContrast = localStorage.getItem('skysync-contrast');
-  if (savedContrast) updateContrastState(savedContrast === 'high');
-
-  const savedScale = localStorage.getItem('skysync-scale');
-  if (savedScale) updateScaleState(savedScale);
-
-  const savedDensity = localStorage.getItem('skysync-density');
-  if (savedDensity) updateDensityState(savedDensity);
-
-  if (selTheme) {
-    selTheme.addEventListener('change', () => {
-      const isDark = selTheme.value === 'dark';
-      updateThemeState(isDark);
-      try { localStorage.setItem('skysync-theme', isDark ? 'dark' : 'light'); } catch(e) {}
-    });
-  }
-
-  if (selContrast) {
-    selContrast.addEventListener('change', () => {
-      const isHigh = selContrast.value === 'high';
-      updateContrastState(isHigh);
-      try { localStorage.setItem('skysync-contrast', isHigh ? 'high' : 'normal'); } catch(e) {}
-    });
-  }
-
-  if (selFontSize) {
-    selFontSize.addEventListener('change', () => {
-      const scale = selFontSize.value;
-      updateScaleState(scale);
-      try { localStorage.setItem('skysync-scale', scale); } catch(e) {}
-    });
-  }
-
-  if (selDensity) {
-    selDensity.addEventListener('change', () => {
-      const density = selDensity.value;
-      updateDensityState(density);
-      try { localStorage.setItem('skysync-density', density); } catch(e) {}
-    });
-  }
-
-  if (darkSwitch) {
-    darkSwitch.addEventListener('change', () => {
-      const on = darkSwitch.checked;
-      updateThemeState(on);
-      try { localStorage.setItem('skysync-theme', on ? 'dark' : 'light'); } catch(e) {}
-    });
-  }
-
-  if (contrastSwitch) {
-    contrastSwitch.addEventListener('change', () => {
-      const on = contrastSwitch.checked;
-      updateContrastState(on);
-      try { localStorage.setItem('skysync-contrast', on ? 'high' : 'normal'); } catch(e) {}
-    });
-  }
-
-  const fontButtons = document.querySelectorAll('.font-steps button');
-  fontButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const scale = btn.dataset.scale;
-      updateScaleState(scale);
-      try { localStorage.setItem('skysync-scale', scale); } catch(e) {}
-    });
-  });
-
-  // Ações de simulação
-  const btnSimular = document.getElementById('btnSimular');
-  const btnAplicar = document.getElementById('btnAplicar');
-  const btnDesfazer = document.getElementById('btnDesfazer');
-  const liveStatus = document.getElementById('liveStatus');
-  const engineLabel = document.getElementById('engineLabel');
-  const blockedRows = document.querySelectorAll('tr[data-row="1"], tr[data-row="5"], tr[data-row="6"]');
-  let appliedSnapshot = null;
-
-  function showStatus(msg, kind) {
-    if (!liveStatus) return;
-    liveStatus.textContent = msg;
-    liveStatus.className = 'show ' + (kind === 'blocked' ? 'blocked-msg' : 'ok-msg');
-  }
-
-  if (btnSimular) {
-    btnSimular.addEventListener('click', () => {
-      if (engineLabel) engineLabel.textContent = 'Simulando cenário — 3 conflitos de fadiga identificados';
-      showStatus('Simulação concluída: 3 tripulantes excedem o limite RBAC 117 nas rotas atuais. Revise as linhas destacadas em vermelho antes de aplicar.', 'blocked');
-      blockedRows.forEach(r => r.style.background = 'var(--red-bg)');
-      setTimeout(() => blockedRows.forEach(r => r.style.background = ''), 1600);
-    });
-  }
-
-  if (btnAplicar) {
-    btnAplicar.addEventListener('click', () => {
-      const crewTable = document.getElementById('crewTable');
-      if (crewTable) {
-        appliedSnapshot = Array.from(crewTable.querySelectorAll('tr')).map(r => r.innerHTML);
-      }
-      blockedRows.forEach(row => {
-        const chip = row.querySelector('.status-chip');
-        if (chip) {
-          chip.className = 'status-chip ok';
-          chip.innerHTML = '<span class="dot2"></span> Conforme ANAC';
-        }
-        const hours = row.querySelector('.hours.over');
-        if (hours) hours.classList.remove('over');
+    if (modalCloseBtn && infoModal) {
+      modalCloseBtn.addEventListener('click', () => infoModal.classList.remove('open'));
+      infoModal.addEventListener('click', (e) => {
+        if (e.target === infoModal) infoModal.classList.remove('open');
       });
-      if (engineLabel) engineLabel.textContent = 'Ativo — escala automática aplicada com sucesso';
-      showStatus('Escala automática aplicada. Os 3 conflitos de fadiga foram resolvidos com troca de tripulação reserva.', 'ok');
-      if (btnDesfazer) btnDesfazer.disabled = false;
-    });
-  }
+    }
 
-  if (btnDesfazer) {
-    btnDesfazer.addEventListener('click', () => {
-      if (!appliedSnapshot) return;
-      const rows = document.querySelectorAll('#crewTable tr');
-      rows.forEach((r, i) => { if (appliedSnapshot[i]) r.innerHTML = appliedSnapshot[i]; });
-      if (engineLabel) engineLabel.textContent = 'Ativo — otimizado com sucesso';
-      showStatus('Ação desfeita. A escala voltou ao estado anterior.', 'blocked');
-      btnDesfazer.disabled = true;
-      appliedSnapshot = null;
+    const widgetFatigue = document.getElementById('widgetFatigue');
+    const widgetCompliance = document.getElementById('widgetCompliance');
+
+    if (widgetFatigue) {
+      widgetFatigue.addEventListener('click', () => {
+        const blocked = document.getElementById('blockedCountNum');
+        const count = blocked ? blocked.textContent : '3';
+        openModal('Relatório de Risco de Fadiga (RBAC 117)', `Atualmente existem ${count} tripulantes em estado de atenção ou bloqueados por limite de jornada excedido. O motor CP-SAT está pronto para recalcular as rotas e repousos.`);
+      });
+    }
+
+    if (widgetCompliance) {
+      widgetCompliance.addEventListener('click', () => {
+        const val = document.getElementById('progressValText');
+        const textVal = val ? val.textContent : '66%';
+        openModal('Índice de Conformidade Normativa', `O índice atual da base é de ${textVal} de conformidade com a ANAC e Lei do Aeronauta. Otimize as escalas para mitigar qualquer infração regulatória.`);
+      });
+    }
+
+    // Pool de dados e Escalas Dinâmicas
+    const poolNomes = [
+      { nome: 'Rafael Nunes', cargo: 'Comandante' },
+      { nome: 'Beatriz Lima', cargo: 'Copiloto' },
+      { nome: 'Carlos Mendonça', cargo: 'Comissário-chefe' },
+      { nome: 'Juliana Prado', cargo: 'Comissária' },
+      { nome: 'Eduardo Silveira', cargo: 'Comandante' },
+      { nome: 'Marcos Vinicius', cargo: 'Comandante' },
+      { nome: 'Larissa Martins', cargo: 'Copiloto' },
+      { nome: 'Roberto Sampaio', cargo: 'Comandante' },
+      { nome: 'Camila Dias', cargo: 'Comissária' },
+      { nome: 'Lucas Farias', cargo: 'Copiloto' },
+      { nome: 'Fernanda Souza', cargo: 'Comissária' },
+      { nome: 'Bruno Alencar', cargo: 'Comandante' }
+    ];
+
+    const poolVoos = ['JJ-3482', 'JJ-1207', 'JJ-5590', 'JJ-2210', 'JJ-4412', 'JJ-7891', 'JJ-9023'];
+    const poolRotas = [
+      { rota: 'MAO → GRU', solucao: 'reserva assume trecho final' },
+      { rota: 'CGH → SSA', solucao: 'sem alteração' },
+      { rota: 'REC → GRU', solucao: 'descanso reduzido em 20 min' },
+      { rota: 'BSB → GIG', solucao: 'tripulação de apoio acionada' },
+      { rota: 'GRU → CNF', solucao: 'sem alteração' },
+      { rota: 'FOR → BSB', solucao: 'troca por comandante reserva' }
+    ];
+
+    function atualizarWidgetsDeFadiga() {
+      try {
+        const tbody = document.getElementById('crewTable');
+        if (!tbody) return;
+        const rows = tbody.querySelectorAll('tr');
+        const total = rows.length;
+        if (total === 0) return;
+
+        let blockedCount = 0;
+        rows.forEach(r => {
+          if (r.querySelector('.status-chip.bloqueado')) {
+            blockedCount++;
+          }
+        });
+
+        const compliantCount = total - blockedCount;
+        const percentBlocked = (blockedCount / total) * 100;
+        const percentCompliant = 100 - percentBlocked;
+
+        const fatigueDonut = document.getElementById('fatigueDonut');
+        const blockedCountNum = document.getElementById('blockedCountNum');
+        const blockedTextNum = document.getElementById('blockedTextNum');
+        const compliantTextNum = document.getElementById('compliantTextNum');
+        const progressFill = document.getElementById('progressFill');
+        const progressValText = document.getElementById('progressValText');
+        const kpiComplianceVal = document.getElementById('kpiComplianceVal');
+        const kpiComplianceHint = document.getElementById('kpiComplianceHint');
+
+        if (blockedCountNum) blockedCountNum.textContent = blockedCount;
+        if (blockedTextNum) blockedTextNum.textContent = blockedCount;
+        if (compliantTextNum) compliantTextNum.textContent = compliantCount;
+
+        if (fatigueDonut) {
+          if (blockedCount === 0) {
+            fatigueDonut.style.background = 'conic-gradient(var(--green) 0% 100%)';
+          } else {
+            fatigueDonut.style.background = `conic-gradient(var(--green) 0% ${percentCompliant}%, var(--red) ${percentCompliant}% 100%)`;
+          }
+        }
+
+        const compliancePercent = Math.round(percentCompliant);
+        if (progressFill) progressFill.style.width = compliancePercent + '%';
+        if (progressValText) progressValText.textContent = compliancePercent + '%';
+        if (kpiComplianceVal) kpiComplianceVal.textContent = compliancePercent + '%';
+        if (kpiComplianceHint) kpiComplianceHint.textContent = `${compliantCount} de ${total} tripulantes conformes`;
+      } catch(e) {}
+    }
+
+    function gerarEscalasDinamicas() {
+      try {
+        const tbody = document.getElementById('crewTable');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const shuffled = [...poolNomes].sort(() => 0.5 - Math.random()).slice(0, 9);
+
+        shuffled.forEach((trip, index) => {
+          const voo = poolVoos[Math.floor(Math.random() * poolVoos.length)];
+          const rotaObj = poolRotas[Math.floor(Math.random() * poolRotas.length)];
+          
+          const horas = Math.floor(Math.random() * 6) + 6;
+          const minutos = Math.floor(Math.random() * 12) * 5;
+          const horasStr = `${horas}h${minutos < 10 ? '0' + minutos : minutos}`;
+          
+          const isBloqueado = (horas >= 11);
+          const limitRbac = (trip.cargo === 'Comandante' || trip.cargo === 'Copiloto') ? '11h00 (pouso à noite)' : '14h00 (jornada padrão)';
+          
+          const tr = document.createElement('tr');
+          tr.setAttribute('data-row', index + 1);
+          tr.innerHTML = `
+            <td><span class="crew-name">${trip.nome}</span><span class="crew-role">${trip.cargo}</span></td>
+            <td class="hours">${voo}</td>
+            <td class="hours ${isBloqueado ? 'over' : ''}">${horasStr}</td>
+            <td class="limit-tag">${limitRbac}</td>
+            <td><span class="status-chip ${isBloqueado ? 'bloqueado' : 'ok'}"><span class="dot2"></span> ${isBloqueado ? 'Bloqueado' : 'Conforme ANAC'}</span></td>
+            <td class="new-route">${rotaObj.rota} <span class="arrow">→</span> ${rotaObj.solucao}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        atualizarWidgetsDeFadiga();
+        addFeedItem('Motor CP-SAT sincronizou e atualizou a matriz de escalas cruzadas.');
+      } catch(e) {}
+    }
+
+    gerarEscalasDinamicas();
+    gerarDisruptionsDinamicas();
+    setInterval(gerarEscalasDinamicas, 180000);
+
+    const btnRefreshTable = document.getElementById('btnRefreshTable');
+    if (btnRefreshTable) {
+      btnRefreshTable.addEventListener('click', () => {
+        gerarEscalasDinamicas();
+        gerarDisruptionsDinamicas();
+        showStatus('Painel e escalas atualizados com sucesso em tempo real.', 'ok');
+      });
+    }
+
+    const nowBase = new Date();
+    const feedItemsData = [
+      { text: 'Voo JJ-4412 pousou normalmente dentro do horário previsto.', time: new Date(nowBase.getTime() - 12 * 60 * 1000) },
+      { text: 'Disrupção registrada: fechamento parcial de pista em setor monitorado.', time: new Date(nowBase.getTime() - 25 * 60 * 1000) },
+      { text: 'Motor CP-SAT recalculou a rota do voo JJ-3482.', time: new Date(nowBase.getTime() - 43 * 60 * 1000) },
+      { text: 'Tripulação sob monitoramento atingiu patamar da RBAC 117.', time: new Date(nowBase.getTime() - 60 * 60 * 1000) },
+      { text: 'Início de turno: voos sob monitoramento na base.', time: new Date(nowBase.getTime() - 95 * 60 * 1000) }
+    ];
+
+    function getRelativeTimeString(date) {
+      try {
+        const diffMs = new Date() - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 1) return 'há agora mesmo';
+        if (diffMins === 1) return 'há 1 minuto atrás';
+        if (diffMins < 60) return `há ${diffMins} minutos atrás`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours === 1) return 'há 1 hora atrás';
+        if (diffHours < 24) return `há ${diffHours} horas atrás`;
+        const diffDays = Math.floor(diffHours / 24);
+        if (diffDays === 1) return 'ontem';
+        return `há ${diffDays} dias atrás`;
+      } catch(e) { return 'há pouco'; }
+    }
+
+    function renderFeed() {
+      try {
+        const feedList = document.getElementById('feedList');
+        if (!feedList) return;
+        feedList.innerHTML = '';
+        feedItemsData.forEach(item => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span class="feed-time">${getRelativeTimeString(item.time)}</span>${item.text}`;
+          feedList.appendChild(li);
+        });
+      } catch(e) {}
+    }
+
+    function addFeedItem(text) {
+      try {
+        feedItemsData.unshift({ text: text, time: new Date() });
+        if (feedItemsData.length > 10) feedItemsData.pop();
+        renderFeed();
+      } catch(e) {}
+    }
+
+    renderFeed();
+    setInterval(renderFeed, 30000);
+
+    function tick() {
+      try {
+        const now = new Date();
+        const bCode = getBaseCode(settings.base || 'GRU');
+        const tz = timezonesMap[bCode] || 'America/Sao_Paulo';
+
+        const utcTimeStr = now.toLocaleTimeString('pt-BR', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const utcDateStr = now.toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
+        
+        const localTimeStr = now.toLocaleTimeString('pt-BR', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const localDateStr = now.toLocaleDateString('pt-BR', { timeZone: tz, day: '2-digit', month: '2-digit', year: 'numeric' });
+
+        const utcClock = document.getElementById('utcClock');
+        const utcDate = document.getElementById('utcDate');
+        const localClock = document.getElementById('localClock');
+        const localDate = document.getElementById('localDate');
+        const tableTime = document.getElementById('tableTime');
+
+        if (utcClock) utcClock.textContent = utcTimeStr;
+        if (utcDate) utcDate.textContent = utcDateStr;
+        if (localClock) localClock.textContent = localTimeStr;
+        if (localDate) localDate.textContent = localDateStr;
+        if (tableTime) tableTime.textContent = utcTimeStr;
+      } catch(e) {}
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    // Sistema de Navegação entre Abas Blindado com atualizador automático de disrupções
+    const screens = document.querySelectorAll('.screen');
+    const navButtons = document.querySelectorAll('.nav-btn[data-screen]');
+    
+    function switchScreen(name) {
+      try {
+        screens.forEach(s => {
+          if (s) s.hidden = (s.id !== 'screen-' + name);
+        });
+        navButtons.forEach(btn => {
+          if (!btn) return;
+          if (btn.dataset.screen === name) btn.setAttribute('aria-current', 'page');
+          else btn.removeAttribute('aria-current');
+        });
+        
+        // Assegura atualização dinâmica imediata da aba de disrupções ao selecioná-la
+        if (name === 'disrupcoes') {
+          gerarDisruptionsDinamicas();
+        }
+
+        const target = document.getElementById('screen-' + name);
+        if (target) target.focus();
+      } catch(e) {}
+    }
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const screenName = btn.dataset.screen;
+        if (screenName) switchScreen(screenName);
+      });
     });
+
+    document.querySelectorAll('.kpi-card[data-screen]').forEach(card => {
+      card.addEventListener('click', () => {
+        const screenName = card.dataset.screen;
+        if (screenName) switchScreen(screenName);
+      });
+    });
+
+    const fab = document.getElementById('a11yToggle');
+    const panel = document.getElementById('a11yPanel');
+    if (fab && panel) {
+      fab.addEventListener('click', () => {
+        const open = panel.classList.toggle('open');
+        fab.setAttribute('aria-expanded', String(open));
+      });
+    }
+
+    const darkSwitch = document.getElementById('darkSwitch');
+    const contrastSwitch = document.getElementById('contrastSwitch');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const mainCrewTable = document.getElementById('mainCrewTable');
+
+    function updateThemeState(isDark) {
+      try {
+        if (isDark) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          if (darkSwitch) darkSwitch.checked = true;
+          if (selTheme) selTheme.value = 'dark';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          if (darkSwitch) darkSwitch.checked = false;
+          if (selTheme) selTheme.value = 'light';
+        }
+      } catch(e) {}
+    }
+
+    function updateContrastState(isHigh) {
+      try {
+        document.documentElement.setAttribute('data-contrast', isHigh ? 'high' : 'normal');
+        if (contrastSwitch) contrastSwitch.checked = isHigh;
+        if (selContrast) selContrast.value = isHigh ? 'high' : 'normal';
+      } catch(e) {}
+    }
+
+    function updateScaleState(scale) {
+      try {
+        document.documentElement.style.setProperty('--scale', scale);
+        if (selFontSize) selFontSize.value = scale;
+        const fontButtons = document.querySelectorAll('.font-steps button');
+        fontButtons.forEach(b => {
+          b.setAttribute('aria-pressed', b.dataset.scale === scale ? 'true' : 'false');
+        });
+      } catch(e) {}
+    }
+
+    function updateDensityState(density) {
+      try {
+        if (mainCrewTable) {
+          if (density === 'dense') mainCrewTable.classList.add('dense-table');
+          else mainCrewTable.classList.remove('dense-table');
+        }
+        if (selDensity) selDensity.value = density;
+      } catch(e) {}
+    }
+
+    const savedTheme = localStorage.getItem('skysync-theme');
+    if (savedTheme) {
+      updateThemeState(savedTheme === 'dark');
+    } else {
+      updateThemeState(prefersDark.matches);
+    }
+
+    const savedContrast = localStorage.getItem('skysync-contrast');
+    if (savedContrast) updateContrastState(savedContrast === 'high');
+
+    const savedScale = localStorage.getItem('skysync-scale');
+    if (savedScale) updateScaleState(savedScale);
+
+    const savedDensity = localStorage.getItem('skysync-density');
+    if (savedDensity) updateDensityState(savedDensity);
+
+    if (selTheme) {
+      selTheme.addEventListener('change', () => {
+        const isDark = selTheme.value === 'dark';
+        updateThemeState(isDark);
+        try { localStorage.setItem('skysync-theme', isDark ? 'dark' : 'light'); } catch(e) {}
+      });
+    }
+
+    if (selContrast) {
+      selContrast.addEventListener('change', () => {
+        const isHigh = selContrast.value === 'high';
+        updateContrastState(isHigh);
+        try { localStorage.setItem('skysync-contrast', isHigh ? 'high' : 'normal'); } catch(e) {}
+      });
+    }
+
+    if (selFontSize) {
+      selFontSize.addEventListener('change', () => {
+        const scale = selFontSize.value;
+        updateScaleState(scale);
+        try { localStorage.setItem('skysync-scale', scale); } catch(e) {}
+      });
+    }
+
+    if (selDensity) {
+      selDensity.addEventListener('change', () => {
+        const density = selDensity.value;
+        updateDensityState(density);
+        try { localStorage.setItem('skysync-density', density); } catch(e) {}
+      });
+    }
+
+    if (darkSwitch) {
+      darkSwitch.addEventListener('change', () => {
+        const on = darkSwitch.checked;
+        updateThemeState(on);
+        try { localStorage.setItem('skysync-theme', on ? 'dark' : 'light'); } catch(e) {}
+      });
+    }
+
+    if (contrastSwitch) {
+      contrastSwitch.addEventListener('change', () => {
+        const on = contrastSwitch.checked;
+        updateContrastState(on);
+        try { localStorage.setItem('skysync-contrast', on ? 'high' : 'normal'); } catch(e) {}
+      });
+    }
+
+    const fontButtons = document.querySelectorAll('.font-steps button');
+    fontButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const scale = btn.dataset.scale;
+        updateScaleState(scale);
+        try { localStorage.setItem('skysync-scale', scale); } catch(e) {}
+      });
+    });
+
+    const btnSimular = document.getElementById('btnSimular');
+    const btnAplicar = document.getElementById('btnAplicar');
+    const btnDesfazer = document.getElementById('btnDesfazer');
+    const liveStatus = document.getElementById('liveStatus');
+    const engineLabel = document.getElementById('engineLabel');
+    let appliedSnapshot = null;
+
+    function showStatus(msg, kind) {
+      try {
+        if (!liveStatus) return;
+        liveStatus.textContent = msg;
+        liveStatus.className = 'show ' + (kind === 'blocked' ? 'blocked-msg' : 'ok-msg');
+      } catch(e) {}
+    }
+
+    if (btnSimular) {
+      btnSimular.addEventListener('click', () => {
+        if (engineLabel) engineLabel.textContent = 'Simulando cenário — análise de fadiga em curso';
+        showStatus('Simulação executada com sucesso. Verifique os tripulantes marcados com alerta vermelho.', 'blocked');
+        const blockedRows = document.querySelectorAll('#crewTable tr');
+        blockedRows.forEach(r => {
+          if (r.querySelector('.status-chip.bloqueado')) {
+            r.style.background = 'var(--red-bg)';
+            setTimeout(() => r.style.background = '', 1600);
+          }
+        });
+        addFeedItem('Simulação de replanejamento executada pelo operador.');
+      });
+    }
+
+    if (btnAplicar) {
+      btnAplicar.addEventListener('click', () => {
+        const crewTable = document.getElementById('crewTable');
+        if (crewTable) {
+          appliedSnapshot = crewTable.innerHTML;
+        }
+        const blockedRows = document.querySelectorAll('#crewTable tr');
+        blockedRows.forEach(row => {
+          const chip = row.querySelector('.status-chip.bloqueado');
+          if (chip) {
+            chip.className = 'status-chip ok';
+            chip.innerHTML = '<span class="dot2"></span> Conforme ANAC';
+          }
+          const hours = row.querySelector('.hours.over');
+          if (hours) hours.classList.remove('over');
+        });
+
+        atualizarWidgetsDeFadiga();
+
+        if (engineLabel) engineLabel.textContent = 'Ativo — escala automática aplicada com sucesso';
+        showStatus('Escala automática aplicada. Conflitos resolvidos e widgets atualizados!', 'ok');
+        if (btnDesfazer) btnDesfazer.disabled = false;
+        addFeedItem('Escala automática aplicada: conflitos de fadiga resolvidos.');
+      });
+    }
+
+    if (btnDesfazer) {
+      btnDesfazer.addEventListener('click', () => {
+        if (!appliedSnapshot) return;
+        const crewTable = document.getElementById('crewTable');
+        if (crewTable) crewTable.innerHTML = appliedSnapshot;
+
+        atualizarWidgetsDeFadiga();
+
+        if (engineLabel) engineLabel.textContent = 'Ativo — otimizado com sucesso';
+        showStatus('A ação desfeita. A escala e os indicadores voltaram ao estado anterior.', 'blocked');
+        btnDesfazer.disabled = true;
+        appliedSnapshot = null;
+        addFeedItem('Ação desfeita: escala revertida.');
+      });
+    }
+  } catch (err) {
+    console.error("Erro geral recuperado no SkySync:", err);
   }
 });
 </script>
