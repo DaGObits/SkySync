@@ -1,136 +1,357 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkySync — Acesso ao Sistema</title>
-    <!-- Script oficial do Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-      :root {
-        --navy-950: #0A1930;
-        --navy-900: #0F2340;
-        --bg: #F2F5F8;
-        --surface: #FFFFFF;
-        --border: #D7DEE6;
-        --text-900: #101825;
-        --text-600-solid: #47536A;
-        --text-400: #7C8798;
-        --green: #14804A;
-        --green-bg: #E4F5EC;
-        --green-border: #B7E4CB;
-        --red: #B3261E;
-        --focus: #2F6FE0;
-        --radius-s: 6px;
-        --radius-m: 10px;
-        --font: 'Inter', -apple-system, 'Segoe UI', sans-serif;
-        --scale: 1;
-        font-size: calc(15px * var(--scale));
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-          --bg: #0B1420;
-          --surface: #121B29;
-          --border: #29384A;
-          --text-900: #EAF1FB;
-          --text-600-solid: #A8B6CC;
-          --text-400: #7E8CA3;
-          --green: #3FCE8B;
-          --red: #FF8A80;
-          --focus: #6FA1FF;
+        :root {
+            --navy-950: #0A1930;
+            --navy-900: #0F2340;
+            --bg: #F2F5F8;
+            --surface: #FFFFFF;
+            --border: #D7DEE6;
+            --text-900: #101825;
+            --text-600-solid: #47536A;
+            --text-400: #7C8798;
+            --green: #14804A;
+            --green-bg: #E4F5EC;
+            --green-border: #B7E4CB;
+            --red: #B3261E;
+            --focus: #2F6FE0;
+            --radius-s: 6px;
+            --radius-m: 10px;
+            --font: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+            --scale: 1;
+            font-size: calc(15px * var(--scale));
         }
-      }
-      :root[data-theme="dark"] {
-        --bg: #0B1420;
-        --surface: #121B29;
-        --border: #29384A;
-        --text-900: #EAF1FB;
-        --text-600-solid: #A8B6CC;
-        --text-400: #7E8CA3;
-        --green: #3FCE8B;
-        --red: #FF8A80;
-        --focus: #6FA1FF;
-      }
-      :root[data-theme="light"] {
-        --bg: #F2F5F8;
-        --surface: #FFFFFF;
-        --border: #D7DEE6;
-        --text-900: #101825;
-        --text-600-solid: #47536A;
-        --text-400: #7C8798;
-        --green: #14804A;
-        --red: #B3261E;
-        --focus: #2F6FE0;
-      }
-      :root[data-contrast="high"] {
-        --bg: #FFFFFF;
-        --surface: #FFFFFF;
-        --border: #000000;
-        --text-900: #000000;
-        --text-600-solid: #000000;
-        --text-400: #000000;
-        --green: #005C2E;
-        --red: #8A0000;
-        --focus: #0033CC;
-      }
 
-      * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
-      body { background-color: var(--bg); color: var(--text-900); display: flex; justify-content: center; align-items: center; height: 100vh; }
-      
-      .card { background-color: var(--surface); padding: 32px; border-radius: var(--radius-m); box-shadow: 0 8px 24px rgba(0,0,0,0.18); width: 100%; max-width: 400px; border: 1px solid var(--border); }
-      h2 { margin-bottom: 20px; color: var(--text-900); text-align: center; }
-      .input-group { margin-bottom: 14px; }
-      label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-600-solid); }
-      input { width: 100%; padding: 10px 12px; border-radius: var(--radius-s); border: 1px solid var(--border); background-color: var(--surface); color: var(--text-900); font-size: 0.9rem; }
-      input:focus { border-color: var(--focus); outline: none; box-shadow: 0 0 0 3px rgba(47,111,224,0.2); }
-      
-      button.btn-main { width: 100%; padding: 11px; background-color: var(--green); color: white; border: none; border-radius: var(--radius-s); font-size: 0.95rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-      button.btn-main:hover { filter: brightness(1.08); }
-      
-      .divider { display: flex; align-items: center; text-align: center; margin: 16px 0; color: var(--text-400); font-size: 0.78rem; }
-      .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
-      .divider::before { margin-right: .5em; }
-      .divider::after { margin-left: .5em; }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0B1420;
+                --surface: #121B29;
+                --border: #29384A;
+                --text-900: #EAF1FB;
+                --text-600-solid: #A8B6CC;
+                --text-400: #7E8CA3;
+                --green: #3FCE8B;
+                --red: #FF8A80;
+                --focus: #6FA1FF;
+            }
+        }
 
-      .switch { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-600-solid); }
-      .switch a { color: var(--focus); text-decoration: none; cursor: pointer; }
-      .switch a:hover { text-decoration: underline; }
-      .hidden { display: none; }
-      .msg { margin-bottom: 12px; font-size: 0.8rem; text-align: center; }
-      .hint { font-size: 0.75rem; color: var(--text-400); margin-top: 4px; display: block; }
-      
-      #google-btn-container { display: flex; justify-content: center; width: 100%; }
+        :root[data-theme="dark"] {
+            --bg: #0B1420;
+            --surface: #121B29;
+            --border: #29384A;
+            --text-900: #EAF1FB;
+            --text-600-solid: #A8B6CC;
+            --text-400: #7E8CA3;
+            --green: #3FCE8B;
+            --red: #FF8A80;
+            --focus: #6FA1FF;
+        }
 
-      /* ESTILOS DO WIDGET DE ACESSIBILIDADE */
-      .a11y-fab {
-        position: fixed; right: 16px; bottom: 16px; z-index: 100;
-        width: 48px; height: 48px; border-radius: 50%; 
-        background: #FFFFFF; color: var(--bg);
-        border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.2);
-      }
-      .a11y-fab svg { width: 22px; height: 22px; }
-      .a11y-panel {
-        position: fixed; right: 16px; bottom: 74px; z-index: 100;
-        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.18); padding: 16px; width: 240px; display: none;
-      }
-      .a11y-panel.open { display: block; }
-      .a11y-panel h3 { margin: 0 0 12px; font-size: 0.88rem; color: var(--text-900); }
-      .a11y-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-      .a11y-row:last-child { margin-bottom: 0; }
-      .a11y-row span { font-size: 0.84rem; color: var(--text-900); }
-      .switch-toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
-      .switch-toggle input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
-      .switch-toggle .track { position: absolute; inset: 0; background: var(--border); border-radius: 999px; transition: background .15s; pointer-events: none; }
-      .switch-toggle .thumb { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
-      .switch-toggle input:checked + .track { background: var(--green); }
-      .switch-toggle input:checked + .track + .thumb { transform: translateX(18px); }
-      .font-steps { display: flex; gap: 6px; }
-      .font-steps button { width: 28px; height: 28px; border-radius: var(--radius-s); border: 1px solid var(--border); background: var(--surface); color: var(--text-900); cursor: pointer; font-weight: 700; font-size: 0.8rem; }
-      .font-steps button[aria-pressed="true"] { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
+        :root[data-theme="light"] {
+            --bg: #F2F5F8;
+            --surface: #FFFFFF;
+            --border: #D7DEE6;
+            --text-900: #101825;
+            --text-600-solid: #47536A;
+            --text-400: #7C8798;
+            --green: #14804A;
+            --red: #B3261E;
+            --focus: #2F6FE0;
+        }
+
+        :root[data-contrast="high"] {
+            --bg: #FFFFFF;
+            --surface: #FFFFFF;
+            --border: #000000;
+            --text-900: #000000;
+            --text-600-solid: #000000;
+            --text-400: #000000;
+            --green: #005C2E;
+            --red: #8A0000;
+            --focus: #0033CC;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-900);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background-color: var(--surface);
+            padding: 32px;
+            border-radius: var(--radius-m);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--text-900);
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: var(--text-600-solid);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-s);
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            color: var(--text-900);
+            font-size: 0.9rem;
+        }
+
+        input:focus {
+            border-color: var(--focus);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(47, 111, 224, 0.2);
+        }
+
+        button.btn-main {
+            width: 100%;
+            padding: 11px;
+            background-color: var(--green);
+            color: white;
+            border: none;
+            border-radius: var(--radius-s);
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button.btn-main:hover {
+            filter: brightness(1.08);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 16px 0;
+            color: var(--text-400);
+            font-size: 0.78rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .divider::before {
+            margin-right: .5em;
+        }
+
+        .divider::after {
+            margin-left: .5em;
+        }
+
+        .switch {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: var(--text-600-solid);
+        }
+
+        .switch a {
+            color: var(--focus);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .switch a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .msg {
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .hint {
+            font-size: 0.75rem;
+            color: var(--text-400);
+            margin-top: 4px;
+            display: block;
+        }
+
+        #google-btn-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* ESTILOS DO WIDGET DE ACESSIBILIDADE */
+        .a11y-fab {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 100;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            color: var(--bg);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        .a11y-fab svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .a11y-panel {
+            position: fixed;
+            right: 16px;
+            bottom: 74px;
+            z-index: 100;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-m);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            padding: 16px;
+            width: 240px;
+            display: none;
+        }
+
+        .a11y-panel.open {
+            display: block;
+        }
+
+        .a11y-panel h3 {
+            margin: 0 0 12px;
+            font-size: 0.88rem;
+            color: var(--text-900);
+        }
+
+        .a11y-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .a11y-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .a11y-row span {
+            font-size: 0.84rem;
+            color: var(--text-900);
+        }
+
+        .switch-toggle {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        .switch-toggle input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .switch-toggle .track {
+            position: absolute;
+            inset: 0;
+            background: var(--border);
+            border-radius: 999px;
+            transition: background .15s;
+            pointer-events: none;
+        }
+
+        .switch-toggle .thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform .15s;
+            pointer-events: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+        }
+
+        .switch-toggle input:checked+.track {
+            background: var(--green);
+        }
+
+        .switch-toggle input:checked+.track+.thumb {
+            transform: translateX(18px);
+        }
+
+        .font-steps {
+            display: flex;
+            gap: 6px;
+        }
+
+        .font-steps button {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-s);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-900);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .font-steps button[aria-pressed="true"] {
+            background: var(--navy-900);
+            color: #fff;
+            border-color: var(--navy-900);
+        }
     </style>
 </head>
+
 <body>
 
     <div class="card">
@@ -150,10 +371,6 @@
                 <button type="submit" id="btn-entrar" class="btn-main">Entrar</button>
             </form>
 
-            <div class="divider">ou</div>
-            
-            <!-- Contêiner do Botão Oficial do Google -->
-            <div id="google-btn-container"></div>
 
             <div class="switch">
                 Não tem uma conta? <a onclick="alternarTela()">Criar cadastro</a>
@@ -175,12 +392,15 @@
                 </div>
                 <div class="input-group">
                     <label>Senha</label>
-                    <input type="password" id="reg-senha" required placeholder="••••••••" oninput="validarForcaSenha()" autocomplete="new-password">
-                    <span class="hint" id="senha-hint">Mínimo 8 caracteres, 1 maiúscula, 1 número e 1 caractere especial.</span>
+                    <input type="password" id="reg-senha" required placeholder="••••••••" oninput="validarForcaSenha()"
+                        autocomplete="new-password">
+                    <span class="hint" id="senha-hint">Mínimo 8 caracteres, 1 maiúscula, 1 número e 1 caractere
+                        especial.</span>
                 </div>
                 <div class="input-group">
                     <label>Confirmar Senha</label>
-                    <input type="password" id="reg-confirma-senha" required placeholder="••••••••" autocomplete="new-password">
+                    <input type="password" id="reg-confirma-senha" required placeholder="••••••••"
+                        autocomplete="new-password">
                 </div>
                 <button type="submit" class="btn-main">Cadastrar</button>
             </form>
@@ -191,8 +411,12 @@
     </div>
 
     <!-- WIDGET FLUTUANTE DE ACESSIBILIDADE -->
-    <button class="a11y-fab" id="a11yToggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="a11yPanel" aria-label="Abrir opções de acessibilidade">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4.5" r="1.8"/><path d="M4 8.5l8 1.5 8-1.5M12 10v5M9 21l3-6 3 6M8 14l4-1 4 1"/></svg>
+    <button class="a11y-fab" id="a11yToggle" type="button" aria-haspopup="true" aria-expanded="false"
+        aria-controls="a11yPanel" aria-label="Abrir opções de acessibilidade">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="4.5" r="1.8" />
+            <path d="M4 8.5l8 1.5 8-1.5M12 10v5M9 21l3-6 3 6M8 14l4-1 4 1" />
+        </svg>
     </button>
     <div class="a11y-panel" id="a11yPanel" role="dialog" aria-label="Opções de acessibilidade">
         <h3>Acessibilidade</h3>
@@ -224,7 +448,8 @@
 
     <script>
         // API apontando para o Render
-        const API_URL = "https://skysync-8nz0.onrender.com/api";
+        const API_URL = "http://127.0.0.1:5000/api";
+        credentials: 'include'
 
         window.onload = function () {
             google.accounts.id.initialize({
@@ -238,14 +463,14 @@
         }
 
         // --- SUPORTE BLINDADO AO ENTER DO TECLADO ---
-        document.getElementById('login-senha').addEventListener('keydown', function(event) {
+        document.getElementById('login-senha').addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 document.getElementById('form-login').requestSubmit();
             }
         });
 
-        document.getElementById('login-email').addEventListener('keydown', function(event) {
+        document.getElementById('login-email').addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 const senhaInput = document.getElementById('login-senha');
@@ -257,29 +482,20 @@
             }
         });
 
-        async function lidarComCredencialGoogle(response) {
-            const msgBox = document.getElementById('login-msg');
-            try {
-                const resposta = await fetch(`${API_URL}/google-login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: response.credential })
-                });
-                const dados = await resposta.json();
 
-                if (resposta.ok) {
+        (async function verificarSessao() {
+            try {
+                const resposta = await fetch(`${API_URL}/auth/sessao`, { credentials: 'include' });
+                if (!resposta.ok) return;
+                const dados = await resposta.json();
+                if (dados.autenticado && dados.usuario) {
                     localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
                     window.location.href = "index.html";
-                } else {
-                    msgBox.style.color = "var(--red)";
-                    msgBox.innerText = dados.erro;
                 }
             } catch (e) {
-                // Fallback seguro caso a nuvem demore a acordar
-                localStorage.setItem('usuario_logado', JSON.stringify({ nome: "Marina Costa", email: "marina.costa@skysync.aero" }));
-                window.location.href = "index.html";
+                // Servidor fora do ar: fica na tela de login, sem inventar sessão.
             }
-        }
+        })();
 
         function alternarTela() {
             document.getElementById('login-section').classList.toggle('hidden');
@@ -292,7 +508,7 @@
             const senha = document.getElementById('reg-senha').value;
             const hint = document.getElementById('senha-hint');
             const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-            
+
             if (regex.test(senha)) {
                 hint.style.color = "var(--green)";
                 hint.innerText = "Senha forte e válida!";
@@ -307,11 +523,16 @@
             const email = document.getElementById('login-email').value;
             const senha = document.getElementById('login-senha').value;
             const msgBox = document.getElementById('login-msg');
+            const btn = document.getElementById('btn-entrar');
+
+            msgBox.innerText = "";
+            if (btn) { btn.disabled = true; btn.innerText = "Entrando..."; }
 
             try {
-                const resposta = await fetch(`${API_URL}/login`, {
+                const resposta = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ email, senha })
                 });
                 const dados = await resposta.json();
@@ -319,14 +540,22 @@
                 if (resposta.ok) {
                     localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
                     window.location.href = "index.html";
-                } else {
-                    msgBox.style.color = "var(--red)";
-                    msgBox.innerText = dados.erro;
+                    return;
                 }
+
+                msgBox.style.color = "var(--red)";
+                // O backend devolve `campos` quando a validação falha.
+                msgBox.innerText = dados.campos
+                    ? Object.values(dados.campos).join(" ")
+                    : (dados.erro || "Não foi possível entrar.");
             } catch (e) {
-                // Fallback de login local caso o servidor do Render esteja em modo sleep
-                localStorage.setItem('usuario_logado', JSON.stringify({ nome: email.split('@')[0], email: email }));
-                window.location.href = "index.html";
+                // Sem fallback que inventa sessão: se o servidor não responde, o
+                // usuário NÃO entra. Antes, esta linha criava um usuário falso com o
+                // e-mail digitado e deixava passar — qualquer senha funcionava.
+                msgBox.style.color = "var(--red)";
+                msgBox.innerText = "Não foi possível conectar ao servidor. Verifique se o backend está rodando.";
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerText = "Entrar"; }
             }
         }
 
@@ -352,26 +581,35 @@
             }
 
             try {
-                const resposta = await fetch(`${API_URL}/register`, {
+                const resposta = await fetch(`${API_URL}/auth/registrar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ nome, email, senha })
                 });
                 const dados = await resposta.json();
 
                 if (resposta.ok) {
                     msgBox.style.color = "var(--green)";
-                    msgBox.innerText = dados.mensagem + " Redirecionando...";
+                    msgBox.innerText = dados.mensagem + " Agora faça login.";
+                    // Volta para a tela de login: a conta existe, mas a sessão só é aberta
+                    // no login. Evita cadastrar e já entrar sem ter provado a senha.
+                    document.getElementById('reg-nome').value = "";
+                    document.getElementById('reg-email').value = "";
+                    document.getElementById('reg-senha').value = "";
+                    document.getElementById('reg-confirma-senha').value = "";
                     setTimeout(() => alternarTela(), 1500);
                 } else {
                     msgBox.style.color = "var(--red)";
-                    msgBox.innerText = dados.erro;
+                    msgBox.innerText = dados.campos
+                        ? Object.values(dados.campos).join(" ")
+                        : (dados.erro || "Não foi possível criar a conta.");
                 }
             } catch (e) {
-                msgBox.style.color = "var(--green)";
-                msgBox.innerText = "Conta simulada com sucesso! Redirecionando...";
-                localStorage.setItem('usuario_logado', JSON.stringify({ nome, email }));
-                setTimeout(() => window.location.href = "index.html", 1500);
+                // Antes, esta catch anunciava "Conta simulada com sucesso!" e criava uma
+                // sessão local sem que nenhuma conta tivesse sido criada no banco.
+                msgBox.style.color = "var(--red)";
+                msgBox.innerText = "Não foi possível conectar ao servidor. A conta não foi criada.";
             }
         }
 
@@ -429,7 +667,7 @@
             darkSwitch.addEventListener('change', () => {
                 const on = darkSwitch.checked;
                 updateThemeState(on);
-                try { localStorage.setItem('skysync-theme', on ? 'dark' : 'light'); } catch(e) {}
+                try { localStorage.setItem('skysync-theme', on ? 'dark' : 'light'); } catch (e) { }
             });
         }
 
@@ -437,7 +675,7 @@
             contrastSwitch.addEventListener('change', () => {
                 const on = contrastSwitch.checked;
                 updateContrastState(on);
-                try { localStorage.setItem('skysync-contrast', on ? 'high' : 'normal'); } catch(e) {}
+                try { localStorage.setItem('skysync-contrast', on ? 'high' : 'normal'); } catch (e) { }
             });
         }
 
@@ -446,9 +684,10 @@
             btn.addEventListener('click', () => {
                 const scale = btn.dataset.scale;
                 updateScaleState(scale);
-                try { localStorage.setItem('skysync-scale', scale); } catch(e) {}
+                try { localStorage.setItem('skysync-scale', scale); } catch (e) { }
             });
         });
     </script>
 </body>
+
 </html>

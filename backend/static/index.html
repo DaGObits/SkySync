@@ -878,7 +878,7 @@
 </div>
 
 <script>
-const API_URL = 'https://skysync-8nz0.onrender.com/api';
+const API_URL = 'http://127.0.0.1:5000/api';
 
 window.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -897,7 +897,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     };
 
     try {
-      const res = await fetch(`${API_URL}/perfil/${settings.email}`);
+      const res = await fetch(`${API_URL}/perfil`, { credentials: 'include' });
+
+      if (res.status === 401) {
+        localStorage.removeItem('usuario_logado');
+        window.location.href = "login.html";
+        return;
+      }
+
       if (res.ok) {
         const perfilBanco = await res.json();
         if (perfilBanco.nome) settings.name = perfilBanco.nome;
@@ -910,7 +917,17 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const btnLogout = document.getElementById('btnLogout');
     if (btnLogout) {
-        btnLogout.addEventListener('click', () => {
+        btnLogout.addEventListener('click', async () => {
+            // Encerra a sessão no SERVIDOR também. Antes, o logout só limpava o
+            // localStorage e o cookie continuava válido — a sessão sobrevivia.
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (e) {
+                console.error("Logout remoto falhou:", e);
+            }
             localStorage.removeItem('usuario_logado');
             window.location.href = "login.html";
         });
@@ -1484,10 +1501,15 @@ window.addEventListener('DOMContentLoaded', async () => {
         usuarioLogadoAtual.idioma = settings.idioma;
         localStorage.setItem('usuario_logado', JSON.stringify(usuarioLogadoAtual));
 
-        await fetch(`${API_URL}/perfil/${settings.email}`, {
-          method: 'PUT',
+        await fetch(`${API_URL}/perfil`, {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nome: settings.name, cargo: settings.role, base: settings.base })
+          credentials: 'include',
+          body: JSON.stringify({
+            nome: settings.name,
+            cargo: settings.role,   // o backend aceita tanto `cargo` quanto `role`
+            base: settings.base
+          })
         });
 
         tick();
@@ -1720,6 +1742,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         gerarNovaEscalaAleatoria();
       });
     }
+
+
+
+// TODO(integração): este bloco aplica conformidade localmente, sem chamar o
+    // motor CP-SAT. A próxima etapa é traduzir os itens da tabela para o
+    // formato de /api/otimizacao (horas "11h30" -> 11.5, limitRbac -> limite_horas,
+    // rota "GRU -> VCP" -> origem/destino) e usar a resposta do solver.
 
     function aplicarEscalaAutomaticaNaVersaoAtual() {
       dadosOperacionais.forEach(d => {

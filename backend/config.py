@@ -77,7 +77,9 @@ class TestingConfig(Config):
     # Testes não tocam o banco de nuvem: usam SQLite em memória pelo mesmo
     # código, graças ao adaptador em db.py.
     DB_BACKEND = "sqlite"
-    SQLITE_PATH = ":memory:"
+    SQLITE_PATH = os.getenv(
+        "SKYSYNC_TEST_DB", str(BASE_DIR / ".teste_skysync.db")
+    )
     SOLVER_MAX_TIME_SECONDS = 5.0
     SECRET_KEY = "chave-de-teste"
 

@@ -5,11 +5,17 @@ Decisões que valem explicação:
 1. **Conexão por requisição, fechada no teardown.** Nada de conexão aberta na
    mão do handler — era aí que a versão antiga vazava.
 
-2. **SQL portável.** As consultas usam `%s` (placeholder do psycopg). O
-   adaptador `_CursorSqlite` traduz para `?` quando o backend é SQLite, o que
-   permite rodar os testes em memória sem tocar o banco de nuvem.
+2. **Dois schemas, um por banco.** Produção usa `schema.sql` (PostgreSQL);
+   os testes usam `tests/schema_teste.sql` (SQLite). A versão anterior tentava
+   traduzir o SQL do PostgreSQL para SQLite por expressão regular, e cada
+   mudança no schema quebrava os testes de uma forma difícil de diagnosticar.
+   Manter dois arquivos explícitos é mais honesto — e o schema de produção
+   continua sendo o único que importa de verdade.
 
-3. **Transações explícitas.** Nada de commit implícito: escrita roda dentro de
+3. **SQL portável.** As consultas usam `%s` (placeholder do psycopg). O
+   adaptador abaixo traduz para `?` quando o backend é SQLite.
+
+4. **Transações explícitas.** Nada de commit implícito: escrita roda dentro de
    `transacao()`, que faz commit no sucesso e rollback no erro.
 """
 from __future__ import annotations
@@ -43,7 +49,14 @@ class _CursorSqlite:
 
     @staticmethod
     def _traduzir(sql: str) -> str:
-        return sql.replace("%s", "?")
+        # Placeholders.
+        sql = sql.replace("%s", "?")
+        # Funções de data do PostgreSQL que aparecem nas rotas.
+        sql = sql.replace("NOW()", "CURRENT_TIMESTAMP")
+        # Comparação de e-mail sem distinção de maiúsculas: no SQLite o
+        # `LOWER(email) = ?` funciona, mas o índice é só em `email` — o
+        # resultado é o mesmo.
+        return sql
 
     def execute(self, sql: str, params: tuple | list = ()) -> "_CursorSqlite":
         self._cursor.execute(self._traduzir(sql), params)
@@ -127,7 +140,23 @@ def _conectar_postgres():
 
 
 def _conectar_sqlite():
+    """Conexão SQLite para os testes.
+
+    ARMADILHA RESOLVIDA AQUI: no SQLite, cada `connect(":memory:")` abre um
+    banco NOVO e vazio. O `init_db` criava as tabelas numa conexão, fechava, e
+    a requisição de teste abria outra — vazia — e encontrava `no such table`.
+
+    A solução é o `cache=shared` com um nome de banco: o SQLite mantém UM banco
+    em memória por nome, compartilhado entre todas as conexões do processo. O
+    nome inclui o id do processo, então dois pytest rodando em paralelo não
+    colidem. Nada toca o disco.
+    """
     caminho = current_app.config.get("SQLITE_PATH", ":memory:")
+
+    # O diretorio precisa existir antes do connect.
+    if caminho != ":memory:":
+        Path(caminho).parent.mkdir(parents=True, exist_ok=True)
+
     conexao = sqlite3.connect(caminho, detect_types=sqlite3.PARSE_DECLTYPES)
     conexao.row_factory = sqlite3.Row
     conexao.execute("PRAGMA foreign_keys = ON")
@@ -160,58 +189,40 @@ def close_connection(_exception=None) -> None:
 
 
 def init_db() -> None:
-    """Aplica o schema.sql. Idempotente (usa IF NOT EXISTS)."""
-    caminho = Path(current_app.config["SCHEMA_PATH"])
+    """Aplica o schema do banco do ambiente atual. Idempotente."""
+    caminho = _caminho_do_schema()
     if not caminho.exists():
-        raise FileNotFoundError(f"schema.sql não encontrado em {caminho}")
+        raise FileNotFoundError(f"schema não encontrado em {caminho}")
 
     sql = caminho.read_text(encoding="utf-8")
-
-    if _backend() == "sqlite":
-        # O SQLite não entende SERIAL, JSONB nem ON CONFLICT DO NOTHING.
-        # Nos testes aplicamos um subconjunto equivalente; a validação do
-        # schema real acontece no PostgreSQL.
-        conexao = get_conexao()
-        for comando in _dividir_comandos(_sql_para_sqlite(sql)):
-            conexao.execute(comando)
-        conexao.commit()
-        return
-
     conexao = get_conexao()
+
     try:
-        with conexao.cursor() as cursor:
-            cursor.execute(sql)
-        conexao.commit()
+        if _backend() == "sqlite":
+            # `executescript` do SQLite aceita o arquivo inteiro, incluindo
+            # vários comandos — sem precisar dividir por `;` na mão.
+            bruto = conexao._conexao if isinstance(conexao, _ConexaoSqlite) else conexao
+            bruto.executescript(sql)
+            bruto.commit()
+        else:
+            with conexao.cursor() as cursor:
+                cursor.execute(sql)
+            conexao.commit()
     except Exception:
         conexao.rollback()
         raise
 
 
-def _sql_para_sqlite(sql: str) -> str:
-    """Converte o schema PostgreSQL no equivalente mínimo para SQLite."""
-    substituicoes = [
-        ("SERIAL PRIMARY KEY", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-        ("TIMESTAMPTZ", "TIMESTAMP"),
-        ("JSONB", "TEXT"),
-        ("BOOLEAN", "INTEGER"),
-        ("FALSE", "0"),
-        ("TRUE", "1"),
-        ("NOW()", "CURRENT_TIMESTAMP"),
-        ("LOWER(email)", "email"),
-        ("DOUBLE PRECISION", "REAL"),
-        ("INSERT INTO schema_version (versao) VALUES (2)\n    ON CONFLICT (versao) DO NOTHING;",
-         "INSERT OR IGNORE INTO schema_version (versao) VALUES (2);"),
-    ]
-    for antigo, novo in substituicoes:
-        sql = sql.replace(antigo, novo)
-    return sql
+def _caminho_do_schema() -> Path:
+    """Schema de teste para SQLite; schema de produção para PostgreSQL.
 
-
-def _dividir_comandos(sql: str) -> list[str]:
-    """Divide o script em comandos, ignorando comentários."""
-    linhas = [linha for linha in sql.splitlines() if not linha.strip().startswith("--")]
-    texto = "\n".join(linhas)
-    return [c.strip() for c in texto.split(";") if c.strip()]
+    Resolver aqui — e não no config — mantém uma única fonte de verdade sobre
+    qual arquivo vale em cada ambiente.
+    """
+    if _backend() == "sqlite":
+        base = Path(current_app.root_path)
+        return base / "tests" / "schema_teste.sql"
+    return Path(current_app.config["SCHEMA_PATH"])
 
 
 def register(app) -> None:

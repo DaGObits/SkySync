@@ -38,6 +38,9 @@ def executar_otimizacao():
         {
           "base": "GRU",
           "limite_horas": 11.0,                  # opcional
+          "composicao": {                        # opcional (padrão 1 CM, 1 CP, 3 CC)
+             "Comandante": 1, "Copiloto": 1, "Comissário": 3
+          },
           "tripulantes": [{...}, ...],
           "voos": [{...}, ...]
         }
@@ -63,6 +66,7 @@ def executar_otimizacao():
             voos=requisicao.voos,
             limite_horas=requisicao.limite_horas,
             max_time_seconds=current_app.config["SOLVER_MAX_TIME_SECONDS"],
+            composicao=requisicao.composicao,
         )
     except OtimizacaoInviavel as err:
         # Inviabilidade não é erro do servidor: é um resultado regulatório.
@@ -70,7 +74,7 @@ def executar_otimizacao():
         current_app.logger.info(
             "otimização inviável para base=%s: %s", requisicao.base, err
         )
-        _registrar_execucao(requisicao.base, "INFEASIBLE", None)
+        _registrar_execucao(requisicao.base, "INFEASIBLE", None, requisicao)
         return (
             jsonify(
                 {
@@ -86,11 +90,11 @@ def executar_otimizacao():
         current_app.logger.warning("solver sem convergência: %s", err)
         return jsonify({"status": "UNKNOWN", "mensagem": str(err)}), 500
 
-    _registrar_execucao(requisicao.base, solucao.status, solucao)
+    _registrar_execucao(requisicao.base, solucao.status, solucao, requisicao)
     return jsonify(solucao.to_dict())
 
 
-def _registrar_execucao(base: str, status: str, solucao) -> None:
+def _registrar_execucao(base: str, status: str, solucao, requisicao=None) -> None:
     """Trilha de auditoria — permite à banca reconstruir cada execução."""
     try:
         with transacao() as conexao:
@@ -98,20 +102,20 @@ def _registrar_execucao(base: str, status: str, solucao) -> None:
                 """
                 INSERT INTO execucoes_otimizacao
                     (base, status_solver, wall_time_seconds, objetivo_valor,
-                     conformidade, total_tripulantes, total_bloqueados,
-                     detalhes_json)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                     conformidade, total_tripulantes, total_voos, total_alocacoes,
+                     variaveis_criadas, total_bloqueados, detalhes_json)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     base,
                     status,
-                    # O SQLite do ambiente de teste não converte float com a
-                    # mesma tolerância do psycopg; arredondar evita depender
-                    # disso e mantém os valores estáveis.
                     round(solucao.wall_time_seconds, 4) if solucao else None,
                     round(solucao.objetivo, 4) if solucao else None,
                     getattr(solucao, "conformidade", None),
                     getattr(solucao, "total_tripulantes", None),
+                    getattr(solucao, "total_voos", None),
+                    getattr(solucao, "total_alocacoes", None),
+                    getattr(solucao, "variaveis_criadas", None),
                     getattr(solucao, "tripulantes_bloqueados", None),
                     json.dumps(solucao.to_dict(), ensure_ascii=False) if solucao else None,
                 ),

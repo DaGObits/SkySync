@@ -1,0 +1,42 @@
+-- SkySync — carga da malha aérea (os vértices do grafo)
+-- Os dados operacionais (tripulantes e voos) NÃO vêm daqui: eles são gerados
+-- por cenário e vivem em `cenarios`. A malha é dado estável e fica no banco.
+
+INSERT INTO aeroportos (iata, cidade, uf, regiao, latitude, longitude, hub) VALUES
+  ('GRU', 'São Paulo',            'SP', 'Sudeste',       -23.43, -46.47, TRUE),
+  ('CGH', 'São Paulo',            'SP', 'Sudeste',       -23.63, -46.66, TRUE),
+  ('VCP', 'Campinas',             'SP', 'Sudeste',       -23.01, -47.13, FALSE),
+  ('GIG', 'Rio de Janeiro',       'RJ', 'Sudeste',       -22.81, -43.25, TRUE),
+  ('SDU', 'Rio de Janeiro',       'RJ', 'Sudeste',       -22.91, -43.16, FALSE),
+  ('CNF', 'Belo Horizonte',       'MG', 'Sudeste',       -19.62, -43.97, TRUE),
+  ('UDI', 'Uberlândia',           'MG', 'Sudeste',       -18.88, -48.23, FALSE),
+  ('VIX', 'Vitória',              'ES', 'Sudeste',       -20.26, -40.29, FALSE),
+  ('SJK', 'São José dos Campos',  'SP', 'Sudeste',       -23.23, -45.86, FALSE),
+  ('CWB', 'Curitiba',             'PR', 'Sul',           -25.53, -49.17, FALSE),
+  ('FLN', 'Florianópolis',        'SC', 'Sul',           -27.67, -48.55, FALSE),
+  ('POA', 'Porto Alegre',         'RS', 'Sul',           -29.99, -51.17, FALSE),
+  ('NVT', 'Navegantes',           'SC', 'Sul',           -26.88, -48.65, FALSE),
+  ('LDB', 'Londrina',             'PR', 'Sul',           -23.33, -51.13, FALSE),
+  ('BSB', 'Brasília',             'DF', 'Centro-Oeste',  -15.87, -47.92, TRUE),
+  ('CGB', 'Cuiabá',               'MT', 'Centro-Oeste',  -15.65, -56.12, FALSE),
+  ('GYN', 'Goiânia',              'GO', 'Centro-Oeste',  -16.63, -49.22, FALSE),
+  ('CGR', 'Campo Grande',         'MS', 'Centro-Oeste',  -20.47, -54.67, FALSE),
+  ('SSA', 'Salvador',             'BA', 'Nordeste',      -12.91, -38.33, TRUE),
+  ('REC', 'Recife',               'PE', 'Nordeste',       -8.13, -34.92, TRUE),
+  ('FOR', 'Fortaleza',            'CE', 'Nordeste',       -3.78, -38.53, TRUE),
+  ('NAT', 'Natal',                'RN', 'Nordeste',       -5.77, -35.37, FALSE),
+  ('MCZ', 'Maceió',               'AL', 'Nordeste',       -9.51, -35.79, FALSE),
+  ('JPA', 'João Pessoa',          'PB', 'Nordeste',       -7.15, -34.95, FALSE),
+  ('THE', 'Teresina',             'PI', 'Nordeste',       -5.06, -42.82, FALSE),
+  ('SLZ', 'São Luís',             'MA', 'Nordeste',       -2.58, -44.23, FALSE),
+  ('AJU', 'Aracaju',              'SE', 'Nordeste',      -10.98, -37.07, FALSE),
+  ('PHB', 'Parnaíba',             'PI', 'Nordeste',       -2.89, -41.73, FALSE),
+  ('MAO', 'Manaus',               'AM', 'Norte',          -3.04, -60.05, TRUE),
+  ('BEL', 'Belém',                'PA', 'Norte',          -1.38, -48.48, TRUE),
+  ('PVH', 'Porto Velho',          'RO', 'Norte',          -8.71, -63.90, FALSE),
+  ('RBR', 'Rio Branco',           'AC', 'Norte',          -9.87, -67.89, FALSE),
+  ('MCP', 'Macapá',               'AP', 'Norte',           0.05, -51.07, FALSE),
+  ('STM', 'Santarém',             'PA', 'Norte',          -2.42, -54.79, FALSE),
+  ('BVB', 'Boa Vista',            'RR', 'Norte',           2.84, -60.69, FALSE),
+  ('PMW', 'Palmas',               'TO', 'Norte',         -10.29, -48.36, FALSE)
+ON CONFLICT (iata) DO NOTHING;
