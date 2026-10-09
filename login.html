@@ -4,22 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkySync — Acesso ao Sistema</title>
+    <!-- Script oficial do Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0d1117; color: #c9d1d9; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .card { background-color: #161b22; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 1px solid #30363d; }
-        h2 { margin-bottom: 24px; color: #f0f6fc; text-align: center; }
-        .input-group { margin-bottom: 16px; }
-        label { display: block; margin-bottom: 6px; font-size: 14px; color: #8b949e; }
-        input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #30363d; background-color: #0d1117; color: #fff; font-size: 14px; }
-        input:focus { border-color: #58a6ff; outline: none; }
-        button { width: 100%; padding: 12px; background-color: #238636; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #2ea043; }
-        .switch { text-align: center; margin-top: 20px; font-size: 14px; color: #8b949e; }
-        .switch a { color: #58a6ff; text-decoration: none; cursor: pointer; }
-        .switch a:hover { text-decoration: underline; }
-        .hidden { display: none; }
-        .msg { margin-bottom: 15px; font-size: 13px; text-align: center; color: #f85149; }
+      :root {
+        --navy-950: #0A1930;
+        --navy-900: #0F2340;
+        --bg: #F2F5F8;
+        --surface: #FFFFFF;
+        --border: #D7DEE6;
+        --text-900: #101825;
+        --text-600-solid: #47536A;
+        --text-400: #7C8798;
+        --green: #14804A;
+        --green-bg: #E4F5EC;
+        --green-border: #B7E4CB;
+        --red: #B3261E;
+        --focus: #2F6FE0;
+        --radius-s: 6px;
+        --radius-m: 10px;
+        --font: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+        --scale: 1;
+        font-size: calc(15px * var(--scale));
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0B1420;
+          --surface: #121B29;
+          --border: #29384A;
+          --text-900: #EAF1FB;
+          --text-600-solid: #A8B6CC;
+          --text-400: #7E8CA3;
+          --green: #3FCE8B;
+          --red: #FF8A80;
+          --focus: #6FA1FF;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #0B1420;
+        --surface: #121B29;
+        --border: #29384A;
+        --text-900: #EAF1FB;
+        --text-600-solid: #A8B6CC;
+        --text-400: #7E8CA3;
+        --green: #3FCE8B;
+        --red: #FF8A80;
+        --focus: #6FA1FF;
+      }
+      :root[data-theme="light"] {
+        --bg: #F2F5F8;
+        --surface: #FFFFFF;
+        --border: #D7DEE6;
+        --text-900: #101825;
+        --text-600-solid: #47536A;
+        --text-400: #7C8798;
+        --green: #14804A;
+        --red: #B3261E;
+        --focus: #2F6FE0;
+      }
+      :root[data-contrast="high"] {
+        --bg: #FFFFFF;
+        --surface: #FFFFFF;
+        --border: #000000;
+        --text-900: #000000;
+        --text-600-solid: #000000;
+        --text-400: #000000;
+        --green: #005C2E;
+        --red: #8A0000;
+        --focus: #0033CC;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+      body { background-color: var(--bg); color: var(--text-900); display: flex; justify-content: center; align-items: center; height: 100vh; }
+      
+      .card { background-color: var(--surface); padding: 32px; border-radius: var(--radius-m); box-shadow: 0 8px 24px rgba(0,0,0,0.18); width: 100%; max-width: 400px; border: 1px solid var(--border); }
+      h2 { margin-bottom: 20px; color: var(--text-900); text-align: center; }
+      .input-group { margin-bottom: 14px; }
+      label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-600-solid); }
+      input { width: 100%; padding: 10px 12px; border-radius: var(--radius-s); border: 1px solid var(--border); background-color: var(--surface); color: var(--text-900); font-size: 0.9rem; }
+      input:focus { border-color: var(--focus); outline: none; box-shadow: 0 0 0 3px rgba(47,111,224,0.2); }
+      
+      button.btn-main { width: 100%; padding: 11px; background-color: var(--green); color: white; border: none; border-radius: var(--radius-s); font-size: 0.95rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+      button.btn-main:hover { filter: brightness(1.08); }
+      
+      .divider { display: flex; align-items: center; text-align: center; margin: 16px 0; color: var(--text-400); font-size: 0.78rem; }
+      .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+      .divider::before { margin-right: .5em; }
+      .divider::after { margin-left: .5em; }
+
+      .switch { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-600-solid); }
+      .switch a { color: var(--focus); text-decoration: none; cursor: pointer; }
+      .switch a:hover { text-decoration: underline; }
+      .hidden { display: none; }
+      .msg { margin-bottom: 12px; font-size: 0.8rem; text-align: center; }
+      .hint { font-size: 0.75rem; color: var(--text-400); margin-top: 4px; display: block; }
+      
+      #google-btn-container { display: flex; justify-content: center; width: 100%; }
+
+      /* ESTILOS DO WIDGET DE ACESSIBILIDADE (Com fundo branco e ícone na cor do fundo) */
+      .a11y-fab {
+        position: fixed; right: 16px; bottom: 16px; z-index: 100;
+        width: 48px; height: 48px; border-radius: 50%; 
+        background: #FFFFFF; color: var(--bg);
+        border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      }
+      .a11y-fab svg { width: 22px; height: 22px; }
+      .a11y-panel {
+        position: fixed; right: 16px; bottom: 74px; z-index: 100;
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18); padding: 16px; width: 240px; display: none;
+      }
+      .a11y-panel.open { display: block; }
+      .a11y-panel h3 { margin: 0 0 12px; font-size: 0.88rem; color: var(--text-900); }
+      .a11y-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+      .a11y-row:last-child { margin-bottom: 0; }
+      .a11y-row span { font-size: 0.84rem; color: var(--text-900); }
+      .switch-toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+      .switch-toggle input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+      .switch-toggle .track { position: absolute; inset: 0; background: var(--border); border-radius: 999px; transition: background .15s; pointer-events: none; }
+      .switch-toggle .thumb { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+      .switch-toggle input:checked + .track { background: var(--green); }
+      .switch-toggle input:checked + .track + .thumb { transform: translateX(18px); }
+      .font-steps { display: flex; gap: 6px; }
+      .font-steps button { width: 28px; height: 28px; border-radius: var(--radius-s); border: 1px solid var(--border); background: var(--surface); color: var(--text-900); cursor: pointer; font-weight: 700; font-size: 0.8rem; }
+      .font-steps button[aria-pressed="true"] { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
     </style>
 </head>
 <body>
@@ -29,15 +138,23 @@
         <div id="login-section">
             <h2>SkySync — Login</h2>
             <div id="login-msg" class="msg"></div>
-            <div class="input-group">
-                <label>E-mail</label>
-                <input type="email" id="login-email" placeholder="seu.email@exemplo.com">
-            </div>
-            <div class="input-group">
-                <label>Senha</label>
-                <input type="password" id="login-senha" placeholder="••••••••">
-            </div>
-            <button onclick="fazerLogin()">Entrar</button>
+            <form onsubmit="fazerLogin(event)">
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input type="email" id="login-email" required placeholder="seu.email@exemplo.com">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" id="login-senha" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-main">Entrar</button>
+            </form>
+
+            <div class="divider">ou</div>
+            
+            <!-- Contêiner do Botão Oficial do Google -->
+            <div id="google-btn-container"></div>
+
             <div class="switch">
                 Não tem uma conta? <a onclick="alternarTela()">Criar cadastro</a>
             </div>
@@ -46,22 +163,61 @@
         <!-- TELA DE CADASTRO -->
         <div id="register-section" class="hidden">
             <h2>Criar Conta</h2>
-            <div id="register-msg" class="msg" style="color: #2ea043;"></div>
-            <div class="input-group">
-                <label>Nome Completo</label>
-                <input type="text" id="reg-nome" placeholder="Seu Nome">
-            </div>
-            <div class="input-group">
-                <label>E-mail</label>
-                <input type="email" id="reg-email" placeholder="seu.email@exemplo.com">
-            </div>
-            <div class="input-group">
-                <label>Senha</label>
-                <input type="password" id="reg-senha" placeholder="••••••••">
-            </div>
-            <button onclick="fazerCadastro()">Cadastrar</button>
+            <div id="register-msg" class="msg"></div>
+            <form onsubmit="fazerCadastro(event)">
+                <div class="input-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="reg-nome" required placeholder="Seu Nome" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input type="email" id="reg-email" required placeholder="seu.email@exemplo.com" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" id="reg-senha" required placeholder="••••••••" oninput="validarForcaSenha()" autocomplete="new-password">
+                    <span class="hint" id="senha-hint">Mínimo 8 caracteres, 1 maiúscula, 1 número e 1 caractere especial.</span>
+                </div>
+                <div class="input-group">
+                    <label>Confirmar Senha</label>
+                    <input type="password" id="reg-confirma-senha" required placeholder="••••••••" autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-main">Cadastrar</button>
+            </form>
             <div class="switch">
                 Já tem uma conta? <a onclick="alternarTela()">Fazer login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIDGET FLUTUANTE DE ACESSIBILIDADE -->
+    <button class="a11y-fab" id="a11yToggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="a11yPanel" aria-label="Abrir opções de acessibilidade">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4.5" r="1.8"/><path d="M4 8.5l8 1.5 8-1.5M12 10v5M9 21l3-6 3 6M8 14l4-1 4 1"/></svg>
+    </button>
+    <div class="a11y-panel" id="a11yPanel" role="dialog" aria-label="Opções de acessibilidade">
+        <h3>Acessibilidade</h3>
+        <div class="a11y-row">
+            <span id="darkLabel">Modo noturno</span>
+            <label class="switch-toggle">
+                <input type="checkbox" id="darkSwitch" aria-labelledby="darkLabel">
+                <span class="track" aria-hidden="true"></span>
+                <span class="thumb" aria-hidden="true"></span>
+            </label>
+        </div>
+        <div class="a11y-row">
+            <span id="contrastLabel">Alto contraste</span>
+            <label class="switch-toggle">
+                <input type="checkbox" id="contrastSwitch" aria-labelledby="contrastLabel">
+                <span class="track" aria-hidden="true"></span>
+                <span class="thumb" aria-hidden="true"></span>
+            </label>
+        </div>
+        <div class="a11y-row">
+            <span id="fontLabel">Tamanho da fonte</span>
+            <div class="font-steps" role="group" aria-labelledby="fontLabel">
+                <button type="button" data-scale="0.9" aria-pressed="false">A-</button>
+                <button type="button" data-scale="1" aria-pressed="true">A</button>
+                <button type="button" data-scale="1.2" aria-pressed="false">A+</button>
             </div>
         </div>
     </div>
@@ -69,12 +225,64 @@
     <script>
         const API_URL = "http://localhost:5000/api";
 
+        // Inicializa o botão oficial do Google com o seu Client ID real
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: '655615956670-fql0d86maloglmorf8dndipmk92fnfqe.apps.googleusercontent.com',
+                callback: lidarComCredencialGoogle
+            });
+            google.accounts.id.renderButton(
+                document.getElementById("google-btn-container"),
+                { theme: "outline", size: "large", width: "336" }
+            );
+        }
+
+        async function lidarComCredencialGoogle(response) {
+            const msgBox = document.getElementById('login-msg');
+            try {
+                const resposta = await fetch(`${API_URL}/google-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: response.credential })
+                });
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
+                    window.location.href = "index.html";
+                } else {
+                    msgBox.style.color = "var(--red)";
+                    msgBox.innerText = dados.erro;
+                }
+            } catch (e) {
+                msgBox.style.color = "var(--red)";
+                msgBox.innerText = "Erro ao conectar com o servidor local.";
+            }
+        }
+
         function alternarTela() {
             document.getElementById('login-section').classList.toggle('hidden');
             document.getElementById('register-section').classList.toggle('hidden');
+            document.getElementById('login-msg').innerText = '';
+            document.getElementById('register-msg').innerText = '';
         }
 
-        async function fazerLogin() {
+        function validarForcaSenha() {
+            const senha = document.getElementById('reg-senha').value;
+            const hint = document.getElementById('senha-hint');
+            const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+            
+            if (regex.test(senha)) {
+                hint.style.color = "var(--green)";
+                hint.innerText = "Senha forte e válida!";
+            } else {
+                hint.style.color = "var(--red)";
+                hint.innerText = "Mínimo 8 caracteres, 1 maiúscula, 1 número e 1 caractere especial.";
+            }
+        }
+
+        async function fazerLogin(event) {
+            event.preventDefault();
             const email = document.getElementById('login-email').value;
             const senha = document.getElementById('login-senha').value;
             const msgBox = document.getElementById('login-msg');
@@ -89,22 +297,37 @@
 
                 if (resposta.ok) {
                     localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
-                    window.location.href = "index.html"; // Redireciona para o painel principal do TCC
+                    window.location.href = "index.html";
                 } else {
-                    msgBox.style.color = "#f85149";
+                    msgBox.style.color = "var(--red)";
                     msgBox.innerText = dados.erro;
                 }
             } catch (e) {
-                msgBox.style.color = "#f85149";
+                msgBox.style.color = "var(--red)";
                 msgBox.innerText = "Erro ao conectar com o servidor local.";
             }
         }
 
-        async function fazerCadastro() {
+        async function fazerCadastro(event) {
+            event.preventDefault();
             const nome = document.getElementById('reg-nome').value;
             const email = document.getElementById('reg-email').value;
             const senha = document.getElementById('reg-senha').value;
+            const confirmaSenha = document.getElementById('reg-confirma-senha').value;
             const msgBox = document.getElementById('register-msg');
+
+            if (senha !== confirmaSenha) {
+                msgBox.style.color = "var(--red)";
+                msgBox.innerText = "As senhas não coincidem!";
+                return;
+            }
+
+            const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+            if (!regex.test(senha)) {
+                msgBox.style.color = "var(--red)";
+                msgBox.innerText = "A senha não atende aos requisitos de segurança!";
+                return;
+            }
 
             try {
                 const resposta = await fetch(`${API_URL}/register`, {
@@ -115,18 +338,93 @@
                 const dados = await resposta.json();
 
                 if (resposta.ok) {
-                    msgBox.style.color = "#2ea043";
-                    msgBox.innerText = dados.mensagem;
-                    setTimeout(alternarTela, 1500); // Volta para o login após 1.5s
+                    msgBox.style.color = "var(--green)";
+                    msgBox.innerText = dados.mensagem + " Redirecionando...";
+                    setTimeout(() => alternarTela(), 1500);
                 } else {
-                    msgBox.style.color = "#f85149";
+                    msgBox.style.color = "var(--red)";
                     msgBox.innerText = dados.erro;
                 }
             } catch (e) {
-                msgBox.style.color = "#f85149";
+                msgBox.style.color = "var(--red)";
                 msgBox.innerText = "Erro ao conectar com o servidor local.";
             }
         }
+
+        // LÓGICA DO PAINEL DE ACESSIBILIDADE
+        const fab = document.getElementById('a11yToggle');
+        const panel = document.getElementById('a11yPanel');
+        if (fab && panel) {
+            fab.addEventListener('click', () => {
+                const open = panel.classList.toggle('open');
+                fab.setAttribute('aria-expanded', String(open));
+            });
+        }
+
+        const darkSwitch = document.getElementById('darkSwitch');
+        const contrastSwitch = document.getElementById('contrastSwitch');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function updateThemeState(isDark) {
+            if (isDark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (darkSwitch) darkSwitch.checked = true;
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                if (darkSwitch) darkSwitch.checked = false;
+            }
+        }
+
+        function updateContrastState(isHigh) {
+            document.documentElement.setAttribute('data-contrast', isHigh ? 'high' : 'normal');
+            if (contrastSwitch) contrastSwitch.checked = isHigh;
+        }
+
+        function updateScaleState(scale) {
+            document.documentElement.style.setProperty('--scale', scale);
+            const fontButtons = document.querySelectorAll('.font-steps button');
+            fontButtons.forEach(b => {
+                b.setAttribute('aria-pressed', b.dataset.scale === scale ? 'true' : 'false');
+            });
+        }
+
+        const savedTheme = localStorage.getItem('skysync-theme');
+        if (savedTheme) {
+            updateThemeState(savedTheme === 'dark');
+        } else {
+            updateThemeState(prefersDark.matches);
+        }
+
+        const savedContrast = localStorage.getItem('skysync-contrast');
+        if (savedContrast) updateContrastState(savedContrast === 'high');
+
+        const savedScale = localStorage.getItem('skysync-scale');
+        if (savedScale) updateScaleState(savedScale);
+
+        if (darkSwitch) {
+            darkSwitch.addEventListener('change', () => {
+                const on = darkSwitch.checked;
+                updateThemeState(on);
+                try { localStorage.setItem('skysync-theme', on ? 'dark' : 'light'); } catch(e) {}
+            });
+        }
+
+        if (contrastSwitch) {
+            contrastSwitch.addEventListener('change', () => {
+                const on = contrastSwitch.checked;
+                updateContrastState(on);
+                try { localStorage.setItem('skysync-contrast', on ? 'high' : 'normal'); } catch(e) {}
+            });
+        }
+
+        const fontButtons = document.querySelectorAll('.font-steps button');
+        fontButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const scale = btn.dataset.scale;
+                updateScaleState(scale);
+                try { localStorage.setItem('skysync-scale', scale); } catch(e) {}
+            });
+        });
     </script>
 </body>
 </html>
