@@ -696,7 +696,7 @@
           </h2>
           <ul class="info-list-clean">
             <li><span data-i18n="labelName">Nome</span><input type="text" id="inputName" class="setting-input"></li>
-            <li><span data-i18n="labelRole">Cargo</span><input type="text" id="inputRole" class="setting-input" value="Coordenadora Operacional"></li>
+            <li><span data-i18n="labelRole">Cargo</span><input type="text" id="inputRole" class="setting-input"></li>
             <li>
               <span data-i18n="labelBase">Base</span>
               <select id="selBase" class="setting-select">
@@ -900,8 +900,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       const res = await fetch(`${API_URL}/perfil/${settings.email}`);
       if (res.ok) {
         const perfilBanco = await res.json();
-        if (!usuarioLogado.nome && perfilBanco.nome) settings.name = perfilBanco.nome;
-        if (!usuarioLogado.cargo && perfilBanco.cargo) settings.role = perfilBanco.cargo;
+        if (perfilBanco.nome) settings.name = perfilBanco.nome;
+        if (perfilBanco.cargo) settings.role = perfilBanco.cargo;
         if (perfilBanco.base) settings.base = perfilBanco.base;
       }
     } catch (e) {
@@ -1355,24 +1355,18 @@ window.addEventListener('DOMContentLoaded', async () => {
       gerarEscalasDinamicas();
     }
 
-    function salvarDadosLocais() {
-      try {
-        localStorage.setItem('skysync_historico_escalas', JSON.stringify(historicoEscalas));
-        localStorage.setItem('skysync_indice_historico', indiceHistoricoAtual);
-        localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
-        localStorage.setItem('skysync_dados_originais', JSON.stringify(dadosOriginais));
-      } catch (e) {
-        console.error("Erro ao salvar no localStorage:", e);
-      }
-    }
-
     carregarDadosLocais();
 
     function registrarNovoHistorico(novoConjunto) {
       historicoEscalas.push(JSON.parse(JSON.stringify(novoConjunto)));
       if (historicoEscalas.length > 30) historicoEscalas.shift();
       indiceHistoricoAtual = historicoEscalas.length - 1;
-      salvarDadosLocais();
+      try {
+        localStorage.setItem('skysync_historico_escalas', JSON.stringify(historicoEscalas));
+        localStorage.setItem('skysync_indice_historico', indiceHistoricoAtual);
+        localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
+        localStorage.setItem('skysync_dados_originais', JSON.stringify(dadosOriginais));
+      } catch (e) {}
     }
 
     function getBadgeText(badgeKey) {
@@ -1655,7 +1649,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (indiceHistoricoAtual > 0) {
           indiceHistoricoAtual--;
           dadosOperacionais = JSON.parse(JSON.stringify(historicoEscalas[indiceHistoricoAtual]));
-          salvarDadosLocais();
+          try { localStorage.setItem('skysync_indice_historico', indiceHistoricoAtual); } catch(e){}
           gerarDisruptionsDinamicas();
           gerarEscalasDinamicas();
           showStatus(`Exibindo versão histórica ${indiceHistoricoAtual + 1} de ${historicoEscalas.length}`, 'ok');
@@ -1668,7 +1662,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (indiceHistoricoAtual < historicoEscalas.length - 1) {
           indiceHistoricoAtual++;
           dadosOperacionais = JSON.parse(JSON.stringify(historicoEscalas[indiceHistoricoAtual]));
-          salvarDadosLocais();
+          try { localStorage.setItem('skysync_indice_historico', indiceHistoricoAtual); } catch(e){}
           gerarDisruptionsDinamicas();
           gerarEscalasDinamicas();
           showStatus(`Exibindo versão histórica ${indiceHistoricoAtual + 1} de ${historicoEscalas.length}`, 'ok');
@@ -1676,7 +1670,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    // BOTÃO 1: "🔄 Atualizar Escalas" -> Cria uma NOVA VERSÃO avançando no histórico
     function gerarNovaEscalaAleatoria() {
       const nomesAleatorios = ['Lucas Mendes', 'Fernanda Souza', 'Bruno Ribeiro', 'Camila Rocha', 'Diego Farias', 'Larissa Azevedo', 'Thiago Moreira', 'Mariana Prado', 'Renato Castilho'];
       const rotasLogicasBr = [
@@ -1728,7 +1721,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    // BOTÃO 2: "Aplicar escala automática" -> Modifica DIRETAMENTE a versão ATUAL na tela (sem criar nova versão no histórico)
     function aplicarEscalaAutomaticaNaVersaoAtual() {
       dadosOperacionais.forEach(d => {
         d.bloqueado = false;
@@ -1739,7 +1731,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       historicoEscalas[indiceHistoricoAtual] = JSON.parse(JSON.stringify(dadosOperacionais));
 
-      salvarDadosLocais();
+      try {
+        localStorage.setItem('skysync_historico_escalas', JSON.stringify(historicoEscalas));
+        localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
+      } catch(e){}
+
       gerarDisruptionsDinamicas();
       gerarEscalasDinamicas();
 
@@ -2017,7 +2013,9 @@ window.addEventListener('DOMContentLoaded', async () => {
             d.horas = '06h30';
           }
         });
-        salvarDadosLocais();
+        try {
+          localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
+        } catch(e){}
         gerarDisruptionsDinamicas();
         gerarEscalasDinamicas();
 
@@ -2042,7 +2040,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         } else {
           dadosOperacionais = JSON.parse(JSON.stringify(dadosOriginais));
         }
-        salvarDadosLocais();
+        try {
+          localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
+        } catch(e){}
 
         gerarDisruptionsDinamicas();
         gerarEscalasDinamicas();
