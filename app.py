@@ -1,151 +1,69 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-import hashlib
-import requests
-from database import conectar_banco
-from optimizer import executar_otimizacao_cp_sat
+from database import get_db_connection, init_db
+import json
 
 app = Flask(__name__)
-CORS(app)  # Libera a comunicação com o front-end
+CORS(app)
 
-@app.route('/api/status', methods=['GET'])
-def status_sistema():
-    conexao = conectar_banco()
-    db_status = "Conectado ao SQLite" if conexao else "Erro na conexão com o banco"
-    if conexao:
-        conexao.close()
+# Inicializa o banco ao subir a aplicação
+init_db()
 
-    return jsonify({
-        "sistema": "SkySync API",
-        "banco_dados": db_status,
-        "motor": "Ativo"
-    })
+@app.route('/api/escalas', methods=['GET'])
+def get_escalas():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT dados_json FROM historico_escalas ORDER BY id DESC LIMIT 1')
+    row = cursor.fetchone()
+    conn.close()
 
-@app.route('/api/simular', methods=['POST'])
-def simular():
-    return jsonify({"sucesso": True, "mensagem": "Simulação executada com sucesso!"})
+    if row:
+        return jsonify(json.loads(row['dados_json']))
+    
+    # Dados padrão iniciais se a tabela estiver vazia
+    dados_iniciais = [
+        { id: 1, 'voo': 'TAM-3482', 'tripulante': 'Rafael Nunes', 'cargo': 'Comandante', 'risco': 'alto', 'badgeKey': 'highFatigueRisk', 'desc': 'Atraso operacional crítico devido a restrições meteorológicas severas em Guarulhos.', 'rota': 'GRU → VCP', 'horario': 'Partida prevista 23:40', 'horas': '11h30', 'limitRbac': '11h00 (pouso à noite)', 'solucao': 'Conexão direta GRU → CNF com reserva imediata', 'bloqueado': True }
+    ]
+    return jsonify(dados_iniciais)
 
-# --- ROTA DE CADASTRO ---
-@app.route('/api/register', methods=['POST'])
-def register():
-    dados = request.get_json()
-    nome = dados.get('nome')
-    email = dados.get('email')
-    senha = dados.get('senha')
+@app.route('/api/escalas/historico', methods=['POST'])
+def salvar_historico():
+    content = request.json
+    dados = content.get('dados')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(*) as total FROM historico_escalas')
+    total = cursor.fetchone()['total']
+    
+    cursor.execute('INSERT INTO historico_escalas (versao_index, dados_json) VALUES (?, ?)', 
+                   (total, json.dumps(dados)))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"status": "sucesso", "versao": total}), 201
 
-    if not nome or not email or not senha:
-        return jsonify({"erro": "Preencha todos os campos!"}), 400
-
-    senha_hash = hashlib.sha256(senha.encode()).hexdigest()
-
-    try:
-        conexao = conectar_banco()
-        cursor = conexao.cursor()
-        
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                senha TEXT NOT NULL
-            )
-        """)
-
-        # Verifica explicitamente se o e-mail já existe
-        cursor.execute("SELECT id FROM usuarios WHERE email = ?", (email,))
-        usuario_existente = cursor.fetchone()
-
-        if usuario_existente:
-            conexao.close()
-            return jsonify({"erro": "Este e-mail já está cadastrado no sistema."}), 400
-
-        cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)", (nome, email, senha_hash))
-        conexao.commit()
-        conexao.close()
-        
-        return jsonify({"sucesso": True, "mensagem": "Usuário cadastrado com sucesso!"}), 201
-
-    except Exception as e:
-        return jsonify({"erro": f"Ocorreu um erro no servidor: {str(e)}"}), 500
-
-# --- ROTA DE LOGIN ---
-@app.route('/api/login', methods=['POST'])
-def login():
-    dados = request.get_json()
-    email = dados.get('email')
-    senha = dados.get('senha')
-
-    senha_hash = hashlib.sha256(senha.encode()).hexdigest()
-
-    conexao = conectar_banco()
-    cursor = conexao.cursor()
-    cursor.execute("SELECT id, nome, email FROM usuarios WHERE email = ? AND senha = ?", (email, senha_hash))
-    usuario = cursor.fetchone()
-    conexao.close()
-
-    if usuario:
-        return jsonify({
-            "sucesso": True,
-            "usuario": {
-                "id": usuario[0],
-                "nome": usuario[1],
-                "email": usuario[2]
-            }
-        }), 200
-    else:
-        return jsonify({"erro": "E-mail ou senha incorretos."}), 401
-
-# --- ROTA DE LOGIN COM GOOGLE ---
-@app.route('/api/google-login', methods=['POST'])
-def google_login():
-    dados = request.get_json()
-    token = dados.get('token')
-
-    try:
-        url_validacao = f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
-        resposta = requests.get(url_validacao)
-        
-        if resposta.status_code != 200:
-            return jsonify({"erro": "Token do Google inválido."}), 401
-
-        info_google = resposta.json()
-        email = info_google.get('email')
-        nome = info_google.get('name')
-
-        conexao = conectar_banco()
-        cursor = conexao.cursor()
-        
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                senha TEXT NOT NULL
-            )
-        """)
-
-        cursor.execute("SELECT id, nome, email FROM usuarios WHERE email = ?", (email,))
-        usuario = cursor.fetchone()
-
-        if not usuario:
-            cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)", (nome, email, "GOOGLE_AUTH"))
-            conexao.commit()
-            cursor.execute("SELECT id, nome, email FROM usuarios WHERE email = ?", (email,))
-            usuario = cursor.fetchone()
-
-        conexao.close()
-
-        return jsonify({
-            "sucesso": True,
-            "usuario": {
-                "id": usuario[0],
-                "nome": usuario[1],
-                "email": usuario[2]
-            }
-        }), 200
-
-    except Exception as e:
-        return jsonify({"erro": "Erro ao processar o login com o Google."}), 500
+@app.route('/api/perfil', methods=['GET', 'POST'])
+def gerenciar_perfil():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if request.method == 'POST':
+        data = request.json
+        cursor.execute('DELETE FROM usuarios') # Mantém apenas o usuário ativo atual
+        cursor.execute('INSERT INTO usuarios (nome, email, cargo, base) VALUES (?, ?, ?, ?)',
+                       (data.get('nome'), data.get('email'), data.get('cargo'), data.get('base')))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "perfil atualizado com sucesso"})
+    
+    cursor.execute('SELECT * FROM usuarios LIMIT 1')
+    user = cursor.fetchone()
+    conn.close()
+    
+    if user:
+        return jsonify(dict(user))
+    return jsonify({"nome": "Marina Costa", "email": "marina.costa@skysync.aero", "cargo": "Coordenadora Operacional", "base": "GRU — Guarulhos"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
