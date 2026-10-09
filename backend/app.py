@@ -1,12 +1,11 @@
 """SkySync — ponto de entrada da aplicação.
 
 Este arquivo só monta a app: configuração, CORS, blueprints, tratamento de erro
-e o CLI. Nenhuma regra de negócio mora aqui.
+e CLI. Nenhuma regra de negócio mora aqui.
 """
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 
 from flask import Flask, jsonify
@@ -26,8 +25,7 @@ def create_app(config_name: str | None = None) -> Flask:
     _configurar_cors(app)
 
     # Conexão por-requisição fechada no teardown — é isso que impede o vazamento
-    # de conexões que existia quando cada handler chamava conn.close() só no
-    # caminho de sucesso.
+    # de conexões que existia quando cada handler chamava close() só no sucesso.
     db.register(app)
 
     for bp in blueprints.TODOS:
@@ -36,10 +34,6 @@ def create_app(config_name: str | None = None) -> Flask:
     _registrar_handlers_de_erro(app)
     _registrar_rotas_base(app)
     _registrar_cli(app)
-
-    with app.app_context():
-        db.init_db()
-
     return app
 
 
@@ -53,11 +47,12 @@ def _configurar_logging(app: Flask) -> None:
 
 
 def _configurar_cors(app: Flask) -> None:
-    # Antes: CORS(app) liberava qualquer origem. Agora só as do config.
+    # Com cookie de sessão, o navegador exige origem nomeada e credenciais
+    # explícitas — curinga `*` é recusado quando há credenciais.
     CORS(
         app,
         resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
-        supports_credentials=False,
+        supports_credentials=True,
     )
 
 
@@ -69,8 +64,6 @@ def _registrar_handlers_de_erro(app: Flask) -> None:
     @app.errorhandler(Exception)
     def tratar_excecao(err: Exception):
         # Detalhe vai para o log do servidor; o cliente recebe mensagem genérica.
-        # A versão antiga devolvia err.message do SQLite, expondo caminhos de
-        # arquivo e nomes de tabela para quem chamasse a API.
         app.logger.exception("erro não tratado")
         return (
             jsonify(
@@ -86,18 +79,34 @@ def _registrar_handlers_de_erro(app: Flask) -> None:
 def _registrar_rotas_base(app: Flask) -> None:
     @app.get("/api/health")
     def health():
-        return jsonify(
-            {
-                "status": "ok",
-                "servico": "skysync-api",
-                "versao": "2.0.0",
-                "env": os.getenv("SKYSYNC_ENV", "development"),
-            }
+        """Verifica app e banco — é o que a banca roda primeiro."""
+        from db import ErroDeBanco, transacao
+
+        banco = {"ok": False, "backend": "postgres"}
+        try:
+            with transacao() as conexao:
+                linha = conexao.execute("SELECT 1 AS ok").fetchone()
+            banco = {"ok": bool(linha), "backend": "postgres" if conexao else "desconhecido"}
+        except ErroDeBanco as err:
+            banco = {"ok": False, "backend": "postgres", "erro": str(err)}
+        except Exception:
+            app.logger.exception("health check falhou ao consultar o banco")
+            banco = {"ok": False, "backend": "postgres", "erro": "falha de conexão"}
+
+        return (
+            jsonify(
+                {
+                    "status": "ok" if banco["ok"] else "degradado",
+                    "servico": "skysync-api",
+                    "versao": "2.1.0",
+                    "banco": banco,
+                }
+            ),
+            200 if banco["ok"] else 503,
         )
 
     @app.get("/")
     def index():
-        # Serve o painel se ele estiver em static/, sem quebrar quando não está.
         candidato = Path(app.static_folder or "") / "index.html"
         if candidato.exists():
             return app.send_static_file("index.html")
@@ -107,13 +116,14 @@ def _registrar_rotas_base(app: Flask) -> None:
 def _registrar_cli(app: Flask) -> None:
     @app.cli.command("init-db")
     def init_db_cmd():
-        """Recria o esquema do banco a partir de schema.sql."""
+        """Cria/atualiza o esquema no banco configurado em DATABASE_URL."""
         db.init_db()
-        print(f"Banco inicializado em {app.config['DB_PATH']}")
+        print("Esquema aplicado com sucesso.")
+        print(f"  banco: {app.config['DATABASE_URL'][:40] or 'sqlite (teste)'}...")
 
     @app.cli.command("check-solver")
     def check_solver_cmd():
-        """Roda um caso pequeno do otimizador — útil como smoke test."""
+        """Roda um caso pequeno do otimizador — smoke test do CP-SAT."""
         from models import RequisicaoOtimizacao
         from optimizer.solver import otimizar
 
@@ -121,18 +131,8 @@ def _registrar_cli(app: Flask) -> None:
             {
                 "base": "GRU",
                 "tripulantes": [
-                    {
-                        "id": "t1",
-                        "nome": "Rafael Nunes",
-                        "horas_acumuladas": 6.0,
-                        "limite_horas": 11.0,
-                    },
-                    {
-                        "id": "t2",
-                        "nome": "Lucas Mendes",
-                        "horas_acumuladas": 2.0,
-                        "limite_horas": 11.0,
-                    },
+                    {"id": "t1", "nome": "Rafael Nunes", "horas_acumuladas": 6.0, "limite_horas": 11.0},
+                    {"id": "t2", "nome": "Lucas Mendes", "horas_acumuladas": 2.0, "limite_horas": 11.0},
                 ],
                 "voos": [
                     {"id": "v1", "codigo": "TAM-3482", "duracao_horas": 4.5, "origem": "GRU", "destino": "VCP"},
@@ -142,10 +142,7 @@ def _registrar_cli(app: Flask) -> None:
             limite_padrao=11.0,
         )
         solucao = otimizar(
-            requisicao.base,
-            requisicao.tripulantes,
-            requisicao.voos,
-            requisicao.limite_horas,
+            requisicao.base, requisicao.tripulantes, requisicao.voos, requisicao.limite_horas
         )
         for a in solucao.alocacoes:
             print(f"  {a.voo_codigo} -> {a.tripulante_nome} ({a.duracao_horas}h)")
@@ -156,8 +153,10 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    # debug vem do ambiente, nunca de um True fixo no código: o debugger do
-    # Werkzeug em modo debug permite execução de código pelo navegador.
+    import os
+
+    # debug vem do ambiente, nunca de um True fixo: o debugger do Werkzeug em
+    # modo debug permite execução de código pelo navegador.
     app.run(
         host=os.getenv("SKYSYNC_HOST", "127.0.0.1"),
         port=int(os.getenv("SKYSYNC_PORT", "5000")),

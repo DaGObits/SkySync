@@ -1,36 +1,44 @@
--- SkySync — esquema do banco de dados
--- Versão: 1
+-- SkySync — esquema do banco de dados (PostgreSQL)
+-- Versão: 2
 --
--- Este arquivo é a fonte única da verdade do esquema. O app executa este script
--- na inicialização; não há CREATE TABLE espalhado pelo código.
-
-PRAGMA foreign_keys = ON;
+-- Este arquivo é a fonte única da verdade do esquema.
+-- Diferenças em relação à versão SQLite:
+--   * SERIAL no lugar de AUTOINCREMENT
+--   * TIMESTAMPTZ no lugar de TIMESTAMP (banco em nuvem roda em UTC)
+--   * CHECK constraints explícitas
+--   * índice de expressão sobre LOWER(email)
 
 -- ---------------------------------------------------------------------------
--- Perfil do usuário ativo
+-- Usuários (autenticação)
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS usuarios (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome       TEXT NOT NULL,
-    email      TEXT NOT NULL UNIQUE,
-    cargo      TEXT,
-    base       TEXT,
-    criado_em  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id            SERIAL PRIMARY KEY,
+    nome          TEXT        NOT NULL,
+    email         TEXT        NOT NULL,
+    senha_hash    TEXT,
+    cargo         TEXT        NOT NULL DEFAULT '',
+    base          TEXT        NOT NULL DEFAULT '',
+    ativo         BOOLEAN     NOT NULL DEFAULT TRUE,
+    criado_em     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- E-mail único e comparado em minúsculas: sem isto, "Marina@x.com" e
+-- "marina@x.com" viram duas contas.
+CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_email
+    ON usuarios (LOWER(email));
 
 -- ---------------------------------------------------------------------------
 -- Versões de escala (histórico imutável, uma linha por versão salva)
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS historico_escalas (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    versao_index INTEGER NOT NULL,
-    dados_json   TEXT    NOT NULL,
-    criado_em    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id           SERIAL PRIMARY KEY,
+    usuario_id   INTEGER REFERENCES usuarios (id) ON DELETE SET NULL,
+    versao_index INTEGER     NOT NULL,
+    dados_json   JSONB       NOT NULL,
+    criado_em    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Impede versões duplicadas em requisições concorrentes: o índice UNIQUE faz o
--- banco rejeitar a segunda escrita em vez de gravar silenciosamente.
 CREATE UNIQUE INDEX IF NOT EXISTS ux_historico_versao
     ON historico_escalas (versao_index);
 
@@ -41,20 +49,21 @@ CREATE INDEX IF NOT EXISTS ix_historico_criado_em
 -- Disrupções operacionais
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS disrupcoes (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    voo         TEXT    NOT NULL,
-    tripulante  TEXT,
-    cargo       TEXT,
-    risco       TEXT    CHECK (risco IN ('alto', 'medio', 'baixo')),
-    descricao   TEXT,
-    rota        TEXT,
-    horario     TEXT,
-    horas       TEXT,
-    limit_rbac  TEXT,
-    solucao     TEXT,
-    bloqueado   BOOLEAN NOT NULL DEFAULT 0,
-    base        TEXT,
-    criado_em   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id         SERIAL PRIMARY KEY,
+    voo        TEXT        NOT NULL,
+    tripulante TEXT        NOT NULL DEFAULT '',
+    cargo      TEXT        NOT NULL DEFAULT '',
+    risco      TEXT        NOT NULL DEFAULT 'baixo'
+                           CHECK (risco IN ('alto', 'medio', 'baixo')),
+    descricao  TEXT        NOT NULL DEFAULT '',
+    rota       TEXT        NOT NULL DEFAULT '',
+    horario    TEXT        NOT NULL DEFAULT '',
+    horas      TEXT        NOT NULL DEFAULT '',
+    limit_rbac TEXT        NOT NULL DEFAULT '',
+    solucao    TEXT        NOT NULL DEFAULT '',
+    bloqueado  BOOLEAN     NOT NULL DEFAULT FALSE,
+    base       TEXT        NOT NULL DEFAULT '',
+    criado_em  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS ix_disrupcoes_base ON disrupcoes (base);
@@ -63,21 +72,25 @@ CREATE INDEX IF NOT EXISTS ix_disrupcoes_base ON disrupcoes (base);
 -- Registro das execuções do otimizador (trilha de auditoria do CP-SAT)
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS execucoes_otimizacao (
-    id                INTEGER PRIMARY KEY AUTOINCREMENT,
-    base              TEXT,
-    status_solver     TEXT NOT NULL,   -- OPTIMAL / FEASIBLE / INFEASIBLE / UNKNOWN
-    wall_time_seconds REAL,
-    conformidade      REAL,
+    id                SERIAL PRIMARY KEY,
+    base              TEXT        NOT NULL DEFAULT '',
+    status_solver     TEXT        NOT NULL,
+    wall_time_seconds DOUBLE PRECISION,
+    objetivo_valor    DOUBLE PRECISION,
+    conformidade      DOUBLE PRECISION,
     total_tripulantes INTEGER,
     total_bloqueados  INTEGER,
-    detalhes_json     TEXT,
-    criado_em         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    detalhes_json     JSONB,
+    criado_em         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Metadados de migração, para versionar o esquema nas próximas entregas.
+-- ---------------------------------------------------------------------------
+-- Metadados de migração
+-- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS schema_version (
-    versao     INTEGER PRIMARY KEY,
-    aplicado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    versao      INTEGER PRIMARY KEY,
+    aplicado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-INSERT OR IGNORE INTO schema_version (versao) VALUES (1);
+INSERT INTO schema_version (versao) VALUES (2)
+    ON CONFLICT (versao) DO NOTHING;

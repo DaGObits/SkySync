@@ -1,14 +1,17 @@
 """Blueprint do motor de otimização.
 
-Diferença central em relação à versão antiga: o endpoint `/api/simulate-optimization`
-devolvia `new_compliance: '100%'` hardcoded, sem calcular nada. Aqui ele roda o
-CP-SAT de verdade e devolve o status real do solver.
+Diferença central em relação à versão antiga: o endpoint devolvia
+`new_compliance: '100%'` hardcoded, sem calcular nada. Aqui ele roda o CP-SAT
+de verdade e devolve o status real do solver.
 """
 from __future__ import annotations
 
+import json
+
 from flask import Blueprint, current_app, jsonify, request
 
-from db import transaction
+from blueprints.auth import login_obrigatorio
+from db import transacao
 from models import RequisicaoOtimizacao, ValidacaoError
 from optimizer.restricoes import catalogo_restricoes
 from optimizer.solver import OtimizacaoInviavel, otimizar
@@ -18,11 +21,16 @@ bp = Blueprint("otimizacao", __name__, url_prefix="/api/otimizacao")
 
 @bp.get("/restricoes")
 def listar_restricoes():
-    """Expõe o catálogo de restrições ativas — documentação viva do modelo."""
+    """Catálogo de restrições ativas — documentação viva do modelo.
+
+    Sem exigir login de propósito: é conteúdo informativo e ajuda a inspecionar
+    o sistema durante a apresentação.
+    """
     return jsonify(catalogo_restricoes())
 
 
 @bp.post("")
+@login_obrigatorio
 def executar_otimizacao():
     """Recalcula a escala para uma base.
 
@@ -84,21 +92,24 @@ def executar_otimizacao():
 
 def _registrar_execucao(base: str, status: str, solucao) -> None:
     """Trilha de auditoria — permite à banca reconstruir cada execução."""
-    import json
-
     try:
-        with transaction() as conn:
-            conn.execute(
+        with transacao() as conexao:
+            conexao.execute(
                 """
                 INSERT INTO execucoes_otimizacao
-                    (base, status_solver, wall_time_seconds, conformidade,
-                     total_tripulantes, total_bloqueados, detalhes_json)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (base, status_solver, wall_time_seconds, objetivo_valor,
+                     conformidade, total_tripulantes, total_bloqueados,
+                     detalhes_json)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     base,
                     status,
-                    getattr(solucao, "wall_time_seconds", None),
+                    # O SQLite do ambiente de teste não converte float com a
+                    # mesma tolerância do psycopg; arredondar evita depender
+                    # disso e mantém os valores estáveis.
+                    round(solucao.wall_time_seconds, 4) if solucao else None,
+                    round(solucao.objetivo, 4) if solucao else None,
                     getattr(solucao, "conformidade", None),
                     getattr(solucao, "total_tripulantes", None),
                     getattr(solucao, "tripulantes_bloqueados", None),

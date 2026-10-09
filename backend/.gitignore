@@ -1,0 +1,30 @@
+# Banco de dados local — nunca versionar dado de execução
+*.db
+*.db-wal
+*.db-shm
+
+# Ambiente — contém a DATABASE_URL e a SECRET_KEY
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node (resquício do backend antigo em Express)
+node_modules/
+package.json
+package-lock.json
+
+# Editores e SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,69 +1,70 @@
-"""Blueprint do perfil do usuário ativo.
+"""Blueprint do perfil do usuário autenticado.
 
-Antes: `POST /api/perfil` fazia `DELETE FROM usuarios` sem WHERE, e o id do
-usuário nunca era devolvido de forma confiável.
-Agora: upsert por e-mail dentro de uma transação, com validação de entrada.
+Mudança de contrato em relação à versão anterior: o perfil pertence a quem
+está logado. A rota não recebe mais e-mail pela URL e exige sessão ativa.
 """
 from __future__ import annotations
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request, session
 
-from db import get_connection, transaction
-from models import Perfil, ValidacaoError
+from blueprints.auth import _usuario_para_json, login_obrigatorio
+from db import transacao
 
 bp = Blueprint("perfil", __name__, url_prefix="/api/perfil")
 
-PERFIL_PADRAO = {
-    "nome": "Marina Costa",
-    "email": "marina.costa@skysync.aero",
-    "cargo": "Coordenadora Operacional",
-    "base": "GRU — Guarulhos",
-}
+_CAMPOS = "id, nome, email, cargo, base"
 
 
 @bp.get("")
+@login_obrigatorio
 def obter_perfil():
-    conn = get_connection()
-    row = conn.execute("SELECT * FROM usuarios ORDER BY id DESC LIMIT 1").fetchone()
+    with transacao() as conexao:
+        linha = conexao.execute(
+            f"SELECT {_CAMPOS} FROM usuarios WHERE id = %s",
+            (session["usuario_id"],),
+        ).fetchone()
 
-    if row is None:
-        return jsonify(PERFIL_PADRAO)
+    if linha is None:
+        return jsonify({"erro": "usuário não encontrado"}), 404
 
-    return jsonify(
-        {
-            "id": row["id"],
-            "nome": row["nome"],
-            "email": row["email"],
-            "cargo": row["cargo"] or "",
-            "base": row["base"] or "",
-        }
-    )
+    return jsonify(_usuario_para_json(linha))
 
 
 @bp.post("")
+@login_obrigatorio
 def salvar_perfil():
-    try:
-        perfil = Perfil.from_payload(request.get_json(silent=True))
-    except ValidacaoError as err:
-        return jsonify({"erro": "dados inválidos", "campos": err.campos}), 400
+    corpo = request.get_json(silent=True)
+    if not isinstance(corpo, dict):
+        return jsonify({"erro": "corpo deve ser um objeto JSON"}), 400
 
-    # Upsert por e-mail: reenviar o mesmo perfil atualiza em vez de duplicar,
-    # e não apaga mais os outros usuários da base.
-    with transaction() as conn:
-        conn.execute(
-            """
-            INSERT INTO usuarios (nome, email, cargo, base, atualizado_em)
-            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-            ON CONFLICT(email) DO UPDATE SET
-                nome = excluded.nome,
-                cargo = excluded.cargo,
-                base = excluded.base,
-                atualizado_em = CURRENT_TIMESTAMP
-            """,
-            (perfil.nome, perfil.email, perfil.cargo, perfil.base),
+    # O front envia `role` no lugar de `cargo`; aceitamos os dois nomes para
+    # não quebrar a integração existente.
+    nome = (corpo.get("nome") or "").strip()
+    cargo = (corpo.get("cargo") or corpo.get("role") or "").strip()
+    base = (corpo.get("base") or "").strip()
+
+    if len(nome) < 2:
+        return (
+            jsonify({"erro": "dados inválidos", "campos": {"nome": "campo obrigatório"}}),
+            400,
         )
-        linha = conn.execute(
-            "SELECT id FROM usuarios WHERE email = ?", (perfil.email,)
-        ).fetchone()
 
-    return jsonify({"status": "sucesso", "id": linha["id"], "perfil": perfil.to_dict()})
+    try:
+        with transacao() as conexao:
+            conexao.execute(
+                """
+                UPDATE usuarios
+                   SET nome = %s, cargo = %s, base = %s
+                 WHERE id = %s
+                """,
+                (nome, cargo, base, session["usuario_id"]),
+            )
+            linha = conexao.execute(
+                f"SELECT {_CAMPOS} FROM usuarios WHERE id = %s",
+                (session["usuario_id"],),
+            ).fetchone()
+    except Exception:
+        current_app.logger.exception("falha ao salvar perfil")
+        return jsonify({"erro": "não foi possível salvar o perfil"}), 500
+
+    return jsonify({"status": "sucesso", "perfil": _usuario_para_json(linha)})
