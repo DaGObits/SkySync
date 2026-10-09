@@ -1,39 +1,48 @@
-from ortools.sat.python import cp_model
+import random
 
-def executar_otimizacao_cp_sat():
-    """
-    Exemplo de modelo CP-SAT para verificar o limite de jornada dos tripulantes 
-    frente às restrições legais da ANAC (RBAC 117).
-    """
-    modelo = cp_model.CpModel()
+RBAC_LIMITS = [
+    '11h00 (pouso à noite)',
+    '10h00 (múltiplos pousos / fuso)',
+    '12h00 (jornada diurna padrão)',
+    '13h00 (extensão por revezamento)',
+    '9h30 (não aclimatizado)',
+    '14h00 (tripulação reforçada)',
+    '11h30 (limite adaptado setor)'
+]
 
-    
-   
-    jornada_t1 = modelo.NewIntVar(0, 800, 'jornada_t1')
-    
-    
-    limite_legal = 660
-    
-    
-    violacao_t1 = modelo.NewBoolVar('violacao_t1')
-    
-   
-    modelo.Add(jornada_t1 > limite_legal).OnlyEnforceIf(violacao_t1)
-    modelo.Add(jornada_t1 <= limite_legal).OnlyEnforceIf(violacao_t1.Not())
+def gerar_nova_escala_otimizada(dados_atuais):
+    nomes = ['Lucas Mendes', 'Fernanda Souza', 'Bruno Ribeiro', 'Camila Rocha', 'Diego Farias', 'Larissa Azevedo', 'Thiago Moreira', 'Mariana Prado', 'Renato Castilho']
+    rotas = [
+        {'origem': 'GRU', 'destino': 'VCP', 'solucao': 'Conexão direta GRU → CNF com reserva imediata'},
+        {'origem': 'CGH', 'destino': 'SSA', 'solucao': 'Realocação CGH → BSB via malha integrada'},
+        {'origem': 'REC', 'destino': 'GRU', 'solucao': 'Ajuste de tripulação REC → GIG com repouso em base'},
+        {'origem': 'BSB', 'destino': 'GIG', 'solucao': 'Substituição por tripulação de apoio em BSB'},
+        {'origem': 'GRU', 'destino': 'CGB', 'solucao': 'Manutenção da escala regular GRU → CGB'}
+    ]
+    cias = ['TAM', 'GLO', 'AZU', 'PTB']
 
-    
-    conversor = cp_model.CpSolver()
-    status = conversor.Solve(modelo)
+    nova_escala = []
+    for item in dados_atuais:
+        novo_item = item.copy()
+        novo_item['tripulante'] = random.choice(nomes)
+        rota_sel = random.choice(rotas)
+        novo_item['rota'] = f"{rota_sel['origem']} → {rota_sel['destino']}"
+        novo_item['solucao'] = rota_sel['solucao']
+        
+        cia = random.choice(cias)
+        num = random.randint(1000, 9999)
+        novo_item['voo'] = f"{cia}-{num}"
 
-    if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-        return {
-            "status_motor": "Otimizado com sucesso",
-            "algoritmo": "Google OR-Tools CP-SAT",
-            "conflitos_detectados": 3,
-            "mensagem": "Malha reescalonada respeitando estritamente a RBAC 117."
-        }
-    else:
-        return {
-            "status_motor": "Inviável",
-            "mensagem": "Nenhuma solução encontrada sem violação de jornada."
-        }
+        is_blocked = random.choice([True, False])
+        novo_item['bloqueado'] = is_blocked
+        novo_item['risco'] = 'alto' if is_blocked else 'baixo'
+        novo_item['badgeKey'] = 'highFatigueRisk' if is_blocked else 'normalOperation'
+        
+        horas = random.randint(6, 13)
+        mins = random.randint(0, 59)
+        novo_item['horas'] = f"{str(horas).padStart(2, '0') if hasattr(str, 'padStart') else f'{horas:02d}'}h{str(mins).padStart(2, '0') if hasattr(str, 'padStart') else f'{mins:02d}'}"
+        novo_item['limitRbac'] = random.choice(RBAC_LIMITS)
+        
+        nova_escala.append(novo_item)
+        
+    return nova_escala
