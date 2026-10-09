@@ -18,7 +18,6 @@
     --surface-alt: #F7F9FB;
     --border: #D7DEE6;
     --text-900: #101825;
-    --text-600: #47536490;
     --text-600-solid: #47536A;
     --text-400: #7C8798;
     --green: #14804A;
@@ -87,7 +86,6 @@
     --surface-alt: #FFFFFF;
     --border: #000000;
     --text-900: #000000;
-    --text-600: #000000;
     --text-600-solid: #000000;
     --text-400: #000000;
     --green: #005C2E;
@@ -133,6 +131,7 @@
     padding: 0 20px;
     border-bottom: 1px solid rgba(255,255,255,.08);
     overflow: hidden;
+    z-index: 50;
   }
   
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.05rem; white-space: nowrap; }
@@ -204,7 +203,7 @@
   .nav-btn:hover { background: rgba(255,255,255,.06); }
   .nav-btn[aria-current="page"] { background: var(--navy-700); color: #fff; font-weight: 600; }
 
-  main { grid-column: 2; grid-row: 2; padding: 24px 28px 60px; width: 100%; max-width: 1400px; margin: 0 auto; }
+  main { grid-column: 2; grid-row: 2; padding: 24px 28px 60px; width: 100%; max-width: 1400px; margin: 0 auto; overflow-x: hidden; }
   main h1 { font-size: 1.3rem; margin: 0 0 4px; }
   main .lede { color: var(--text-600-solid); font-size: 0.9rem; margin: 0 0 22px; }
 
@@ -217,11 +216,11 @@
   }
   .filter-btn.active { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
 
-  .alert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; width: 100%; }
+  .alert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; width: 100%; }
   .alert-card {
     background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--red);
     border-radius: var(--radius-m); padding: 16px; position: relative; cursor: pointer; transition: transform .15s, box-shadow .15s;
-    display: flex; flex-direction: column; justify-content: space-between;
+    display: flex; flex-direction: column; justify-content: space-between; width: 100%;
   }
   .alert-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); border-color: var(--navy-700); }
   .alert-card.risk-medio { border-left-color: var(--amber); }
@@ -232,9 +231,9 @@
   .risk-badge.alto { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
   .risk-badge.medio { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
   .risk-badge.baixo { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-  .alert-card p { margin: 0 0 12px; font-size: 0.86rem; color: var(--text-600-solid); line-height: 1.4; }
-  .alert-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; margin-top: auto; }
-  .alert-card .meta { display: flex; gap: 10px; font-size: 0.75rem; color: var(--text-400); font-family: var(--mono); }
+  .alert-card p { margin: 0 0 12px; font-size: 0.86rem; color: var(--text-600-solid); line-height: 1.4; word-break: break-word; }
+  .alert-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; margin-top: auto; flex-wrap: wrap; gap: 6px; }
+  .alert-card .meta { display: flex; gap: 10px; font-size: 0.75rem; color: var(--text-400); font-family: var(--mono); flex-wrap: wrap; }
 
   .table-toolbar {
     display: flex;
@@ -259,11 +258,11 @@
     width: 100%; 
     margin-bottom: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    overflow: hidden;
+    overflow-x: auto; /* Permite rolagem suave horizontal em telas muito pequenas nas tabelas */
   }
-  table { width: 100%; border-collapse: collapse; }
+  table { width: 100%; border-collapse: collapse; min-width: 650px; }
   
-  .history-controls { display: flex; gap: 8px; align-items: center; }
+  .history-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .btn-history-nav {
     background: var(--surface-alt); border: 1px solid var(--border); color: var(--text-600-solid);
     font-size: 0.75rem; padding: 5px 10px; border-radius: var(--radius-s); cursor: pointer; font-weight: 600;
@@ -387,7 +386,7 @@
   .monitor-h ~ .monitor-h { margin-top: 18px; }
 
   .feed-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; max-height: 240px; overflow-y: auto; }
-  .feed-list li { font-size: 0.85rem; color: var(--text-600-solid); padding-left: 14px; border-left: 2px solid var(--border); line-height: 1.4; }
+  .feed-list li { font-size: 0.85rem; color: var(--text-600-solid); padding-left: 14px; border-left: 2px solid var(--border); line-height: 1.4; word-break: break-word; }
   .feed-time { display: block; font-family: var(--mono); font-size: 0.74rem; color: var(--text-400); }
 
   .interactive-widget { 
@@ -403,7 +402,7 @@
     box-shadow: 0 4px 12px rgba(10,25,48,0.08);
   }
 
-  .fatigue-widget { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; }
+  .fatigue-widget { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center; }
   .fatigue-donut {
     width: 90px; height: 90px; border-radius: 50%; flex-shrink: 0;
     background: conic-gradient(var(--green) 0% 67%, var(--red) 67% 100%);
@@ -424,24 +423,25 @@
   .progress-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width 0.4s ease; }
   .progress-value { font-family: var(--mono); font-size: 0.82rem; font-weight: 600; }
 
-  .modal-overlay { position: fixed; inset: 0; background: rgba(10,25,48,0.6); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(10,25,48,0.6); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); padding: 16px; }
   .modal-overlay.open { display: flex; }
-  .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m); padding: 24px; width: 90%; max-width: 480px; box-shadow: 0 12px 32px rgba(10,25,48,.25); }
+  .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m); padding: 24px; width: 100%; max-width: 480px; box-shadow: 0 12px 32px rgba(10,25,48,.25); }
   .modal-card h3 { margin-top: 0; font-size: 1.1rem; color: var(--text-900); }
-  .modal-card p { font-size: 0.9rem; color: var(--text-600-solid); line-height: 1.6; }
+  .modal-card p { font-size: 0.9rem; color: var(--text-600-solid); line-height: 1.6; word-break: break-word; }
   .modal-close { background: var(--navy-900); color: #fff; border: none; padding: 8px 16px; border-radius: var(--radius-s); font-weight: 600; cursor: pointer; float: right; margin-top: 16px; }
 
-  .settings-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; width: 100%; }
-  .setting-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m); padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .settings-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; }
+  .setting-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m); padding: 20px; display: flex; flex-direction: column; gap: 14px; width: 100%; }
   .setting-card-title { font-size: 0.95rem; font-weight: 700; color: var(--text-900); margin: 0 0 4px; display: flex; align-items: center; gap: 8px; }
-  .setting-card-title svg { width: 18px; height: 18px; color: var(--navy-700); }
+  .setting-card-title svg { width: 18px; height: 18px; color: var(--navy-700); flex-shrink: 0; }
   .info-list-clean { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-  .info-list-clean li { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.86rem; }
+  .info-list-clean li { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.86rem; flex-wrap: wrap; }
   .info-list-clean li > span:first-child { color: var(--text-600-solid); }
 
+  /* MEDIA QUERIES OTIMIZADAS PARA MOBILE */
   @media (max-width: 900px) {
     .monitor-grid { grid-template-columns: 1fr; }
-    .app { display: block; grid-template-rows: auto 1fr; }
+    .app { display: block; min-height: 100vh; }
     
     header.topbar { 
       display: grid; 
@@ -453,7 +453,7 @@
       align-items: center; 
     }
     
-    .brand { grid-column: 1; grid-row: 1; justify-self: start; }
+    .brand { grid-column: 1; grid-row: 1; justify-self: start; font-size: 0.95rem; }
     
     .user-chip { 
       grid-column: 2; 
@@ -470,28 +470,47 @@
       grid-row: 2; 
       justify-self: center; 
       margin-left: 0; 
-      font-size: 0.75rem; 
-      padding-top: 2px;
+      font-size: 0.72rem; 
+      padding-top: 4px;
       border-top: 1px solid rgba(255,255,255,.06);
       width: 100%;
       justify-content: center;
+      gap: 8px;
     }
     .clock-local { display: none; }
 
-    nav.sidebar { display: flex; overflow-x: auto; padding: 8px 14px; gap: 12px; align-items: center; white-space: nowrap; border-right: none; border-bottom: 1px solid rgba(255,255,255,.06); }
+    nav.sidebar { 
+      display: flex; 
+      overflow-x: auto; 
+      padding: 8px 12px; 
+      gap: 8px; 
+      align-items: center; 
+      white-space: nowrap; 
+      border-right: none; 
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      -webkit-overflow-scrolling: touch;
+    }
+    nav.sidebar::-webkit-scrollbar { display: none; }
     nav.sidebar h2 { display: none; }
     nav.sidebar ul { display: flex; gap: 6px; }
-    .nav-btn { width: auto; padding: 6px 10px; font-size: 0.82rem; }
-    main { padding: 14px 10px 60px; max-width: 100%; }
+    .nav-btn { width: auto; padding: 6px 12px; font-size: 0.8rem; }
+    
+    main { padding: 16px 12px 70px; max-width: 100%; }
     .actions-note { display: none; }
-    .actions { flex-direction: column; align-items: stretch; }
-    .btn { width: 100%; min-width: 100%; }
+    .actions { flex-direction: column; align-items: stretch; gap: 8px; }
+    .btn { width: 100%; min-width: 100%; padding: 12px; }
     .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .table-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+    .history-controls { justify-content: space-between; width: 100%; }
+    .setting-input, .setting-select { max-width: 100%; text-align: left; }
+    .info-list-clean li { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .info-list-clean li .setting-static-text, .info-list-clean li .value { text-align: left; width: 100%; }
   }
 
-  @media (max-width: 540px) {
+  @media (max-width: 480px) {
     .kpi-grid { grid-template-columns: 1fr; }
-    .brand { font-size: 0.95rem; }
+    .brand { font-size: 0.9rem; }
+    .alert-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -538,7 +557,7 @@
     </ul>
     <h2 data-i18n="navSystem">Sistema</h2>
     <ul>
-      <li><button type="button" class="nav-btn" data-screen="configuracoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l-.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg> <span data-i18n="menuSettings">Configurações</span></button></li>
+      <li><button type="button" class="nav-btn" data-screen="configuracoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l-.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l-.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg> <span data-i18n="menuSettings">Configurações</span></button></li>
     </ul>
   </nav>
 
@@ -554,7 +573,7 @@
           <span class="kpi-hint" id="kpiHighFatigueHint" data-i18n="kpiHighFatigue">com risco alto de fadiga</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
-          <span class="kpi-label" data-i18n="kpiImpactedCrew">Tripulantes impactados</span>
+          <span class="kpi-label" data-i18n="kpiImpactedCount">Tripulantes impactados</span>
           <span class="kpi-value" id="kpiImpactedCount">9</span>
           <span class="kpi-hint" id="kpiBlockedRbacHint" data-i18n="kpiBlockedRbac">bloqueados pela RBAC 117</span>
         </button>
@@ -630,7 +649,7 @@
           <div class="history-controls">
             <button type="button" class="btn-history-nav" id="btnPrevHistory" title="Versão anterior da escala" data-i18n="btnPrev">◀ Anterior</button>
             <button type="button" class="btn-history-nav" id="btnNextHistory" title="Próxima versão da escala" data-i18n="btnNext">Próxima ▶</button>
-            <button type="button" class="btn-refresh-table" id="btnRefreshTable" data-i18n="btnRefresh">🔄 Atualizar Escalas</button>
+            <button type="button" class="btn-refresh-table" id="btnRefreshTable" title="Gerar novas escalas" data-i18n="btnRefresh">🔄 Atualizar Escalas</button>
           </div>
         </div>
         <table id="mainCrewTable" aria-label="Tripulantes afetados pelas disrupções, jornadas acumuladas e nova rota sugerida">
@@ -855,10 +874,35 @@
 </div>
 
 <script>
-    const API_URL = 'https://skysync-8nz0.onrender.com/api';
-window.addEventListener('DOMContentLoaded', () => {
+const API_URL = 'https://skysync-8nz0.onrender.com/api';
+
+window.addEventListener('DOMContentLoaded', async () => {
   try {
-    const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado') || '{"nome":"Marina Costa","email":"marina.costa@skysync.aero"}');
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado') || 'null');
+    if (!usuarioLogado || !usuarioLogado.email) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    let settings = {
+      name: usuarioLogado.nome || 'Marina Costa',
+      role: usuarioLogado.cargo || 'Coordenadora Operacional',
+      base: usuarioLogado.base || 'GRU — Guarulhos',
+      email: usuarioLogado.email,
+      idioma: usuarioLogado.idioma || 'pt-BR'
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/perfil/${settings.email}`);
+      if (res.ok) {
+        const perfilBanco = await res.json();
+        if (!usuarioLogado.nome && perfilBanco.nome) settings.name = perfilBanco.nome;
+        if (!usuarioLogado.cargo && perfilBanco.cargo) settings.role = perfilBanco.cargo;
+        if (perfilBanco.base) settings.base = perfilBanco.base;
+      }
+    } catch (e) {
+      console.error("Erro ao buscar perfil remoto (utilizando dados locais):", e);
+    }
 
     const btnLogout = document.getElementById('btnLogout');
     if (btnLogout) {
@@ -882,7 +926,7 @@ window.addEventListener('DOMContentLoaded', () => {
         panelSubtitle: 'Acompanhamento em tempo real de disrupções, jornadas e conformidade com a Lei do Aeronauta e a RBAC 117.',
         kpiActiveDisruptions: 'Disrupções ativas (histórico)',
         kpiHighFatigue: 'com risco alto de fadiga',
-        kpiImpactedCrew: 'Tripulantes impactados',
+        kpiImpactedCount: 'Tripulantes impactados',
         kpiBlockedRbac: 'bloqueados pela RBAC 117',
         kpiCrewCompliance: 'Conformidade da tripulação',
         kpiMonitoredFlights: 'Voos monitorados hoje',
@@ -987,7 +1031,7 @@ window.addEventListener('DOMContentLoaded', () => {
         panelSubtitle: 'Real-time tracking of disruptions, crew duties, and compliance with aviation regulations.',
         kpiActiveDisruptions: 'Active disruptions (history)',
         kpiHighFatigue: 'with high fatigue risk',
-        kpiImpactedCrew: 'Impacted crew members',
+        kpiImpactedCount: 'Impacted crew members',
         kpiBlockedRbac: 'blocked by regulations',
         kpiCrewCompliance: 'Crew compliance',
         kpiMonitoredFlights: 'Monitored flights today',
@@ -1048,7 +1092,7 @@ window.addEventListener('DOMContentLoaded', () => {
         labelFontSize: 'Font size',
         fontSmall: 'Small (A-)',
         fontStandard: 'Standard (A)',
-        fontLarge: 'Large (A+)',
+        fontLarge: 'Grande (A+)',
         labelTableDensity: 'Table density',
         densityComfortable: 'Comfortable',
         densityDense: 'Compact',
@@ -1092,7 +1136,7 @@ window.addEventListener('DOMContentLoaded', () => {
         panelSubtitle: 'Seguimiento en tiempo real de disrupciones, jornadas y cumplimiento normativo.',
         kpiActiveDisruptions: 'Disrupciones activas (histórico)',
         kpiHighFatigue: 'con alto riesgo de fatiga',
-        kpiImpactedCrew: 'Tripulantes afectados',
+        kpiImpactedCount: 'Tripulantes afectados',
         kpiBlockedRbac: 'bloqueados por regulaciones',
         kpiCrewCompliance: 'Cumplimiento de tripulación',
         kpiMonitoredFlights: 'Vuelos monitoreados hoy',
@@ -1117,7 +1161,7 @@ window.addEventListener('DOMContentLoaded', () => {
         atWord: 'a las',
         btnPrev: '◀ Anterior',
         btnNext: 'Próxima ▶',
-        btnRefresh: '🔄 Actualizar Escalas',
+        btnRefresh: '🔄 Atualizar Escalas',
         thCrew: 'Tripulante',
         thFlight: 'Vuelo',
         thAccumulatedDuty: 'Jornada acumulada',
@@ -1138,17 +1182,17 @@ window.addEventListener('DOMContentLoaded', () => {
         labelEmail: 'Correo electrónico',
         notificationsSection: 'Notificaciones',
         notifAlerts: 'Alertas de disrupción',
-        notifFatigue: 'Alertas de riesgo de fatiga',
+        notifFatigue: 'Alertas de risco de fadiga',
         notifDaily: 'Resumen diario por correo',
         notifPush: 'Notificaciones push en navegador',
         optActivated: 'Activado',
-        optDeactivated: 'Desactivado',
+        optDeactivated: 'Desativado',
         appearanceSection: 'Apariencia',
         labelTheme: 'Tema',
         themeLight: 'Claro',
         themeDark: 'Oscuro',
         labelContrast: 'Alto contraste',
-        contrastOff: 'Desactivado',
+        contrastOff: 'Desativado',
         contrastOn: 'Activado',
         labelFontSize: 'Tamaño de fuente',
         fontSmall: 'Pequeña (A-)',
@@ -1179,7 +1223,7 @@ window.addEventListener('DOMContentLoaded', () => {
         highContrast: 'Alto contraste',
         fontSize: 'Tamaño de fuente',
         btnLogout: 'Salir',
-        modalTitleDefault: 'Detalles Operacionales',
+        modalTitleDefault: 'Detalhes Operacionais',
         modalClose: 'Cerrar',
         statusCompliantANAC: 'Conforme ANAC',
         statusBlocked: 'Bloqueado'
@@ -1193,27 +1237,6 @@ window.addEventListener('DOMContentLoaded', () => {
       'CGB': 'America/Cuiaba', 'PVH': 'America/Porto_Velho', 'RBR': 'America/Rio_Branco',
       'FLN': 'America/Sao_Paulo', 'IGU': 'America/Sao_Paulo'
     };
-
-    let settings = {
-      name: usuarioLogado.nome || 'Marina Costa',
-      role: 'Coordenadora Operacional',
-      base: 'GRU — Guarulhos',
-      email: usuarioLogado.email || 'marina.costa@skysync.aero',
-      idioma: 'pt-BR'
-    };
-
-    try {
-      const saved = localStorage.getItem('skysync-custom-settings');
-      if (saved) {
-        const parsedSaved = JSON.parse(saved);
-        settings = Object.assign({}, parsedSaved, {
-          name: usuarioLogado.nome || parsedSaved.name,
-          email: usuarioLogado.email || parsedSaved.email
-        });
-      } else {
-        settings.email = usuarioLogado.email || 'marina.costa@skysync.aero';
-      }
-    } catch(e) {}
 
     const inputName = document.getElementById('inputName');
     const inputRole = document.getElementById('inputRole');
@@ -1293,15 +1316,59 @@ window.addEventListener('DOMContentLoaded', () => {
       { id: 9, voo: 'GLO-6520', tripulante: 'Camila Dias', cargo: 'Comissária', risco: 'baixo', badgeKey: 'normalOperation', desc: 'Serviço de bordo regular na costa nordestina sem intercorrências reportadas.', rota: 'SSA → FOR', horario: 'Partida prevista 14:00', horas: '07h15', limitRbac: '12h00 (jornada diurna padrão)', solucao: 'Manutenção da rota SSA → FOR', bloqueado: false }
     ];
 
-    let historicoEscalas = [JSON.parse(JSON.stringify(dadosOriginais))];
+    let historicoEscalas = [];
     let indiceHistoricoAtual = 0;
-    let dadosOperacionais = JSON.parse(JSON.stringify(historicoEscalas[0]));
+    let dadosOperacionais = [];
     let filtroAtual = 'all';
+
+    function carregarDadosLocais() {
+      try {
+        const historicoSalvo = localStorage.getItem('skysync_historico_escalas');
+        const indiceSalvo = localStorage.getItem('skysync_indice_historico');
+        const operacionaisSalvo = localStorage.getItem('skysync_dados_operacionais');
+        const originaisSalvo = localStorage.getItem('skysync_dados_originais');
+
+        if (originaisSalvo) {
+          dadosOriginais = JSON.parse(originaisSalvo);
+        }
+
+        if (historicoSalvo && operacionaisSalvo) {
+          historicoEscalas = JSON.parse(historicoSalvo);
+          indiceHistoricoAtual = indiceSalvo !== null ? parseInt(indiceSalvo, 10) : historicoEscalas.length - 1;
+          dadosOperacionais = JSON.parse(operacionaisSalvo);
+        }
+      } catch (e) {
+        console.error("Erro ao carregar do localStorage:", e);
+      }
+
+      if (!historicoEscalas || historicoEscalas.length === 0) {
+        dadosOperacionais = JSON.parse(JSON.stringify(dadosOriginais));
+        historicoEscalas = [JSON.parse(JSON.stringify(dadosOriginais))];
+        indiceHistoricoAtual = 0;
+      }
+
+      gerarDisruptionsDinamicas();
+      gerarEscalasDinamicas();
+    }
+
+    function salvarDadosLocais() {
+      try {
+        localStorage.setItem('skysync_historico_escalas', JSON.stringify(historicoEscalas));
+        localStorage.setItem('skysync_indice_historico', indiceHistoricoAtual);
+        localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
+        localStorage.setItem('skysync_dados_originais', JSON.stringify(dadosOriginais));
+      } catch (e) {
+        console.error("Erro ao salvar no localStorage:", e);
+      }
+    }
+
+    carregarDadosLocais();
 
     function registrarNovoHistorico(novoConjunto) {
       historicoEscalas.push(JSON.parse(JSON.stringify(novoConjunto)));
-      if (historicoEscalas.length > 10) historicoEscalas.shift();
+      if (historicoEscalas.length > 30) historicoEscalas.shift();
       indiceHistoricoAtual = historicoEscalas.length - 1;
+      salvarDadosLocais();
     }
 
     function getBadgeText(badgeKey) {
@@ -1312,7 +1379,6 @@ window.addEventListener('DOMContentLoaded', () => {
       return dict.normalOperation || 'Operação normal';
     }
 
-    // Retorna a união de TODOS os voos únicos que já apareceram em QUALQUER versão do histórico
     function obterTodosVoosHistorico() {
       const mapaVoos = new Map();
       historicoEscalas.forEach(versao => {
@@ -1330,7 +1396,6 @@ window.addEventListener('DOMContentLoaded', () => {
       if (!grid) return;
       grid.innerHTML = '';
 
-      // Agrupa todos os voos já vistos no histórico
       const todosVoos = obterTodosVoosHistorico();
 
       const filtradas = todosVoos.filter(d => {
@@ -1405,7 +1470,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     applySettingsToDOM();
 
-    function handleSettingChange() {
+    async function handleSettingChange() {
       try {
         if (inputName) settings.name = inputName.value;
         if (inputRole) settings.role = inputRole.value;
@@ -1413,9 +1478,24 @@ window.addEventListener('DOMContentLoaded', () => {
         if (selIdioma) settings.idioma = selIdioma.value;
 
         applySettingsToDOM();
-        localStorage.setItem('skysync-custom-settings', JSON.stringify(settings));
+
+        const usuarioLogadoAtual = JSON.parse(localStorage.getItem('usuario_logado') || '{}');
+        usuarioLogadoAtual.nome = settings.name;
+        usuarioLogadoAtual.cargo = settings.role;
+        usuarioLogadoAtual.base = settings.base;
+        usuarioLogadoAtual.idioma = settings.idioma;
+        localStorage.setItem('usuario_logado', JSON.stringify(usuarioLogadoAtual));
+
+        await fetch(`${API_URL}/perfil/${settings.email}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome: settings.name, cargo: settings.role, base: settings.base })
+        });
+
         tick();
-      } catch(e) {}
+      } catch(e) {
+        console.error("Erro ao salvar alterações:", e);
+      }
     }
 
     if (inputName) inputName.addEventListener('input', handleSettingChange);
@@ -1571,6 +1651,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (indiceHistoricoAtual > 0) {
           indiceHistoricoAtual--;
           dadosOperacionais = JSON.parse(JSON.stringify(historicoEscalas[indiceHistoricoAtual]));
+          salvarDadosLocais();
           gerarDisruptionsDinamicas();
           gerarEscalasDinamicas();
           showStatus(`Exibindo versão histórica ${indiceHistoricoAtual + 1} de ${historicoEscalas.length}`, 'ok');
@@ -1583,6 +1664,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (indiceHistoricoAtual < historicoEscalas.length - 1) {
           indiceHistoricoAtual++;
           dadosOperacionais = JSON.parse(JSON.stringify(historicoEscalas[indiceHistoricoAtual]));
+          salvarDadosLocais();
           gerarDisruptionsDinamicas();
           gerarEscalasDinamicas();
           showStatus(`Exibindo versão histórica ${indiceHistoricoAtual + 1} de ${historicoEscalas.length}`, 'ok');
@@ -1590,23 +1672,22 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    function gerarNovaEscalaAutomatica() {
+    // BOTÃO 1: "🔄 Atualizar Escalas" -> Cria uma NOVA VERSÃO avançando no histórico
+    function gerarNovaEscalaAleatoria() {
       const nomesAleatorios = ['Lucas Mendes', 'Fernanda Souza', 'Bruno Ribeiro', 'Camila Rocha', 'Diego Farias', 'Larissa Azevedo', 'Thiago Moreira', 'Mariana Prado', 'Renato Castilho'];
       const rotasLogicasBr = [
         { origem: 'GRU', destino: 'VCP', solucao: 'Conexão direta GRU → CNF com reserva imediata' },
         { origem: 'CGH', destino: 'SSA', solucao: 'Realocação CGH → BSB via malha integrada' },
         { origem: 'REC', destino: 'GRU', solucao: 'Ajuste de tripulação REC → GIG com repouso em base' },
         { origem: 'BSB', destino: 'GIG', solucao: 'Substituição por tripulação de apoio em BSB' },
-        { origem: 'GRU', destino: 'CGB', solucao: 'Manutenção da escala regular GRU → CGB' },
-        { origem: 'MAO', destino: 'BEL', solucao: 'Manutenção da rota regional MAO → BEL' },
-        { origem: 'FOR', destino: 'REC', solucao: 'Manutenção do trecho FOR → SSA' },
-        { origem: 'GIG', destino: 'FLN', solucao: 'Escala estendida segura com revezamento em Curitiba (CWB)' },
-        { origem: 'SSA', destino: 'FOR', solucao: 'Manutenção da rota SSA → FOR' }
+        { origem: 'GRU', destino: 'CGB', solucao: 'Manutenção da escala regular GRU → CGB' }
       ];
       const ciaAereasBrasil = ['TAM', 'GLO', 'AZU', 'PTB'];
 
-      let novoConjunto = JSON.parse(JSON.stringify(dadosOriginais));
-      novoConjunto.forEach((item, idx) => {
+      let baseVersao = dadosOperacionais;
+      let novoConjunto = JSON.parse(JSON.stringify(baseVersao));
+      
+      novoConjunto.forEach((item) => {
         item.tripulante = nomesAleatorios[Math.floor(Math.random() * nomesAleatorios.length)];
         const rotaSel = rotasLogicasBr[Math.floor(Math.random() * rotasLogicasBr.length)];
         item.rota = `${rotaSel.origem} → ${rotaSel.destino}`;
@@ -1616,19 +1697,15 @@ window.addEventListener('DOMContentLoaded', () => {
         const numeroVooAleatorio = Math.floor(1000 + Math.random() * 9000);
         item.voo = `${ciaAleatoria}-${numeroVooAleatorio}`;
 
-        const isBlocked = Math.random() > 0.5;
+        const isBlocked = Math.random() > 0.4;
         item.bloqueado = isBlocked;
         item.risco = isBlocked ? 'alto' : 'baixo';
         item.badgeKey = isBlocked ? 'highFatigueRisk' : 'normalOperation';
         
-        const horasAleatorias = Math.floor(6 + Math.random() * 8);
+        const horasAleatorias = Math.floor(6 + Math.random() * 5);
         const minutosAleatorios = Math.floor(Math.random() * 60);
         item.horas = `${String(horasAleatorias).padStart(2, '0')}h${String(minutosAleatorios).padStart(2, '0')}`;
         
-        if (isBlocked && horasAleatorias < 11) {
-          item.horas = `11h${Math.floor(10 + Math.random() * 50)}`;
-        }
-
         item.limitRbac = rbacLimitPool[Math.floor(Math.random() * rbacLimitPool.length)];
       });
 
@@ -1636,17 +1713,34 @@ window.addEventListener('DOMContentLoaded', () => {
       dadosOperacionais = JSON.parse(JSON.stringify(novoConjunto));
       gerarDisruptionsDinamicas();
       gerarEscalasDinamicas();
-      showStatus('Nova escala gerada automaticamente (disponível no histórico).', 'ok');
-      addFeedItem('Atualização automática de 60s: nova versão de escala adicionada ao histórico.');
+      showStatus(`Nova versão gerada (${indiceHistoricoAtual + 1}) com sucesso!`, 'ok');
+      addFeedItem(`Atualização de escalas executada: Versão ${indiceHistoricoAtual + 1} gerada.`);
     }
-
-    setInterval(gerarNovaEscalaAutomatica, 60000);
 
     const btnRefreshTable = document.getElementById('btnRefreshTable');
     if (btnRefreshTable) {
       btnRefreshTable.addEventListener('click', () => {
-        gerarNovaEscalaAutomatica();
+        gerarNovaEscalaAleatoria();
       });
+    }
+
+    // BOTÃO 2: "Aplicar escala automática" -> Modifica DIRETAMENTE a versão ATUAL na tela (sem criar nova versão no histórico)
+    function aplicarEscalaAutomaticaNaVersaoAtual() {
+      dadosOperacionais.forEach(d => {
+        d.bloqueado = false;
+        d.risco = 'baixo';
+        d.badgeKey = 'normalOperation';
+        d.solucao = 'Conformidade ANAC aplicada';
+      });
+
+      historicoEscalas[indiceHistoricoAtual] = JSON.parse(JSON.stringify(dadosOperacionais));
+
+      salvarDadosLocais();
+      gerarDisruptionsDinamicas();
+      gerarEscalasDinamicas();
+
+      showStatus(`Escala automática aplicada com sucesso na Versão ${indiceHistoricoAtual + 1}!`, 'ok');
+      addFeedItem(`Escala automática aplicada na Versão ${indiceHistoricoAtual + 1}: todos os registros conformes.`);
     }
 
     const nowBase = new Date();
@@ -1694,7 +1788,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     renderFeed();
-    setInterval(renderFeed, 30000);
+    setInterval(renderFeed, 60000);
 
     function tick() {
       try {
@@ -1919,6 +2013,7 @@ window.addEventListener('DOMContentLoaded', () => {
             d.horas = '06h30';
           }
         });
+        salvarDadosLocais();
         gerarDisruptionsDinamicas();
         gerarEscalasDinamicas();
 
@@ -1931,21 +2026,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (btnAplicar) {
       btnAplicar.addEventListener('click', () => {
-        dadosOperacionais.forEach(d => {
-          d.bloqueado = false;
-          d.risco = 'baixo';
-          d.badgeKey = 'normalOperation';
-        });
-        dadosOriginais = JSON.parse(JSON.stringify(dadosOperacionais));
-
-        gerarDisruptionsDinamicas();
-        gerarEscalasDinamicas();
-
-        if (engineLabel) engineLabel.textContent = 'Ativo — escala automática aplicada com sucesso';
-        showStatus('Escala automática aplicada e salva na malha!', 'ok');
-        if (btnDesfazer) btnDesfazer.disabled = true;
-        dadosSnapshotSimulacao = null;
-        addFeedItem('Escala automática aplicada: conflitos resolvidos em definitivo.');
+        aplicarEscalaAutomaticaNaVersaoAtual();
       });
     }
 
@@ -1957,14 +2038,15 @@ window.addEventListener('DOMContentLoaded', () => {
         } else {
           dadosOperacionais = JSON.parse(JSON.stringify(dadosOriginais));
         }
+        salvarDadosLocais();
 
         gerarDisruptionsDinamicas();
         gerarEscalasDinamicas();
 
         if (engineLabel) engineLabel.textContent = 'Ativo — otimizado com sucesso';
-        showStatus('Simulação desfeita. As disrupções e escalas originais foram restauradas.', 'blocked');
-        btnDesfazer.disabled = true;
-        addFeedItem('Simulação desfeita: estado anterior com disrupções restaurado.');
+        showStatus('Simulação desfeita. As disrupções e escalas anteriores foram restauradas.', 'blocked');
+        if (btnDesfazer) btnDesfazer.disabled = true;
+        addFeedItem('Simulação desfeita: estado anterior restaurado.');
       });
     }
   } catch (err) {
