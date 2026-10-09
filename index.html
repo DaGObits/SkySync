@@ -296,14 +296,16 @@
     text-align: right;
   }
 
+  /* CORREÇÃO DO BOTÃO DE ACESSIBILIDADE */
   .a11y-fab {
     position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 100;
     width: 48px; height: 48px; border-radius: 50%; 
-    background: #FFFFFF; color: var(--bg);
+    background: var(--surface); color: var(--text-900);
     border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer;
     box-shadow: 0 4px 14px rgba(10,25,48,.2);
   }
-  .a11y-fab svg { width: 22px; height: 22px; }
+  .a11y-fab svg { width: 22px; height: 22px; stroke: var(--text-900); }
+
   .a11y-panel {
     position: fixed; right: 16px; bottom: calc(74px + env(safe-area-inset-bottom, 0px)); z-index: 100;
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m);
@@ -561,7 +563,7 @@
       </div>
     </section>
 
-    <!-- ABA DE DISRUPÇÕES CONECTADA DINAMICAMENTE -->
+    <!-- ABA DE DISRUPÇÕES -->
     <section class="screen" id="screen-disrupcoes" aria-labelledby="disrupcoes-h" tabindex="-1" hidden>
       <h1 id="disrupcoes-h"><span data-i18n="disruptionsTitle">Disrupções</span> <span class="count-pill" id="alertCount">5 ativos</span></h1>
       <p class="lede" data-i18n="disruptionsSubtitle">Ocorrências operacionais que impactam jornada e conformidade da tripulação. Inclui voos em rota normal e com alertas para a base selecionada.</p>
@@ -800,6 +802,7 @@
 </div>
 
 <script>
+     const API_URL = 'https://skysync-8nz0.onrender.com/api';
 window.addEventListener('DOMContentLoaded', () => {
   try {
     const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado') || '{"nome":"Marina Costa","email":"marina.costa@skysync.aero"}');
@@ -1152,7 +1155,6 @@ window.addEventListener('DOMContentLoaded', () => {
       } catch(e) {}
     }
 
-    // Função ultra robusta de geração e atualização da tela de disrupções
     function gerarDisruptionsDinamicas() {
       const grid = document.getElementById('disruptionsGrid');
       if (!grid) return;
@@ -1224,7 +1226,6 @@ window.addEventListener('DOMContentLoaded', () => {
     if (selBase) selBase.addEventListener('change', handleSettingChange);
     if (selIdioma) selIdioma.addEventListener('change', handleSettingChange);
 
-    // Modal Interativo
     const infoModal = document.getElementById('infoModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalDescription = document.getElementById('modalDescription');
@@ -1264,7 +1265,6 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Pool de dados e Escalas Dinâmicas
     const poolNomes = [
       { nome: 'Rafael Nunes', cargo: 'Comandante' },
       { nome: 'Beatriz Lima', cargo: 'Copiloto' },
@@ -1465,7 +1465,6 @@ window.addEventListener('DOMContentLoaded', () => {
     tick();
     setInterval(tick, 1000);
 
-    // Sistema de Navegação entre Abas Blindado com atualizador automático de disrupções
     const screens = document.querySelectorAll('.screen');
     const navButtons = document.querySelectorAll('.nav-btn[data-screen]');
     
@@ -1480,7 +1479,6 @@ window.addEventListener('DOMContentLoaded', () => {
           else btn.removeAttribute('aria-current');
         });
         
-        // Assegura atualização dinâmica imediata da aba de disrupções ao selecioná-la
         if (name === 'disrupcoes') {
           gerarDisruptionsDinamicas();
         }
