@@ -138,7 +138,7 @@
         <div id="login-section">
             <h2>SkySync — Login</h2>
             <div id="login-msg" class="msg"></div>
-            <form onsubmit="fazerLogin(event)">
+            <form id="form-login" onsubmit="fazerLogin(event)">
                 <div class="input-group">
                     <label>E-mail</label>
                     <input type="email" id="login-email" required placeholder="seu.email@exemplo.com">
@@ -147,7 +147,7 @@
                     <label>Senha</label>
                     <input type="password" id="login-senha" required placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn-main">Entrar</button>
+                <button type="submit" id="btn-entrar" class="btn-main">Entrar</button>
             </form>
 
             <div class="divider">ou</div>
@@ -236,6 +236,26 @@
                 { theme: "outline", size: "large", width: "336" }
             );
         }
+
+        // --- SUPORTE BLINDADO AO ENTER DO TECLADO ---
+        document.getElementById('login-senha').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                document.getElementById('form-login').requestSubmit();
+            }
+        });
+
+        document.getElementById('login-email').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const senhaInput = document.getElementById('login-senha');
+                if (!senhaInput.value) {
+                    senhaInput.focus();
+                } else {
+                    document.getElementById('form-login').requestSubmit();
+                }
+            }
+        });
 
         async function lidarComCredencialGoogle(response) {
             const msgBox = document.getElementById('login-msg');
