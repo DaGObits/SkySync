@@ -1,0 +1,916 @@
+SKYSYNC - BASE DE DADOS SIMULADA DE TRIPULANTES
+AVISO: dados inteiramente fictícios para testes acadêmicos; não representam pessoas reais.
+Cenário de referência: 140 voos com 1 comandante, 1 copiloto e 4 tripulantes de cabine por voo.
+Dimensionamento: 150 comandantes, 150 copilotos e 600 tripulantes de cabine (900 no total).
+Reserva planejada: 10 comandantes + 10 copilotos + 40 tripulantes de cabine = 60 profissionais.
+Status e bases são valores simulados; valide jornadas, repousos e regras antes de qualquer uso real.
+
+ID    | Nome           | Sobrenome          | Cargo                   | Base | Status      
+------+----------------+--------------------+-------------------------+------+-------------
+0001  | Iara           | Ramos              | Comandante              | GRU  | Disponível  
+0002  | Priscila       | Santos             | Comandante              | CWB  | Disponível  
+0003  | Matheus        | Amaral             | Comandante              | CGH  | Disponível  
+0004  | Natalia        | Araújo             | Comandante              | CWB  | Disponível  
+0005  | Aline          | Araújo             | Comandante              | NAT  | Disponível  
+0006  | Emanuela       | Castro             | Comandante              | GIG  | Disponível  
+0007  | Sara           | Borges             | Comandante              | GRU  | Disponível  
+0008  | Rafael         | Mendes             | Comandante              | POA  | Disponível  
+0009  | Nicole         | Teixeira           | Comandante              | GIG  | Disponível  
+0010  | Igor           | Mendes             | Comandante              | GRU  | Disponível  
+0011  | Matheus        | Bandeira           | Comandante              | CNF  | Disponível  
+0012  | Esther         | Viana              | Comandante              | BSB  | Disponível  
+0013  | Vinicius       | Aguiar             | Comandante              | SSA  | Disponível  
+0014  | Felipe         | Souza              | Comandante              | BEL  | Disponível  
+0015  | Priscila       | Duarte             | Comandante              | FOR  | Disponível  
+0016  | Júlia          | Fonseca            | Comandante              | GRU  | Disponível  
+0017  | Gustavo        | Azevedo            | Comandante              | VIX  | Disponível  
+0018  | Isabela        | Gomes              | Comandante              | CWB  | Disponível  
+0019  | Murilo         | Neves              | Comandante              | GRU  | Disponível  
+0020  | Matheus        | Castro             | Comandante              | MAO  | Disponível  
+0021  | Elias          | Batista            | Comandante              | CNF  | Disponível  
+0022  | Maitê          | Cunha              | Comandante              | CNF  | Disponível  
+0023  | Natalia        | Matos              | Comandante              | VIX  | Disponível  
+0024  | Raquel         | Lima               | Comandante              | VIX  | Disponível  
+0025  | Juliana        | Peixoto            | Comandante              | GRU  | Disponível  
+0026  | Amanda         | Gomes              | Comandante              | SSA  | Disponível  
+0027  | Elisa          | Santos             | Comandante              | CGH  | Disponível  
+0028  | Fernanda       | Mendes             | Comandante              | CGH  | Disponível  
+0029  | Priscila       | Porto              | Comandante              | CGH  | Disponível  
+0030  | Enzo           | Viana              | Comandante              | POA  | Disponível  
+0031  | Roberto        | Sales              | Comandante              | NAT  | Disponível  
+0032  | Camila         | Aguiar             | Comandante              | POA  | Disponível  
+0033  | Alice          | Paiva              | Comandante              | REC  | Disponível  
+0034  | Igor           | Barbosa            | Comandante              | BSB  | Disponível  
+0035  | Gustavo        | Melo               | Comandante              | REC  | Disponível  
+0036  | Vitor          | Pacheco            | Comandante              | CWB  | Disponível  
+0037  | Diego          | Alves              | Comandante              | GRU  | Disponível  
+0038  | Mônica         | Vieira             | Comandante              | NAT  | Disponível  
+0039  | Fábio          | Freitas            | Comandante              | GRU  | Disponível  
+0040  | Livia          | Lima               | Comandante              | VIX  | Disponível  
+0041  | Sergio         | Coutinho           | Comandante              | FOR  | Disponível  
+0042  | Melissa        | Alves              | Comandante              | BSB  | Disponível  
+0043  | Anderson       | Aguiar             | Comandante              | REC  | Disponível  
+0044  | Samuel         | Moreira            | Comandante              | FLN  | Disponível  
+0045  | Samuel         | Nunes              | Comandante              | MAO  | Disponível  
+0046  | Leonardo       | Moura              | Comandante              | SSA  | Disponível  
+0047  | Nicole         | Macedo             | Comandante              | CGH  | Disponível  
+0048  | Camila         | Queiroz            | Comandante              | GIG  | Disponível  
+0049  | Daniel         | Queiroz            | Comandante              | FOR  | Disponível  
+0050  | Ana            | Guimarães          | Comandante              | BEL  | Disponível  
+0051  | Helena         | Lopes              | Comandante              | SSA  | Disponível  
+0052  | Nicole         | Miranda            | Comandante              | FOR  | Disponível  
+0053  | Fábio          | Moreira            | Comandante              | VIX  | Disponível  
+0054  | Wesley         | Cordeiro           | Comandante              | CNF  | Disponível  
+0055  | Amanda         | Pinto              | Comandante              | CGH  | Disponível  
+0056  | Larissa        | Cardoso            | Comandante              | CGH  | Disponível  
+0057  | Priscila       | Coelho             | Comandante              | REC  | Disponível  
+0058  | Lucas          | Amaral             | Comandante              | REC  | Disponível  
+0059  | Henrique       | Coutinho           | Comandante              | CNF  | Disponível  
+0060  | Danilo         | Dias               | Comandante              | POA  | Disponível  
+0061  | Rafael         | Costa              | Comandante              | GIG  | Disponível  
+0062  | Gustavo        | Moreira            | Comandante              | GIG  | Disponível  
+0063  | Esther         | Assis              | Comandante              | CGH  | Disponível  
+0064  | Roberto        | Santos             | Comandante              | BSB  | Disponível  
+0065  | Lorena         | Dantas             | Comandante              | CWB  | Disponível  
+0066  | Marcelo        | Carvalho           | Comandante              | BSB  | Disponível  
+0067  | Yasmin         | Teixeira           | Comandante              | FLN  | Disponível  
+0068  | Lorena         | Campos             | Comandante              | CGH  | Disponível  
+0069  | Sergio         | Fonseca            | Comandante              | CWB  | Disponível  
+0070  | Melissa        | Amaral             | Comandante              | CGH  | Disponível  
+0071  | Douglas        | Fernandes          | Comandante              | CGH  | Disponível  
+0072  | Rafael         | Coutinho           | Comandante              | BSB  | Disponível  
+0073  | Gustavo        | Barros             | Comandante              | GRU  | Disponível  
+0074  | Joao           | Cardoso            | Comandante              | CNF  | Disponível  
+0075  | Júlia          | Matos              | Comandante              | CGH  | Disponível  
+0076  | Elias          | Coelho             | Comandante              | REC  | Disponível  
+0077  | Patricia       | Tavares            | Comandante              | GRU  | Disponível  
+0078  | Brenda         | Costa              | Comandante              | CGH  | Disponível  
+0079  | Taina          | Menezes            | Comandante              | BEL  | Disponível  
+0080  | Bianca         | Correia            | Comandante              | FOR  | Disponível  
+0081  | Elias          | Peixoto            | Comandante              | POA  | Disponível  
+0082  | Ruan           | Menezes            | Comandante              | CGH  | Disponível  
+0083  | Joao           | Batista            | Comandante              | GRU  | Disponível  
+0084  | Fábio          | Rezende            | Comandante              | CWB  | Disponível  
+0085  | Gabriela       | Moreira            | Comandante              | FLN  | Disponível  
+0086  | André          | Cunha              | Comandante              | FOR  | Disponível  
+0087  | Beatriz        | Nunes              | Comandante              | CNF  | Disponível  
+0088  | Vinicius       | Azevedo            | Comandante              | BEL  | Disponível  
+0089  | Lorena         | Menezes            | Comandante              | NAT  | Disponível  
+0090  | Emanuela       | Viana              | Comandante              | NAT  | Disponível  
+0091  | Gustavo        | Moraes             | Comandante              | VIX  | Disponível  
+0092  | Larissa        | Sales              | Comandante              | FOR  | Disponível  
+0093  | Priscila       | Silva              | Comandante              | SSA  | Disponível  
+0094  | Otavio         | Araújo             | Comandante              | VIX  | Disponível  
+0095  | Erick          | Silva              | Comandante              | CGH  | Disponível  
+0096  | Maitê          | Cardoso            | Comandante              | NAT  | Disponível  
+0097  | Joao           | Brito              | Comandante              | SSA  | Disponível  
+0098  | Leticia        | Figueiredo         | Comandante              | POA  | Disponível  
+0099  | Iara           | Pinto              | Comandante              | BEL  | Disponível  
+0100  | Leticia        | Costa              | Comandante              | CWB  | Disponível  
+0101  | Thiago         | Costa              | Comandante              | GRU  | Disponível  
+0102  | Felipe         | Ribeiro            | Comandante              | VIX  | Disponível  
+0103  | Gustavo        | Gomes              | Comandante              | CGH  | Disponível  
+0104  | Alice          | Machado            | Comandante              | BSB  | Disponível  
+0105  | Emanuela       | Dantas             | Comandante              | CNF  | Disponível  
+0106  | Marcelo        | Queiroz            | Comandante              | NAT  | Disponível  
+0107  | Valentina      | Duarte             | Comandante              | GIG  | Disponível  
+0108  | Yasmin         | Abreu              | Comandante              | REC  | Disponível  
+0109  | Valentina      | Lopes              | Comandante              | NAT  | Disponível  
+0110  | Livia          | Sales              | Comandante              | BSB  | Disponível  
+0111  | Daniel         | Martins            | Comandante              | MAO  | Disponível  
+0112  | Gabriela       | Teixeira           | Comandante              | GIG  | Disponível  
+0113  | Wesley         | Sampaio            | Comandante              | CGH  | Disponível  
+0114  | Mariana        | Lima               | Comandante              | POA  | Disponível  
+0115  | Alice          | Prado              | Comandante              | VIX  | Disponível  
+0116  | Debora         | Lopes              | Comandante              | GRU  | Disponível  
+0117  | Otavio         | Castro             | Comandante              | BSB  | Disponível  
+0118  | Ana            | Viana              | Comandante              | CWB  | Disponível  
+0119  | Igor           | Cavalcante         | Comandante              | POA  | Disponível  
+0120  | Jonathan       | Rezende            | Comandante              | CGH  | Disponível  
+0121  | Beatriz        | Silva              | Comandante              | BEL  | Disponível  
+0122  | Wesley         | Souza              | Comandante              | FOR  | Disponível  
+0123  | Amanda         | Queiroz            | Comandante              | FLN  | Disponível  
+0124  | Luana          | Silva              | Comandante              | BSB  | Disponível  
+0125  | Debora         | Costa              | Comandante              | VIX  | Disponível  
+0126  | Luana          | Cardoso            | Comandante              | VIX  | Disponível  
+0127  | Adriano        | Vieira             | Comandante              | BEL  | Disponível  
+0128  | Sara           | Souza              | Comandante              | CGH  | Disponível  
+0129  | Samuel         | Guimarães          | Comandante              | GRU  | Disponível  
+0130  | Matheus        | Prado              | Comandante              | SSA  | Disponível  
+0131  | Isabela        | Siqueira           | Comandante              | GRU  | Disponível  
+0132  | Taina          | Silva              | Comandante              | NAT  | Disponível  
+0133  | Daniel         | Andrade            | Comandante              | REC  | Disponível  
+0134  | Rodrigo        | Fonseca            | Comandante              | SSA  | Disponível  
+0135  | Roberto        | Cardoso            | Comandante              | FOR  | Disponível  
+0136  | Ruan           | Costa              | Comandante              | CGH  | Disponível  
+0137  | Clara          | Pereira            | Comandante              | REC  | Disponível  
+0138  | Renata         | Farias             | Comandante              | NAT  | Disponível  
+0139  | Gustavo        | Barbosa            | Comandante              | VIX  | Disponível  
+0140  | Roberto        | Dantas             | Comandante              | BEL  | Disponível  
+0141  | Marcelo        | Gomes              | Comandante              | GIG  | Reserva     
+0142  | Samuel         | Duarte             | Comandante              | CGH  | Reserva     
+0143  | Esther         | Correia            | Comandante              | SSA  | Reserva     
+0144  | Enzo           | Monteiro           | Comandante              | SSA  | Reserva     
+0145  | Henrique       | Bittencourt        | Comandante              | CGH  | Reserva     
+0146  | Beatriz        | Brito              | Comandante              | CGH  | Reserva     
+0147  | Júlia          | Leal               | Comandante              | BEL  | Reserva     
+0148  | Mariana        | Tavares            | Comandante              | CWB  | Reserva     
+0149  | Renata         | Prado              | Comandante              | POA  | Reserva     
+0150  | Rafael         | Macedo             | Comandante              | REC  | Reserva     
+0151  | Ana            | Pinto              | Copiloto                | CGH  | Disponível  
+0152  | Rodrigo        | Coelho             | Copiloto                | SSA  | Disponível  
+0153  | Cecilia        | Guimarães          | Copiloto                | CWB  | Disponível  
+0154  | Alice          | Aguiar             | Copiloto                | CGH  | Disponível  
+0155  | Gustavo        | Souza              | Copiloto                | NAT  | Disponível  
+0156  | Leonardo       | Cavalcante         | Copiloto                | REC  | Disponível  
+0157  | Felipe         | Amaral             | Copiloto                | CWB  | Disponível  
+0158  | Marcos         | Ribeiro            | Copiloto                | SSA  | Disponível  
+0159  | Anderson       | Dias               | Copiloto                | BEL  | Disponível  
+0160  | Cecilia        | Pacheco            | Copiloto                | FOR  | Disponível  
+0161  | Otavio         | Pacheco            | Copiloto                | REC  | Disponível  
+0162  | Mariana        | Menezes            | Copiloto                | SSA  | Disponível  
+0163  | Amanda         | Araújo             | Copiloto                | MAO  | Disponível  
+0164  | Valentina      | Barros             | Copiloto                | VIX  | Disponível  
+0165  | Patricia       | Almeida            | Copiloto                | FOR  | Disponível  
+0166  | Jonathan       | Nascimento         | Copiloto                | FLN  | Disponível  
+0167  | Sofia          | Andrade            | Copiloto                | NAT  | Disponível  
+0168  | Rafael         | Paiva              | Copiloto                | POA  | Disponível  
+0169  | Carolina       | Alves              | Copiloto                | BEL  | Disponível  
+0170  | Felipe         | Pinto              | Copiloto                | FLN  | Disponível  
+0171  | Cesar          | Cardoso            | Copiloto                | FLN  | Disponível  
+0172  | Renata         | Barbosa            | Copiloto                | POA  | Disponível  
+0173  | Danilo         | Porto              | Copiloto                | REC  | Disponível  
+0174  | Marcos         | Prado              | Copiloto                | BSB  | Disponível  
+0175  | Vinicius       | Cardoso            | Copiloto                | CWB  | Disponível  
+0176  | Iara           | Brito              | Copiloto                | CWB  | Disponível  
+0177  | Gabriela       | Ramos              | Copiloto                | CNF  | Disponível  
+0178  | Sara           | Martins            | Copiloto                | FOR  | Disponível  
+0179  | Larissa        | Moreira            | Copiloto                | VIX  | Disponível  
+0180  | Jonathan       | Andrade            | Copiloto                | CWB  | Disponível  
+0181  | Clara          | Leal               | Copiloto                | CGH  | Disponível  
+0182  | Sofia          | Lima               | Copiloto                | POA  | Disponível  
+0183  | Thiago         | Queiroz            | Copiloto                | REC  | Disponível  
+0184  | Lucas          | Prado              | Copiloto                | MAO  | Disponível  
+0185  | Alice          | Souza              | Copiloto                | GRU  | Disponível  
+0186  | Sergio         | Lacerda            | Copiloto                | BEL  | Disponível  
+0187  | Cesar          | Nunes              | Copiloto                | CWB  | Disponível  
+0188  | Vinicius       | Tavares            | Copiloto                | GIG  | Disponível  
+0189  | Clara          | Azevedo            | Copiloto                | CGH  | Disponível  
+0190  | Mirela         | Nunes              | Copiloto                | POA  | Disponível  
+0191  | Bianca         | Fonseca            | Copiloto                | BEL  | Disponível  
+0192  | Renata         | Queiroz            | Copiloto                | BEL  | Disponível  
+0193  | Natalia        | Alves              | Copiloto                | POA  | Disponível  
+0194  | Iara           | Almeida            | Copiloto                | BEL  | Disponível  
+0195  | Fernando       | Mendes             | Copiloto                | BSB  | Disponível  
+0196  | Camila         | Dantas             | Copiloto                | CWB  | Disponível  
+0197  | Renata         | Pacheco            | Copiloto                | BEL  | Disponível  
+0198  | Alexandre      | Neves              | Copiloto                | GIG  | Disponível  
+0199  | Raquel         | Moraes             | Copiloto                | GRU  | Disponível  
+0200  | Eduardo        | Moura              | Copiloto                | MAO  | Disponível  
+0201  | Nicole         | Rocha              | Copiloto                | FLN  | Disponível  
+0202  | Thiago         | Bandeira           | Copiloto                | CGH  | Disponível  
+0203  | Raquel         | Coelho             | Copiloto                | POA  | Disponível  
+0204  | Erick          | Rocha              | Copiloto                | POA  | Disponível  
+0205  | Marcos         | Bittencourt        | Copiloto                | CGH  | Disponível  
+0206  | Júlia          | Barros             | Copiloto                | CNF  | Disponível  
+0207  | Fernanda       | Lacerda            | Copiloto                | CWB  | Disponível  
+0208  | Adriano        | Fernandes          | Copiloto                | POA  | Disponível  
+0209  | André          | Freitas            | Copiloto                | FOR  | Disponível  
+0210  | Sara           | Porto              | Copiloto                | FLN  | Disponível  
+0211  | Maitê          | Silva              | Copiloto                | GIG  | Disponível  
+0212  | Mirela         | Macedo             | Copiloto                | FOR  | Disponível  
+0213  | Caio           | Matos              | Copiloto                | MAO  | Disponível  
+0214  | Gustavo        | Prado              | Copiloto                | GRU  | Disponível  
+0215  | Larissa        | Barros             | Copiloto                | NAT  | Disponível  
+0216  | Rodrigo        | Siqueira           | Copiloto                | POA  | Disponível  
+0217  | Rodrigo        | Borges             | Copiloto                | MAO  | Disponível  
+0218  | Iara           | Guimarães          | Copiloto                | POA  | Disponível  
+0219  | Leonardo       | Castro             | Copiloto                | CNF  | Disponível  
+0220  | Vinicius       | Macedo             | Copiloto                | GIG  | Disponível  
+0221  | Henrique       | Borges             | Copiloto                | SSA  | Disponível  
+0222  | Emanuela       | Paiva              | Copiloto                | CNF  | Disponível  
+0223  | Danilo         | Sampaio            | Copiloto                | MAO  | Disponível  
+0224  | Iara           | Moreira            | Copiloto                | POA  | Disponível  
+0225  | Cecilia        | Rocha              | Copiloto                | GIG  | Disponível  
+0226  | Brenda         | Amaral             | Copiloto                | BEL  | Disponível  
+0227  | Bianca         | Teixeira           | Copiloto                | FLN  | Disponível  
+0228  | Amanda         | Alves              | Copiloto                | CGH  | Disponível  
+0229  | Nicole         | Cardoso            | Copiloto                | CWB  | Disponível  
+0230  | Anderson       | Duarte             | Copiloto                | BEL  | Disponível  
+0231  | Milena         | Prado              | Copiloto                | POA  | Disponível  
+0232  | Brenda         | Peixoto            | Copiloto                | FLN  | Disponível  
+0233  | Isabela        | Azevedo            | Copiloto                | BEL  | Disponível  
+0234  | Matheus        | Moreira            | Copiloto                | SSA  | Disponível  
+0235  | Maitê          | Neves              | Copiloto                | FOR  | Disponível  
+0236  | Erick          | Viana              | Copiloto                | CWB  | Disponível  
+0237  | Fernando       | Cavalcante         | Copiloto                | MAO  | Disponível  
+0238  | Milena         | Campos             | Copiloto                | FOR  | Disponível  
+0239  | Fernanda       | Borges             | Copiloto                | CGH  | Disponível  
+0240  | Mirela         | Oliveira           | Copiloto                | FLN  | Disponível  
+0241  | Maitê          | Souza              | Copiloto                | GRU  | Disponível  
+0242  | Daniel         | Almeida            | Copiloto                | GRU  | Disponível  
+0243  | Renata         | Sampaio            | Copiloto                | GIG  | Disponível  
+0244  | Renan          | Azevedo            | Copiloto                | CGH  | Disponível  
+0245  | Livia          | Brito              | Copiloto                | FOR  | Disponível  
+0246  | Lucas          | Almeida            | Copiloto                | NAT  | Disponível  
+0247  | Erick          | Bandeira           | Copiloto                | GRU  | Disponível  
+0248  | Patricia       | Paiva              | Copiloto                | BSB  | Disponível  
+0249  | Melissa        | Rocha              | Copiloto                | CWB  | Disponível  
+0250  | Bruno          | Fernandes          | Copiloto                | REC  | Disponível  
+0251  | Clara          | Lima               | Copiloto                | VIX  | Disponível  
+0252  | Nicole         | Moraes             | Copiloto                | GIG  | Disponível  
+0253  | Otavio         | Pereira            | Copiloto                | SSA  | Disponível  
+0254  | Alice          | Rezende            | Copiloto                | FOR  | Disponível  
+0255  | Enzo           | Amaral             | Copiloto                | FLN  | Disponível  
+0256  | Henrique       | Andrade            | Copiloto                | BEL  | Disponível  
+0257  | Júlia          | Figueiredo         | Copiloto                | GRU  | Disponível  
+0258  | Juliana        | Silva              | Copiloto                | GIG  | Disponível  
+0259  | Samuel         | Monteiro           | Copiloto                | BSB  | Disponível  
+0260  | Luana          | Neves              | Copiloto                | POA  | Disponível  
+0261  | Alice          | Figueiredo         | Copiloto                | CGH  | Disponível  
+0262  | Larissa        | Correia            | Copiloto                | CWB  | Disponível  
+0263  | Leandro        | Oliveira           | Copiloto                | MAO  | Disponível  
+0264  | Debora         | Carvalho           | Copiloto                | NAT  | Disponível  
+0265  | Elisa          | Abreu              | Copiloto                | CNF  | Disponível  
+0266  | Patricia       | Amaral             | Copiloto                | SSA  | Disponível  
+0267  | Mônica         | Siqueira           | Copiloto                | VIX  | Disponível  
+0268  | Wesley         | Silva              | Copiloto                | POA  | Disponível  
+0269  | Daniel         | Prado              | Copiloto                | SSA  | Disponível  
+0270  | Fernanda       | Teixeira           | Copiloto                | CWB  | Disponível  
+0271  | Fernando       | Almeida            | Copiloto                | NAT  | Disponível  
+0272  | Breno          | Martins            | Copiloto                | NAT  | Disponível  
+0273  | Caio           | Porto              | Copiloto                | BEL  | Disponível  
+0274  | Pedro          | Paiva              | Copiloto                | FOR  | Disponível  
+0275  | Elisa          | Prado              | Copiloto                | CGH  | Disponível  
+0276  | Maitê          | Sales              | Copiloto                | BEL  | Disponível  
+0277  | Alexandre      | Cavalcante         | Copiloto                | CGH  | Disponível  
+0278  | Cesar          | Moraes             | Copiloto                | GRU  | Disponível  
+0279  | Nicole         | Oliveira           | Copiloto                | SSA  | Disponível  
+0280  | Valentina      | Moraes             | Copiloto                | BEL  | Disponível  
+0281  | Rafael         | Nascimento         | Copiloto                | POA  | Disponível  
+0282  | Brenda         | Ramos              | Copiloto                | BEL  | Disponível  
+0283  | Isabela        | Almeida            | Copiloto                | FLN  | Disponível  
+0284  | Júlia          | Castro             | Copiloto                | SSA  | Disponível  
+0285  | Murilo         | Nunes              | Copiloto                | CNF  | Disponível  
+0286  | Nicole         | Figueiredo         | Copiloto                | FLN  | Disponível  
+0287  | Leonardo       | Porto              | Copiloto                | REC  | Disponível  
+0288  | Sergio         | Duarte             | Copiloto                | REC  | Disponível  
+0289  | Ana            | Porto              | Copiloto                | CWB  | Disponível  
+0290  | Isabela        | Freitas            | Copiloto                | CWB  | Disponível  
+0291  | Juliana        | Melo               | Copiloto                | MAO  | Reserva     
+0292  | Yasmin         | Miranda            | Copiloto                | FLN  | Reserva     
+0293  | Maitê          | Fonseca            | Copiloto                | GIG  | Reserva     
+0294  | Alice          | Mendes             | Copiloto                | GIG  | Reserva     
+0295  | Esther         | Fernandes          | Copiloto                | CGH  | Reserva     
+0296  | Igor           | Rocha              | Copiloto                | GRU  | Reserva     
+0297  | Enzo           | Teixeira           | Copiloto                | CWB  | Reserva     
+0298  | Valentina      | Siqueira           | Copiloto                | SSA  | Reserva     
+0299  | Marcelo        | Costa              | Copiloto                | FLN  | Reserva     
+0300  | Carolina       | Vieira             | Copiloto                | MAO  | Reserva     
+0301  | Otavio         | Paiva              | Tripulante de Cabine    | SSA  | Disponível  
+0302  | Lorena         | Vieira             | Tripulante de Cabine    | GRU  | Disponível  
+0303  | Leticia        | Santos             | Tripulante de Cabine    | NAT  | Disponível  
+0304  | Aline          | Melo               | Tripulante de Cabine    | REC  | Disponível  
+0305  | Caio           | Leal               | Tripulante de Cabine    | SSA  | Disponível  
+0306  | Gustavo        | Alves              | Tripulante de Cabine    | FLN  | Disponível  
+0307  | Alice          | Bandeira           | Tripulante de Cabine    | GRU  | Disponível  
+0308  | Iara           | Matos              | Tripulante de Cabine    | MAO  | Disponível  
+0309  | Natalia        | Coutinho           | Tripulante de Cabine    | POA  | Disponível  
+0310  | Priscila       | Aguiar             | Tripulante de Cabine    | POA  | Disponível  
+0311  | Brenda         | Dantas             | Tripulante de Cabine    | GRU  | Disponível  
+0312  | Natalia        | Almeida            | Tripulante de Cabine    | VIX  | Disponível  
+0313  | Otavio         | Matos              | Tripulante de Cabine    | GIG  | Disponível  
+0314  | Douglas        | Aguiar             | Tripulante de Cabine    | POA  | Disponível  
+0315  | Fernanda       | Nascimento         | Tripulante de Cabine    | BSB  | Disponível  
+0316  | Douglas        | Moreira            | Tripulante de Cabine    | POA  | Disponível  
+0317  | Leticia        | Abreu              | Tripulante de Cabine    | GRU  | Disponível  
+0318  | Mirela         | Figueiredo         | Tripulante de Cabine    | GIG  | Disponível  
+0319  | Douglas        | Moura              | Tripulante de Cabine    | GRU  | Disponível  
+0320  | Manuela        | Ramos              | Tripulante de Cabine    | VIX  | Disponível  
+0321  | Brenda         | Duarte             | Tripulante de Cabine    | BEL  | Disponível  
+0322  | Aline          | Vieira             | Tripulante de Cabine    | VIX  | Disponível  
+0323  | Pedro          | Cavalcante         | Tripulante de Cabine    | REC  | Disponível  
+0324  | Alexandre      | Cordeiro           | Tripulante de Cabine    | VIX  | Disponível  
+0325  | Patricia       | Ramos              | Tripulante de Cabine    | CGH  | Disponível  
+0326  | Fábio          | Barros             | Tripulante de Cabine    | CGH  | Disponível  
+0327  | Eduardo        | Peixoto            | Tripulante de Cabine    | SSA  | Disponível  
+0328  | Daniel         | Dias               | Tripulante de Cabine    | SSA  | Disponível  
+0329  | Melissa        | Campos             | Tripulante de Cabine    | FOR  | Disponível  
+0330  | Breno          | Fernandes          | Tripulante de Cabine    | BSB  | Disponível  
+0331  | Cecilia        | Siqueira           | Tripulante de Cabine    | NAT  | Disponível  
+0332  | Mariana        | Mendes             | Tripulante de Cabine    | CWB  | Disponível  
+0333  | Juliana        | Coutinho           | Tripulante de Cabine    | CNF  | Disponível  
+0334  | Helena         | Correia            | Tripulante de Cabine    | FOR  | Disponível  
+0335  | Breno          | Bittencourt        | Tripulante de Cabine    | MAO  | Disponível  
+0336  | Enzo           | Peixoto            | Tripulante de Cabine    | POA  | Disponível  
+0337  | Wesley         | Lopes              | Tripulante de Cabine    | POA  | Disponível  
+0338  | Helena         | Alves              | Tripulante de Cabine    | FOR  | Disponível  
+0339  | Danilo         | Nascimento         | Tripulante de Cabine    | GIG  | Disponível  
+0340  | Alexandre      | Pinto              | Tripulante de Cabine    | CNF  | Disponível  
+0341  | Marcelo        | Machado            | Tripulante de Cabine    | CWB  | Disponível  
+0342  | Sergio         | Farias             | Tripulante de Cabine    | GIG  | Disponível  
+0343  | Ruan           | Ribeiro            | Tripulante de Cabine    | VIX  | Disponível  
+0344  | Esther         | Machado            | Tripulante de Cabine    | BEL  | Disponível  
+0345  | Caio           | Rocha              | Tripulante de Cabine    | BEL  | Disponível  
+0346  | Valentina      | Rezende            | Tripulante de Cabine    | FLN  | Disponível  
+0347  | Iara           | Machado            | Tripulante de Cabine    | VIX  | Disponível  
+0348  | Sara           | Sampaio            | Tripulante de Cabine    | VIX  | Disponível  
+0349  | Amanda         | Ramos              | Tripulante de Cabine    | POA  | Disponível  
+0350  | Brenda         | Cordeiro           | Tripulante de Cabine    | CWB  | Disponível  
+0351  | Manuela        | Cardoso            | Tripulante de Cabine    | GRU  | Disponível  
+0352  | Daniel         | Cardoso            | Tripulante de Cabine    | FOR  | Disponível  
+0353  | Mariana        | Neves              | Tripulante de Cabine    | BEL  | Disponível  
+0354  | Thiago         | Santos             | Tripulante de Cabine    | POA  | Disponível  
+0355  | Igor           | Freitas            | Tripulante de Cabine    | BSB  | Disponível  
+0356  | Taina          | Fernandes          | Tripulante de Cabine    | CWB  | Disponível  
+0357  | Leonardo       | Carvalho           | Tripulante de Cabine    | FLN  | Disponível  
+0358  | Caio           | Andrade            | Tripulante de Cabine    | SSA  | Disponível  
+0359  | Aline          | Duarte             | Tripulante de Cabine    | CWB  | Disponível  
+0360  | Taina          | Barbosa            | Tripulante de Cabine    | FOR  | Disponível  
+0361  | Bruno          | Barros             | Tripulante de Cabine    | VIX  | Disponível  
+0362  | Danilo         | Assis              | Tripulante de Cabine    | GRU  | Disponível  
+0363  | Adriano        | Costa              | Tripulante de Cabine    | CWB  | Disponível  
+0364  | Renan          | Porto              | Tripulante de Cabine    | REC  | Disponível  
+0365  | Renata         | Batista            | Tripulante de Cabine    | SSA  | Disponível  
+0366  | Cecilia        | Prado              | Tripulante de Cabine    | CWB  | Disponível  
+0367  | Amanda         | Abreu              | Tripulante de Cabine    | MAO  | Disponível  
+0368  | Taina          | Dantas             | Tripulante de Cabine    | CNF  | Disponível  
+0369  | Enzo           | Porto              | Tripulante de Cabine    | NAT  | Disponível  
+0370  | Renan          | Lopes              | Tripulante de Cabine    | CNF  | Disponível  
+0371  | Diego          | Bandeira           | Tripulante de Cabine    | REC  | Disponível  
+0372  | Amanda         | Cunha              | Tripulante de Cabine    | CWB  | Disponível  
+0373  | Isabela        | Cunha              | Tripulante de Cabine    | MAO  | Disponível  
+0374  | Iara           | Rocha              | Tripulante de Cabine    | CGH  | Disponível  
+0375  | Valentina      | Rocha              | Tripulante de Cabine    | GIG  | Disponível  
+0376  | Mariana        | Dantas             | Tripulante de Cabine    | BEL  | Disponível  
+0377  | Larissa        | Lacerda            | Tripulante de Cabine    | VIX  | Disponível  
+0378  | Thiago         | Campos             | Tripulante de Cabine    | NAT  | Disponível  
+0379  | Diego          | Amaral             | Tripulante de Cabine    | VIX  | Disponível  
+0380  | Taina          | Leal               | Tripulante de Cabine    | MAO  | Disponível  
+0381  | Sofia          | Abreu              | Tripulante de Cabine    | CGH  | Disponível  
+0382  | Mônica         | Batista            | Tripulante de Cabine    | GRU  | Disponível  
+0383  | Alexandre      | Martins            | Tripulante de Cabine    | FLN  | Disponível  
+0384  | Renata         | Moura              | Tripulante de Cabine    | BSB  | Disponível  
+0385  | Nicole         | Santos             | Tripulante de Cabine    | CWB  | Disponível  
+0386  | Fernando       | Dias               | Tripulante de Cabine    | FLN  | Disponível  
+0387  | Samuel         | Barbosa            | Tripulante de Cabine    | FLN  | Disponível  
+0388  | Mirela         | Barros             | Tripulante de Cabine    | CGH  | Disponível  
+0389  | Raquel         | Azevedo            | Tripulante de Cabine    | POA  | Disponível  
+0390  | Bianca         | Moreira            | Tripulante de Cabine    | FLN  | Disponível  
+0391  | Eduardo        | Neves              | Tripulante de Cabine    | BSB  | Disponível  
+0392  | Milena         | Araújo             | Tripulante de Cabine    | FOR  | Disponível  
+0393  | Emanuela       | Siqueira           | Tripulante de Cabine    | CNF  | Disponível  
+0394  | Debora         | Oliveira           | Tripulante de Cabine    | VIX  | Disponível  
+0395  | Adriano        | Pinto              | Tripulante de Cabine    | CWB  | Disponível  
+0396  | Isabela        | Barros             | Tripulante de Cabine    | NAT  | Disponível  
+0397  | Caio           | Siqueira           | Tripulante de Cabine    | FLN  | Disponível  
+0398  | Sergio         | Moreira            | Tripulante de Cabine    | BSB  | Disponível  
+0399  | Caio           | Fernandes          | Tripulante de Cabine    | CWB  | Disponível  
+0400  | André          | Ribeiro            | Tripulante de Cabine    | BEL  | Disponível  
+0401  | Alexandre      | Alves              | Tripulante de Cabine    | CWB  | Disponível  
+0402  | Igor           | Guimarães          | Tripulante de Cabine    | CNF  | Disponível  
+0403  | Fábio          | Miranda            | Tripulante de Cabine    | CNF  | Disponível  
+0404  | Priscila       | Assis              | Tripulante de Cabine    | GIG  | Disponível  
+0405  | Larissa        | Guimarães          | Tripulante de Cabine    | MAO  | Disponível  
+0406  | Felipe         | Sales              | Tripulante de Cabine    | NAT  | Disponível  
+0407  | Priscila       | Lopes              | Tripulante de Cabine    | MAO  | Disponível  
+0408  | Daniel         | Alves              | Tripulante de Cabine    | SSA  | Disponível  
+0409  | Patricia       | Teixeira           | Tripulante de Cabine    | FOR  | Disponível  
+0410  | Erick          | Assis              | Tripulante de Cabine    | GIG  | Disponível  
+0411  | Melissa        | Barros             | Tripulante de Cabine    | MAO  | Disponível  
+0412  | Felipe         | Vieira             | Tripulante de Cabine    | GRU  | Disponível  
+0413  | Alexandre      | Bandeira           | Tripulante de Cabine    | CGH  | Disponível  
+0414  | Beatriz        | Abreu              | Tripulante de Cabine    | NAT  | Disponível  
+0415  | Patricia       | Moreira            | Tripulante de Cabine    | POA  | Disponível  
+0416  | Esther         | Bittencourt        | Tripulante de Cabine    | BSB  | Disponível  
+0417  | Daniel         | Siqueira           | Tripulante de Cabine    | REC  | Disponível  
+0418  | Camila         | Peixoto            | Tripulante de Cabine    | BSB  | Disponível  
+0419  | Erick          | Pereira            | Tripulante de Cabine    | GIG  | Disponível  
+0420  | Fernanda       | Vieira             | Tripulante de Cabine    | VIX  | Disponível  
+0421  | Lucas          | Macedo             | Tripulante de Cabine    | BSB  | Disponível  
+0422  | Matheus        | Fernandes          | Tripulante de Cabine    | REC  | Disponível  
+0423  | Fernanda       | Cavalcante         | Tripulante de Cabine    | MAO  | Disponível  
+0424  | Breno          | Rocha              | Tripulante de Cabine    | GRU  | Disponível  
+0425  | Esther         | Amaral             | Tripulante de Cabine    | NAT  | Disponível  
+0426  | Cecilia        | Cordeiro           | Tripulante de Cabine    | POA  | Disponível  
+0427  | Leandro        | Rocha              | Tripulante de Cabine    | GRU  | Disponível  
+0428  | Rodrigo        | Rodrigues          | Tripulante de Cabine    | CNF  | Disponível  
+0429  | Marcos         | Fonseca            | Tripulante de Cabine    | SSA  | Disponível  
+0430  | Beatriz        | Tavares            | Tripulante de Cabine    | POA  | Disponível  
+0431  | Breno          | Sampaio            | Tripulante de Cabine    | GIG  | Disponível  
+0432  | Raquel         | Martins            | Tripulante de Cabine    | REC  | Disponível  
+0433  | Danilo         | Almeida            | Tripulante de Cabine    | CWB  | Disponível  
+0434  | Aline          | Tavares            | Tripulante de Cabine    | CNF  | Disponível  
+0435  | Marcos         | Almeida            | Tripulante de Cabine    | NAT  | Disponível  
+0436  | Júlia          | Moura              | Tripulante de Cabine    | CWB  | Disponível  
+0437  | Enzo           | Andrade            | Tripulante de Cabine    | POA  | Disponível  
+0438  | Thiago         | Menezes            | Tripulante de Cabine    | MAO  | Disponível  
+0439  | Wesley         | Mendes             | Tripulante de Cabine    | FLN  | Disponível  
+0440  | Murilo         | Cordeiro           | Tripulante de Cabine    | POA  | Disponível  
+0441  | Ana            | Duarte             | Tripulante de Cabine    | BEL  | Disponível  
+0442  | Paulo          | Alves              | Tripulante de Cabine    | REC  | Disponível  
+0443  | Mariana        | Farias             | Tripulante de Cabine    | CNF  | Disponível  
+0444  | Leonardo       | Correia            | Tripulante de Cabine    | POA  | Disponível  
+0445  | Valentina      | Melo               | Tripulante de Cabine    | BSB  | Disponível  
+0446  | Leticia        | Aguiar             | Tripulante de Cabine    | GRU  | Disponível  
+0447  | Bruno          | Matos              | Tripulante de Cabine    | CGH  | Disponível  
+0448  | Joao           | Freitas            | Tripulante de Cabine    | NAT  | Disponível  
+0449  | Leonardo       | Figueiredo         | Tripulante de Cabine    | FOR  | Disponível  
+0450  | Bianca         | Azevedo            | Tripulante de Cabine    | GIG  | Disponível  
+0451  | Mônica         | Rocha              | Tripulante de Cabine    | BEL  | Disponível  
+0452  | Beatriz        | Queiroz            | Tripulante de Cabine    | BSB  | Disponível  
+0453  | Nicole         | Costa              | Tripulante de Cabine    | CGH  | Disponível  
+0454  | Valentina      | Andrade            | Tripulante de Cabine    | GIG  | Disponível  
+0455  | Felipe         | Rocha              | Tripulante de Cabine    | GRU  | Disponível  
+0456  | Renan          | Andrade            | Tripulante de Cabine    | GRU  | Disponível  
+0457  | Amanda         | Melo               | Tripulante de Cabine    | CWB  | Disponível  
+0458  | Carolina       | Lima               | Tripulante de Cabine    | POA  | Disponível  
+0459  | Sergio         | Mendes             | Tripulante de Cabine    | NAT  | Disponível  
+0460  | Cesar          | Machado            | Tripulante de Cabine    | CNF  | Disponível  
+0461  | Emanuela       | Miranda            | Tripulante de Cabine    | CGH  | Disponível  
+0462  | Esther         | Porto              | Tripulante de Cabine    | GRU  | Disponível  
+0463  | Beatriz        | Matos              | Tripulante de Cabine    | VIX  | Disponível  
+0464  | Valentina      | Paiva              | Tripulante de Cabine    | FLN  | Disponível  
+0465  | Cecilia        | Moreira            | Tripulante de Cabine    | FOR  | Disponível  
+0466  | Rafael         | Melo               | Tripulante de Cabine    | FLN  | Disponível  
+0467  | Pedro          | Assis              | Tripulante de Cabine    | CNF  | Disponível  
+0468  | Eduardo        | Monteiro           | Tripulante de Cabine    | NAT  | Disponível  
+0469  | Milena         | Brito              | Tripulante de Cabine    | BEL  | Disponível  
+0470  | Emanuela       | Matos              | Tripulante de Cabine    | SSA  | Disponível  
+0471  | Amanda         | Matos              | Tripulante de Cabine    | FLN  | Disponível  
+0472  | Isabela        | Nascimento         | Tripulante de Cabine    | CNF  | Disponível  
+0473  | Elias          | Oliveira           | Tripulante de Cabine    | MAO  | Disponível  
+0474  | Bianca         | Borges             | Tripulante de Cabine    | NAT  | Disponível  
+0475  | Aline          | Almeida            | Tripulante de Cabine    | CNF  | Disponível  
+0476  | Ana            | Oliveira           | Tripulante de Cabine    | CWB  | Disponível  
+0477  | Elisa          | Araújo             | Tripulante de Cabine    | FOR  | Disponível  
+0478  | Cesar          | Coelho             | Tripulante de Cabine    | FLN  | Disponível  
+0479  | Roberto        | Araújo             | Tripulante de Cabine    | FOR  | Disponível  
+0480  | Lucas          | Figueiredo         | Tripulante de Cabine    | POA  | Disponível  
+0481  | Fernanda       | Paiva              | Tripulante de Cabine    | BEL  | Disponível  
+0482  | Henrique       | Paiva              | Tripulante de Cabine    | BSB  | Disponível  
+0483  | Gustavo        | Peixoto            | Tripulante de Cabine    | CNF  | Disponível  
+0484  | Lucas          | Barros             | Tripulante de Cabine    | CNF  | Disponível  
+0485  | Alexandre      | Rodrigues          | Tripulante de Cabine    | BEL  | Disponível  
+0486  | Luana          | Ribeiro            | Tripulante de Cabine    | FLN  | Disponível  
+0487  | Melissa        | Costa              | Tripulante de Cabine    | FLN  | Disponível  
+0488  | Melissa        | Peixoto            | Tripulante de Cabine    | NAT  | Disponível  
+0489  | Danilo         | Rezende            | Tripulante de Cabine    | REC  | Disponível  
+0490  | Clara          | Duarte             | Tripulante de Cabine    | GRU  | Disponível  
+0491  | Jonathan       | Siqueira           | Tripulante de Cabine    | CWB  | Disponível  
+0492  | Fábio          | Lima               | Tripulante de Cabine    | BSB  | Disponível  
+0493  | Mirela         | Paiva              | Tripulante de Cabine    | SSA  | Disponível  
+0494  | Vitor          | Almeida            | Tripulante de Cabine    | GIG  | Disponível  
+0495  | Milena         | Souza              | Tripulante de Cabine    | GIG  | Disponível  
+0496  | Manuela        | Correia            | Tripulante de Cabine    | BEL  | Disponível  
+0497  | Marcelo        | Pinto              | Tripulante de Cabine    | CWB  | Disponível  
+0498  | Marcos         | Rodrigues          | Tripulante de Cabine    | NAT  | Disponível  
+0499  | Gustavo        | Araújo             | Tripulante de Cabine    | POA  | Disponível  
+0500  | Vinicius       | Lopes              | Tripulante de Cabine    | CNF  | Disponível  
+0501  | Renata         | Lopes              | Tripulante de Cabine    | NAT  | Disponível  
+0502  | Carolina       | Figueiredo         | Tripulante de Cabine    | NAT  | Disponível  
+0503  | Livia          | Monteiro           | Tripulante de Cabine    | NAT  | Disponível  
+0504  | Esther         | Costa              | Tripulante de Cabine    | BEL  | Disponível  
+0505  | Ruan           | Rezende            | Tripulante de Cabine    | CGH  | Disponível  
+0506  | Leonardo       | Ramos              | Tripulante de Cabine    | CGH  | Disponível  
+0507  | Debora         | Almeida            | Tripulante de Cabine    | CGH  | Disponível  
+0508  | Elisa          | Cavalcante         | Tripulante de Cabine    | POA  | Disponível  
+0509  | Cecilia        | Fernandes          | Tripulante de Cabine    | CGH  | Disponível  
+0510  | Alice          | Monteiro           | Tripulante de Cabine    | GRU  | Disponível  
+0511  | Carolina       | Fernandes          | Tripulante de Cabine    | CGH  | Disponível  
+0512  | Debora         | Araújo             | Tripulante de Cabine    | SSA  | Disponível  
+0513  | Lorena         | Macedo             | Tripulante de Cabine    | CNF  | Disponível  
+0514  | Yasmin         | Fernandes          | Tripulante de Cabine    | CNF  | Disponível  
+0515  | Isabela        | Amaral             | Tripulante de Cabine    | POA  | Disponível  
+0516  | Taina          | Macedo             | Tripulante de Cabine    | GIG  | Disponível  
+0517  | Jonathan       | Almeida            | Tripulante de Cabine    | MAO  | Disponível  
+0518  | Jonathan       | Dias               | Tripulante de Cabine    | GRU  | Disponível  
+0519  | Danilo         | Farias             | Tripulante de Cabine    | NAT  | Disponível  
+0520  | Taina          | Cordeiro           | Tripulante de Cabine    | NAT  | Disponível  
+0521  | Danilo         | Sales              | Tripulante de Cabine    | REC  | Disponível  
+0522  | Breno          | Paiva              | Tripulante de Cabine    | MAO  | Disponível  
+0523  | Igor           | Sales              | Tripulante de Cabine    | MAO  | Disponível  
+0524  | Rafael         | Almeida            | Tripulante de Cabine    | NAT  | Disponível  
+0525  | Sergio         | Lima               | Tripulante de Cabine    | REC  | Disponível  
+0526  | Yasmin         | Moura              | Tripulante de Cabine    | SSA  | Disponível  
+0527  | Esther         | Miranda            | Tripulante de Cabine    | BEL  | Disponível  
+0528  | Taina          | Rocha              | Tripulante de Cabine    | BSB  | Disponível  
+0529  | Thiago         | Ribeiro            | Tripulante de Cabine    | MAO  | Disponível  
+0530  | Larissa        | Freitas            | Tripulante de Cabine    | CGH  | Disponível  
+0531  | Nicole         | Coutinho           | Tripulante de Cabine    | CGH  | Disponível  
+0532  | Nicole         | Freitas            | Tripulante de Cabine    | FOR  | Disponível  
+0533  | Clara          | Paiva              | Tripulante de Cabine    | CGH  | Disponível  
+0534  | André          | Andrade            | Tripulante de Cabine    | GRU  | Disponível  
+0535  | Carolina       | Bittencourt        | Tripulante de Cabine    | SSA  | Disponível  
+0536  | Alice          | Menezes            | Tripulante de Cabine    | REC  | Disponível  
+0537  | Adriano        | Azevedo            | Tripulante de Cabine    | MAO  | Disponível  
+0538  | Mônica         | Paiva              | Tripulante de Cabine    | POA  | Disponível  
+0539  | Thiago         | Mendes             | Tripulante de Cabine    | CGH  | Disponível  
+0540  | Danilo         | Santos             | Tripulante de Cabine    | REC  | Disponível  
+0541  | Roberto        | Barros             | Tripulante de Cabine    | MAO  | Disponível  
+0542  | Danilo         | Castro             | Tripulante de Cabine    | GIG  | Disponível  
+0543  | Daniel         | Ribeiro            | Tripulante de Cabine    | BEL  | Disponível  
+0544  | Beatriz        | Rodrigues          | Tripulante de Cabine    | CWB  | Disponível  
+0545  | Carolina       | Ramos              | Tripulante de Cabine    | CGH  | Disponível  
+0546  | Pedro          | Pereira            | Tripulante de Cabine    | CNF  | Disponível  
+0547  | Douglas        | Mendes             | Tripulante de Cabine    | GIG  | Disponível  
+0548  | André          | Costa              | Tripulante de Cabine    | CWB  | Disponível  
+0549  | Melissa        | Brito              | Tripulante de Cabine    | BSB  | Disponível  
+0550  | Sara           | Barbosa            | Tripulante de Cabine    | POA  | Disponível  
+0551  | Roberto        | Carvalho           | Tripulante de Cabine    | BEL  | Disponível  
+0552  | Alexandre      | Sampaio            | Tripulante de Cabine    | BEL  | Disponível  
+0553  | André          | Cavalcante         | Tripulante de Cabine    | CNF  | Disponível  
+0554  | Elias          | Leal               | Tripulante de Cabine    | CGH  | Disponível  
+0555  | Patricia       | Cardoso            | Tripulante de Cabine    | FLN  | Disponível  
+0556  | Nicole         | Sampaio            | Tripulante de Cabine    | MAO  | Disponível  
+0557  | Bianca         | Peixoto            | Tripulante de Cabine    | GRU  | Disponível  
+0558  | Erick          | Sales              | Tripulante de Cabine    | REC  | Disponível  
+0559  | Diego          | Assis              | Tripulante de Cabine    | GRU  | Disponível  
+0560  | Paulo          | Moura              | Tripulante de Cabine    | SSA  | Disponível  
+0561  | Roberto        | Coelho             | Tripulante de Cabine    | BSB  | Disponível  
+0562  | Adriano        | Pacheco            | Tripulante de Cabine    | CGH  | Disponível  
+0563  | Elisa          | Pereira            | Tripulante de Cabine    | BEL  | Disponível  
+0564  | Manuela        | Dias               | Tripulante de Cabine    | GIG  | Disponível  
+0565  | Clara          | Dantas             | Tripulante de Cabine    | BSB  | Disponível  
+0566  | Daniel         | Viana              | Tripulante de Cabine    | FOR  | Disponível  
+0567  | Júlia          | Viana              | Tripulante de Cabine    | BEL  | Disponível  
+0568  | Marcos         | Dantas             | Tripulante de Cabine    | SSA  | Disponível  
+0569  | Ruan           | Cunha              | Tripulante de Cabine    | GRU  | Disponível  
+0570  | Isabela        | Porto              | Tripulante de Cabine    | FOR  | Disponível  
+0571  | Murilo         | Gomes              | Tripulante de Cabine    | CNF  | Disponível  
+0572  | Enzo           | Rodrigues          | Tripulante de Cabine    | CGH  | Disponível  
+0573  | Bianca         | Brito              | Tripulante de Cabine    | CGH  | Disponível  
+0574  | Ana            | Macedo             | Tripulante de Cabine    | CGH  | Disponível  
+0575  | Elias          | Miranda            | Tripulante de Cabine    | FOR  | Disponível  
+0576  | Carolina       | Correia            | Tripulante de Cabine    | BSB  | Disponível  
+0577  | Paulo          | Guimarães          | Tripulante de Cabine    | BEL  | Disponível  
+0578  | Milena         | Rocha              | Tripulante de Cabine    | CNF  | Disponível  
+0579  | Lucas          | Sampaio            | Tripulante de Cabine    | FLN  | Disponível  
+0580  | Aline          | Fernandes          | Tripulante de Cabine    | BSB  | Disponível  
+0581  | Otavio         | Tavares            | Tripulante de Cabine    | CGH  | Disponível  
+0582  | Debora         | Peixoto            | Tripulante de Cabine    | BSB  | Disponível  
+0583  | Murilo         | Nascimento         | Tripulante de Cabine    | BEL  | Disponível  
+0584  | Douglas        | Prado              | Tripulante de Cabine    | REC  | Disponível  
+0585  | Thiago         | Monteiro           | Tripulante de Cabine    | VIX  | Disponível  
+0586  | Alexandre      | Duarte             | Tripulante de Cabine    | BEL  | Disponível  
+0587  | Bianca         | Freitas            | Tripulante de Cabine    | FLN  | Disponível  
+0588  | Murilo         | Moraes             | Tripulante de Cabine    | REC  | Disponível  
+0589  | Emanuela       | Leal               | Tripulante de Cabine    | GIG  | Disponível  
+0590  | Ruan           | Moura              | Tripulante de Cabine    | FOR  | Disponível  
+0591  | Roberto        | Monteiro           | Tripulante de Cabine    | FLN  | Disponível  
+0592  | Valentina      | Aguiar             | Tripulante de Cabine    | BSB  | Disponível  
+0593  | Otavio         | Nascimento         | Tripulante de Cabine    | MAO  | Disponível  
+0594  | Brenda         | Lima               | Tripulante de Cabine    | POA  | Disponível  
+0595  | Emanuela       | Souza              | Tripulante de Cabine    | FOR  | Disponível  
+0596  | Elias          | Siqueira           | Tripulante de Cabine    | BEL  | Disponível  
+0597  | Bianca         | Carvalho           | Tripulante de Cabine    | FLN  | Disponível  
+0598  | Pedro          | Porto              | Tripulante de Cabine    | GIG  | Disponível  
+0599  | Sergio         | Machado            | Tripulante de Cabine    | GRU  | Disponível  
+0600  | Rodrigo        | Gomes              | Tripulante de Cabine    | BEL  | Disponível  
+0601  | André          | Pacheco            | Tripulante de Cabine    | CGH  | Disponível  
+0602  | Enzo           | Sales              | Tripulante de Cabine    | GRU  | Disponível  
+0603  | Fernanda       | Nunes              | Tripulante de Cabine    | GIG  | Disponível  
+0604  | Fernanda       | Moura              | Tripulante de Cabine    | NAT  | Disponível  
+0605  | Henrique       | Souza              | Tripulante de Cabine    | POA  | Disponível  
+0606  | Bruno          | Peixoto            | Tripulante de Cabine    | SSA  | Disponível  
+0607  | Samuel         | Amaral             | Tripulante de Cabine    | CGH  | Disponível  
+0608  | Elias          | Assis              | Tripulante de Cabine    | GRU  | Disponível  
+0609  | Melissa        | Tavares            | Tripulante de Cabine    | GRU  | Disponível  
+0610  | Mônica         | Prado              | Tripulante de Cabine    | BEL  | Disponível  
+0611  | Diego          | Aguiar             | Tripulante de Cabine    | BEL  | Disponível  
+0612  | Mirela         | Moura              | Tripulante de Cabine    | FLN  | Disponível  
+0613  | Renata         | Brito              | Tripulante de Cabine    | CGH  | Disponível  
+0614  | Elisa          | Figueiredo         | Tripulante de Cabine    | CWB  | Disponível  
+0615  | Enzo           | Gomes              | Tripulante de Cabine    | NAT  | Disponível  
+0616  | Isabela        | Coutinho           | Tripulante de Cabine    | GIG  | Disponível  
+0617  | Patricia       | Assis              | Tripulante de Cabine    | FOR  | Disponível  
+0618  | Brenda         | Alves              | Tripulante de Cabine    | POA  | Disponível  
+0619  | Lorena         | Carvalho           | Tripulante de Cabine    | FOR  | Disponível  
+0620  | Samuel         | Costa              | Tripulante de Cabine    | CGH  | Disponível  
+0621  | Leticia        | Cardoso            | Tripulante de Cabine    | CGH  | Disponível  
+0622  | Leandro        | Porto              | Tripulante de Cabine    | BSB  | Disponível  
+0623  | Caio           | Freitas            | Tripulante de Cabine    | BEL  | Disponível  
+0624  | Leonardo       | Almeida            | Tripulante de Cabine    | REC  | Disponível  
+0625  | Vinicius       | Pinto              | Tripulante de Cabine    | GRU  | Disponível  
+0626  | Valentina      | Cardoso            | Tripulante de Cabine    | GIG  | Disponível  
+0627  | Mirela         | Correia            | Tripulante de Cabine    | NAT  | Disponível  
+0628  | Clara          | Peixoto            | Tripulante de Cabine    | NAT  | Disponível  
+0629  | Pedro          | Souza              | Tripulante de Cabine    | BEL  | Disponível  
+0630  | Melissa        | Sales              | Tripulante de Cabine    | SSA  | Disponível  
+0631  | Paulo          | Gomes              | Tripulante de Cabine    | NAT  | Disponível  
+0632  | Leandro        | Rezende            | Tripulante de Cabine    | SSA  | Disponível  
+0633  | Milena         | Moreira            | Tripulante de Cabine    | FLN  | Disponível  
+0634  | Ruan           | Lacerda            | Tripulante de Cabine    | CWB  | Disponível  
+0635  | Breno          | Silva              | Tripulante de Cabine    | CWB  | Disponível  
+0636  | Felipe         | Queiroz            | Tripulante de Cabine    | NAT  | Disponível  
+0637  | Roberto        | Batista            | Tripulante de Cabine    | GRU  | Disponível  
+0638  | Milena         | Abreu              | Tripulante de Cabine    | FLN  | Disponível  
+0639  | Debora         | Assis              | Tripulante de Cabine    | CGH  | Disponível  
+0640  | Juliana        | Lima               | Tripulante de Cabine    | BSB  | Disponível  
+0641  | Caio           | Menezes            | Tripulante de Cabine    | CGH  | Disponível  
+0642  | Henrique       | Azevedo            | Tripulante de Cabine    | REC  | Disponível  
+0643  | Douglas        | Rodrigues          | Tripulante de Cabine    | GRU  | Disponível  
+0644  | Sofia          | Cavalcante         | Tripulante de Cabine    | CGH  | Disponível  
+0645  | Caio           | Batista            | Tripulante de Cabine    | CGH  | Disponível  
+0646  | Rodrigo        | Campos             | Tripulante de Cabine    | CNF  | Disponível  
+0647  | Clara          | Prado              | Tripulante de Cabine    | VIX  | Disponível  
+0648  | Nicole         | Aguiar             | Tripulante de Cabine    | FOR  | Disponível  
+0649  | Bruno          | Aguiar             | Tripulante de Cabine    | BEL  | Disponível  
+0650  | Nicole         | Andrade            | Tripulante de Cabine    | SSA  | Disponível  
+0651  | Camila         | Miranda            | Tripulante de Cabine    | CNF  | Disponível  
+0652  | Sofia          | Pereira            | Tripulante de Cabine    | SSA  | Disponível  
+0653  | Lucas          | Cordeiro           | Tripulante de Cabine    | GIG  | Disponível  
+0654  | Igor           | Sampaio            | Tripulante de Cabine    | CWB  | Disponível  
+0655  | Elias          | Teixeira           | Tripulante de Cabine    | REC  | Disponível  
+0656  | Yasmin         | Barros             | Tripulante de Cabine    | GIG  | Disponível  
+0657  | Ruan           | Peixoto            | Tripulante de Cabine    | NAT  | Disponível  
+0658  | Igor           | Siqueira           | Tripulante de Cabine    | REC  | Disponível  
+0659  | Raquel         | Aguiar             | Tripulante de Cabine    | FOR  | Disponível  
+0660  | Cesar          | Brito              | Tripulante de Cabine    | POA  | Disponível  
+0661  | Esther         | Ribeiro            | Tripulante de Cabine    | CGH  | Disponível  
+0662  | Yasmin         | Ramos              | Tripulante de Cabine    | VIX  | Disponível  
+0663  | Caio           | Moura              | Tripulante de Cabine    | CNF  | Disponível  
+0664  | Larissa        | Abreu              | Tripulante de Cabine    | CGH  | Disponível  
+0665  | Sofia          | Moura              | Tripulante de Cabine    | MAO  | Disponível  
+0666  | Thiago         | Matos              | Tripulante de Cabine    | FLN  | Disponível  
+0667  | Elias          | Sampaio            | Tripulante de Cabine    | NAT  | Disponível  
+0668  | Bianca         | Coutinho           | Tripulante de Cabine    | FOR  | Disponível  
+0669  | Felipe         | Farias             | Tripulante de Cabine    | CGH  | Disponível  
+0670  | Marcelo        | Sales              | Tripulante de Cabine    | CWB  | Disponível  
+0671  | Leonardo       | Nascimento         | Tripulante de Cabine    | BEL  | Disponível  
+0672  | Murilo         | Almeida            | Tripulante de Cabine    | VIX  | Disponível  
+0673  | Melissa        | Bittencourt        | Tripulante de Cabine    | CWB  | Disponível  
+0674  | Wesley         | Miranda            | Tripulante de Cabine    | FLN  | Disponível  
+0675  | Fábio          | Dias               | Tripulante de Cabine    | GRU  | Disponível  
+0676  | Mariana        | Rezende            | Tripulante de Cabine    | MAO  | Disponível  
+0677  | Renan          | Matos              | Tripulante de Cabine    | CGH  | Disponível  
+0678  | Henrique       | Martins            | Tripulante de Cabine    | SSA  | Disponível  
+0679  | Juliana        | Dias               | Tripulante de Cabine    | CGH  | Disponível  
+0680  | Alice          | Dantas             | Tripulante de Cabine    | CNF  | Disponível  
+0681  | Júlia          | Pereira            | Tripulante de Cabine    | BEL  | Disponível  
+0682  | Esther         | Neves              | Tripulante de Cabine    | CGH  | Disponível  
+0683  | Leonardo       | Barros             | Tripulante de Cabine    | MAO  | Disponível  
+0684  | Camila         | Teixeira           | Tripulante de Cabine    | NAT  | Disponível  
+0685  | Thiago         | Moraes             | Tripulante de Cabine    | NAT  | Disponível  
+0686  | André          | Fernandes          | Tripulante de Cabine    | NAT  | Disponível  
+0687  | Enzo           | Machado            | Tripulante de Cabine    | POA  | Disponível  
+0688  | Sofia          | Moreira            | Tripulante de Cabine    | POA  | Disponível  
+0689  | Vinicius       | Pacheco            | Tripulante de Cabine    | REC  | Disponível  
+0690  | Mônica         | Bittencourt        | Tripulante de Cabine    | NAT  | Disponível  
+0691  | Thiago         | Gomes              | Tripulante de Cabine    | VIX  | Disponível  
+0692  | Sergio         | Coelho             | Tripulante de Cabine    | BEL  | Disponível  
+0693  | Breno          | Viana              | Tripulante de Cabine    | CGH  | Disponível  
+0694  | Bruno          | Teixeira           | Tripulante de Cabine    | CNF  | Disponível  
+0695  | Igor           | Barros             | Tripulante de Cabine    | VIX  | Disponível  
+0696  | Elisa          | Andrade            | Tripulante de Cabine    | FOR  | Disponível  
+0697  | Elias          | Rocha              | Tripulante de Cabine    | CWB  | Disponível  
+0698  | Patricia       | Cavalcante         | Tripulante de Cabine    | REC  | Disponível  
+0699  | Bianca         | Bittencourt        | Tripulante de Cabine    | BSB  | Disponível  
+0700  | Joao           | Alves              | Tripulante de Cabine    | BSB  | Disponível  
+0701  | André          | Matos              | Tripulante de Cabine    | POA  | Disponível  
+0702  | Elisa          | Miranda            | Tripulante de Cabine    | BEL  | Disponível  
+0703  | Adriano        | Queiroz            | Tripulante de Cabine    | VIX  | Disponível  
+0704  | Sofia          | Rocha              | Tripulante de Cabine    | CWB  | Disponível  
+0705  | Camila         | Campos             | Tripulante de Cabine    | VIX  | Disponível  
+0706  | Debora         | Farias             | Tripulante de Cabine    | FOR  | Disponível  
+0707  | Debora         | Amaral             | Tripulante de Cabine    | SSA  | Disponível  
+0708  | Clara          | Vieira             | Tripulante de Cabine    | MAO  | Disponível  
+0709  | Maitê          | Tavares            | Tripulante de Cabine    | CWB  | Disponível  
+0710  | Vinicius       | Machado            | Tripulante de Cabine    | CGH  | Disponível  
+0711  | Manuela        | Aguiar             | Tripulante de Cabine    | GRU  | Disponível  
+0712  | Gabriela       | Melo               | Tripulante de Cabine    | SSA  | Disponível  
+0713  | Fábio          | Figueiredo         | Tripulante de Cabine    | REC  | Disponível  
+0714  | Vitor          | Coelho             | Tripulante de Cabine    | SSA  | Disponível  
+0715  | Beatriz        | Correia            | Tripulante de Cabine    | GRU  | Disponível  
+0716  | Clara          | Martins            | Tripulante de Cabine    | BEL  | Disponível  
+0717  | Gabriela       | Cardoso            | Tripulante de Cabine    | CGH  | Disponível  
+0718  | Júlia          | Freitas            | Tripulante de Cabine    | VIX  | Disponível  
+0719  | Pedro          | Queiroz            | Tripulante de Cabine    | CWB  | Disponível  
+0720  | Júlia          | Ribeiro            | Tripulante de Cabine    | NAT  | Disponível  
+0721  | Cesar          | Souza              | Tripulante de Cabine    | CNF  | Disponível  
+0722  | Henrique       | Rocha              | Tripulante de Cabine    | REC  | Disponível  
+0723  | Brenda         | Bandeira           | Tripulante de Cabine    | CGH  | Disponível  
+0724  | Gabriela       | Costa              | Tripulante de Cabine    | MAO  | Disponível  
+0725  | Cecilia        | Cardoso            | Tripulante de Cabine    | GRU  | Disponível  
+0726  | Ruan           | Aguiar             | Tripulante de Cabine    | FOR  | Disponível  
+0727  | Marcos         | Correia            | Tripulante de Cabine    | BEL  | Disponível  
+0728  | Luana          | Souza              | Tripulante de Cabine    | FOR  | Disponível  
+0729  | Valentina      | Fonseca            | Tripulante de Cabine    | CWB  | Disponível  
+0730  | Cecilia        | Tavares            | Tripulante de Cabine    | FOR  | Disponível  
+0731  | Nicole         | Martins            | Tripulante de Cabine    | GIG  | Disponível  
+0732  | Juliana        | Pereira            | Tripulante de Cabine    | REC  | Disponível  
+0733  | Douglas        | Cardoso            | Tripulante de Cabine    | GIG  | Disponível  
+0734  | Natalia        | Farias             | Tripulante de Cabine    | SSA  | Disponível  
+0735  | Livia          | Lopes              | Tripulante de Cabine    | FLN  | Disponível  
+0736  | Roberto        | Sampaio            | Tripulante de Cabine    | REC  | Disponível  
+0737  | Natalia        | Machado            | Tripulante de Cabine    | REC  | Disponível  
+0738  | Jonathan       | Moura              | Tripulante de Cabine    | FOR  | Disponível  
+0739  | Douglas        | Fonseca            | Tripulante de Cabine    | FLN  | Disponível  
+0740  | Raquel         | Nascimento         | Tripulante de Cabine    | FLN  | Disponível  
+0741  | Juliana        | Andrade            | Tripulante de Cabine    | POA  | Disponível  
+0742  | Leticia        | Cunha              | Tripulante de Cabine    | MAO  | Disponível  
+0743  | Fernando       | Neves              | Tripulante de Cabine    | BSB  | Disponível  
+0744  | André          | Leal               | Tripulante de Cabine    | BSB  | Disponível  
+0745  | Natalia        | Monteiro           | Tripulante de Cabine    | FLN  | Disponível  
+0746  | Cesar          | Freitas            | Tripulante de Cabine    | VIX  | Disponível  
+0747  | Nicole         | Paiva              | Tripulante de Cabine    | FLN  | Disponível  
+0748  | Jonathan       | Prado              | Tripulante de Cabine    | GIG  | Disponível  
+0749  | Melissa        | Aguiar             | Tripulante de Cabine    | FOR  | Disponível  
+0750  | Helena         | Ramos              | Tripulante de Cabine    | GRU  | Disponível  
+0751  | Emanuela       | Pinto              | Tripulante de Cabine    | CNF  | Disponível  
+0752  | Murilo         | Viana              | Tripulante de Cabine    | CGH  | Disponível  
+0753  | Milena         | Neves              | Tripulante de Cabine    | GRU  | Disponível  
+0754  | Helena         | Pacheco            | Tripulante de Cabine    | CGH  | Disponível  
+0755  | Jonathan       | Paiva              | Tripulante de Cabine    | BEL  | Disponível  
+0756  | Alexandre      | Teixeira           | Tripulante de Cabine    | POA  | Disponível  
+0757  | Felipe         | Machado            | Tripulante de Cabine    | GIG  | Disponível  
+0758  | Valentina      | Sales              | Tripulante de Cabine    | MAO  | Disponível  
+0759  | Alexandre      | Rezende            | Tripulante de Cabine    | NAT  | Disponível  
+0760  | Wesley         | Azevedo            | Tripulante de Cabine    | BSB  | Disponível  
+0761  | Larissa        | Leal               | Tripulante de Cabine    | POA  | Disponível  
+0762  | Felipe         | Aguiar             | Tripulante de Cabine    | CWB  | Disponível  
+0763  | Livia          | Gomes              | Tripulante de Cabine    | REC  | Disponível  
+0764  | Gustavo        | Cordeiro           | Tripulante de Cabine    | BEL  | Disponível  
+0765  | Júlia          | Paiva              | Tripulante de Cabine    | BSB  | Disponível  
+0766  | Gustavo        | Moura              | Tripulante de Cabine    | CWB  | Disponível  
+0767  | Adriano        | Dantas             | Tripulante de Cabine    | VIX  | Disponível  
+0768  | Leticia        | Pinto              | Tripulante de Cabine    | BEL  | Disponível  
+0769  | Beatriz        | Moura              | Tripulante de Cabine    | CNF  | Disponível  
+0770  | Mariana        | Souza              | Tripulante de Cabine    | CWB  | Disponível  
+0771  | Sofia          | Dias               | Tripulante de Cabine    | BEL  | Disponível  
+0772  | Sergio         | Macedo             | Tripulante de Cabine    | GRU  | Disponível  
+0773  | Douglas        | Oliveira           | Tripulante de Cabine    | CWB  | Disponível  
+0774  | Nicole         | Moura              | Tripulante de Cabine    | GRU  | Disponível  
+0775  | Vinicius       | Oliveira           | Tripulante de Cabine    | FLN  | Disponível  
+0776  | Alexandre      | Coelho             | Tripulante de Cabine    | MAO  | Disponível  
+0777  | Camila         | Fonseca            | Tripulante de Cabine    | SSA  | Disponível  
+0778  | Enzo           | Lacerda            | Tripulante de Cabine    | CGH  | Disponível  
+0779  | Brenda         | Coutinho           | Tripulante de Cabine    | GRU  | Disponível  
+0780  | Pedro          | Monteiro           | Tripulante de Cabine    | CWB  | Disponível  
+0781  | Sofia          | Borges             | Tripulante de Cabine    | VIX  | Disponível  
+0782  | Iara           | Porto              | Tripulante de Cabine    | FLN  | Disponível  
+0783  | Ana            | Pacheco            | Tripulante de Cabine    | CWB  | Disponível  
+0784  | Breno          | Bandeira           | Tripulante de Cabine    | POA  | Disponível  
+0785  | Douglas        | Azevedo            | Tripulante de Cabine    | GIG  | Disponível  
+0786  | Ruan           | Dantas             | Tripulante de Cabine    | BSB  | Disponível  
+0787  | Alice          | Bittencourt        | Tripulante de Cabine    | GIG  | Disponível  
+0788  | Clara          | Melo               | Tripulante de Cabine    | GRU  | Disponível  
+0789  | Alexandre      | Figueiredo         | Tripulante de Cabine    | BEL  | Disponível  
+0790  | Sofia          | Silva              | Tripulante de Cabine    | CWB  | Disponível  
+0791  | Manuela        | Bandeira           | Tripulante de Cabine    | GRU  | Disponível  
+0792  | Esther         | Siqueira           | Tripulante de Cabine    | SSA  | Disponível  
+0793  | Alice          | Abreu              | Tripulante de Cabine    | POA  | Disponível  
+0794  | Otavio         | Sales              | Tripulante de Cabine    | MAO  | Disponível  
+0795  | Cecilia        | Freitas            | Tripulante de Cabine    | GIG  | Disponível  
+0796  | Luana          | Castro             | Tripulante de Cabine    | POA  | Disponível  
+0797  | Murilo         | Miranda            | Tripulante de Cabine    | BSB  | Disponível  
+0798  | Raquel         | Porto              | Tripulante de Cabine    | GIG  | Disponível  
+0799  | Igor           | Matos              | Tripulante de Cabine    | BEL  | Disponível  
+0800  | Brenda         | Cardoso            | Tripulante de Cabine    | FLN  | Disponível  
+0801  | Mônica         | Matos              | Tripulante de Cabine    | MAO  | Disponível  
+0802  | Valentina      | Araújo             | Tripulante de Cabine    | CWB  | Disponível  
+0803  | Caio           | Campos             | Tripulante de Cabine    | REC  | Disponível  
+0804  | Larissa        | Bandeira           | Tripulante de Cabine    | CWB  | Disponível  
+0805  | Anderson       | Assis              | Tripulante de Cabine    | REC  | Disponível  
+0806  | Amanda         | Freitas            | Tripulante de Cabine    | CNF  | Disponível  
+0807  | Bianca         | Vieira             | Tripulante de Cabine    | BEL  | Disponível  
+0808  | Bruno          | Guimarães          | Tripulante de Cabine    | FOR  | Disponível  
+0809  | Daniel         | Figueiredo         | Tripulante de Cabine    | MAO  | Disponível  
+0810  | Camila         | Tavares            | Tripulante de Cabine    | BEL  | Disponível  
+0811  | Emanuela       | Lima               | Tripulante de Cabine    | POA  | Disponível  
+0812  | Nicole         | Carvalho           | Tripulante de Cabine    | CGH  | Disponível  
+0813  | Maitê          | Siqueira           | Tripulante de Cabine    | MAO  | Disponível  
+0814  | Wesley         | Lacerda            | Tripulante de Cabine    | FLN  | Disponível  
+0815  | Fernanda       | Martins            | Tripulante de Cabine    | FOR  | Disponível  
+0816  | Pedro          | Sampaio            | Tripulante de Cabine    | POA  | Disponível  
+0817  | Marcelo        | Rodrigues          | Tripulante de Cabine    | FLN  | Disponível  
+0818  | Joao           | Lacerda            | Tripulante de Cabine    | CGH  | Disponível  
+0819  | Cecilia        | Fonseca            | Tripulante de Cabine    | BSB  | Disponível  
+0820  | Brenda         | Sampaio            | Tripulante de Cabine    | FLN  | Disponível  
+0821  | Vitor          | Andrade            | Tripulante de Cabine    | POA  | Disponível  
+0822  | Juliana        | Bittencourt        | Tripulante de Cabine    | BEL  | Disponível  
+0823  | Rodrigo        | Carvalho           | Tripulante de Cabine    | MAO  | Disponível  
+0824  | Thiago         | Cunha              | Tripulante de Cabine    | POA  | Disponível  
+0825  | Melissa        | Almeida            | Tripulante de Cabine    | POA  | Disponível  
+0826  | Natalia        | Duarte             | Tripulante de Cabine    | VIX  | Disponível  
+0827  | Leticia        | Silva              | Tripulante de Cabine    | SSA  | Disponível  
+0828  | Milena         | Fonseca            | Tripulante de Cabine    | BSB  | Disponível  
+0829  | Fábio          | Rodrigues          | Tripulante de Cabine    | BSB  | Disponível  
+0830  | Lucas          | Mendes             | Tripulante de Cabine    | MAO  | Disponível  
+0831  | Samuel         | Castro             | Tripulante de Cabine    | CWB  | Disponível  
+0832  | Sergio         | Oliveira           | Tripulante de Cabine    | NAT  | Disponível  
+0833  | Aline          | Barbosa            | Tripulante de Cabine    | FLN  | Disponível  
+0834  | Ruan           | Vieira             | Tripulante de Cabine    | SSA  | Disponível  
+0835  | Marcos         | Teixeira           | Tripulante de Cabine    | CWB  | Disponível  
+0836  | Mariana        | Santos             | Tripulante de Cabine    | CNF  | Disponível  
+0837  | Leandro        | Fonseca            | Tripulante de Cabine    | BSB  | Disponível  
+0838  | Gustavo        | Sales              | Tripulante de Cabine    | FLN  | Disponível  
+0839  | Diego          | Abreu              | Tripulante de Cabine    | BSB  | Disponível  
+0840  | Joao           | Carvalho           | Tripulante de Cabine    | VIX  | Disponível  
+0841  | Vinicius       | Nascimento         | Tripulante de Cabine    | CGH  | Disponível  
+0842  | Mirela         | Borges             | Tripulante de Cabine    | POA  | Disponível  
+0843  | Murilo         | Fernandes          | Tripulante de Cabine    | BSB  | Disponível  
+0844  | Leonardo       | Batista            | Tripulante de Cabine    | NAT  | Disponível  
+0845  | Lucas          | Nunes              | Tripulante de Cabine    | BEL  | Disponível  
+0846  | Gabriela       | Azevedo            | Tripulante de Cabine    | FLN  | Disponível  
+0847  | Fernando       | Martins            | Tripulante de Cabine    | CWB  | Disponível  
+0848  | Esther         | Rodrigues          | Tripulante de Cabine    | GIG  | Disponível  
+0849  | Cesar          | Dantas             | Tripulante de Cabine    | FLN  | Disponível  
+0850  | Roberto        | Lima               | Tripulante de Cabine    | GRU  | Disponível  
+0851  | Daniel         | Moreira            | Tripulante de Cabine    | CGH  | Disponível  
+0852  | Gabriela       | Souza              | Tripulante de Cabine    | VIX  | Disponível  
+0853  | Paulo          | Souza              | Tripulante de Cabine    | FOR  | Disponível  
+0854  | Sara           | Bittencourt        | Tripulante de Cabine    | FOR  | Disponível  
+0855  | Roberto        | Barbosa            | Tripulante de Cabine    | MAO  | Disponível  
+0856  | André          | Viana              | Tripulante de Cabine    | MAO  | Disponível  
+0857  | Cesar          | Viana              | Tripulante de Cabine    | CGH  | Disponível  
+0858  | Taina          | Alves              | Tripulante de Cabine    | CGH  | Disponível  
+0859  | Murilo         | Machado            | Tripulante de Cabine    | BEL  | Disponível  
+0860  | Joao           | Barbosa            | Tripulante de Cabine    | CGH  | Disponível  
+0861  | Bianca         | Queiroz            | Tripulante de Cabine    | SSA  | Reserva     
+0862  | Samuel         | Cavalcante         | Tripulante de Cabine    | FLN  | Reserva     
+0863  | Leticia        | Porto              | Tripulante de Cabine    | GRU  | Reserva     
+0864  | Juliana        | Aguiar             | Tripulante de Cabine    | SSA  | Reserva     
+0865  | Caio           | Aguiar             | Tripulante de Cabine    | CGH  | Reserva     
+0866  | Melissa        | Assis              | Tripulante de Cabine    | REC  | Reserva     
+0867  | Marcelo        | Araújo             | Tripulante de Cabine    | BSB  | Reserva     
+0868  | Adriano        | Melo               | Tripulante de Cabine    | CGH  | Reserva     
+0869  | Carolina       | Rodrigues          | Tripulante de Cabine    | CWB  | Reserva     
+0870  | Vitor          | Carvalho           | Tripulante de Cabine    | CNF  | Reserva     
+0871  | Vinicius       | Alves              | Tripulante de Cabine    | FOR  | Reserva     
+0872  | Camila         | Porto              | Tripulante de Cabine    | NAT  | Reserva     
+0873  | Priscila       | Batista            | Tripulante de Cabine    | SSA  | Reserva     
+0874  | Gabriela       | Oliveira           | Tripulante de Cabine    | SSA  | Reserva     
+0875  | Sofia          | Pacheco            | Tripulante de Cabine    | VIX  | Reserva     
+0876  | Marcelo        | Peixoto            | Tripulante de Cabine    | CNF  | Reserva     
+0877  | Amanda         | Menezes            | Tripulante de Cabine    | BSB  | Reserva     
+0878  | Clara          | Costa              | Tripulante de Cabine    | POA  | Reserva     
+0879  | Renan          | Lacerda            | Tripulante de Cabine    | REC  | Reserva     
+0880  | Luana          | Queiroz            | Tripulante de Cabine    | SSA  | Reserva     
+0881  | Emanuela       | Farias             | Tripulante de Cabine    | VIX  | Reserva     
+0882  | Amanda         | Azevedo            | Tripulante de Cabine    | SSA  | Reserva     
+0883  | Murilo         | Alves              | Tripulante de Cabine    | NAT  | Reserva     
+0884  | Henrique       | Porto              | Tripulante de Cabine    | GRU  | Reserva     
+0885  | Mônica         | Ribeiro            | Tripulante de Cabine    | REC  | Reserva     
+0886  | Sofia          | Assis              | Tripulante de Cabine    | SSA  | Reserva     
+0887  | Rafael         | Moraes             | Tripulante de Cabine    | VIX  | Reserva     
+0888  | Sara           | Prado              | Tripulante de Cabine    | POA  | Reserva     
+0889  | Priscila       | Miranda            | Tripulante de Cabine    | SSA  | Reserva     
+0890  | Fábio          | Martins            | Tripulante de Cabine    | CNF  | Reserva     
+0891  | Taina          | Bittencourt        | Tripulante de Cabine    | BSB  | Reserva     
+0892  | Priscila       | Ramos              | Tripulante de Cabine    | SSA  | Reserva     
+0893  | Lucas          | Campos             | Tripulante de Cabine    | GIG  | Reserva     
+0894  | Aline          | Menezes            | Tripulante de Cabine    | BSB  | Reserva     
+0895  | Fernando       | Siqueira           | Tripulante de Cabine    | CWB  | Reserva     
+0896  | Gustavo        | Siqueira           | Tripulante de Cabine    | MAO  | Reserva     
+0897  | Pedro          | Cardoso            | Tripulante de Cabine    | GRU  | Reserva     
+0898  | Danilo         | Paiva              | Tripulante de Cabine    | FLN  | Reserva     
+0899  | Mônica         | Castro             | Tripulante de Cabine    | BEL  | Reserva     
+0900  | Beatriz        | Freitas            | Tripulante de Cabine    | VIX  | Reserva     
+
+RESUMO POR CARGO
+Comandante: 150 (140 inicialmente disponíveis; 10 de reserva)
+Copiloto: 150 (140 inicialmente disponíveis; 10 de reserva)
+Tripulante de Cabine: 600 (560 inicialmente disponíveis; 40 de reserva)
+TOTAL: 900 tripulantes
+Necessidade-base para 140 voos: 840 posições de tripulante, considerando 6 pessoas por voo.

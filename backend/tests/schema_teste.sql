@@ -1,18 +1,12 @@
--- SkySync — esquema para os TESTES (SQLite em memória)
+-- SkySync — esquema para os TESTES (SQLite)
 --
 -- Por que este arquivo existe: traduzir o schema PostgreSQL para SQLite por
--- expressão regular era frágil — cada mudança no schema quebrava os testes de
--- uma forma difícil de diagnosticar. Manter um schema próprio para o ambiente
--- de teste é mais honesto: o PostgreSQL continua sendo o banco de produção e é
--- validado ao subir a aplicação (`flask --app app init-db`).
+-- expressao regular era fragil — cada mudanca no schema quebrava os testes de
+-- uma forma dificil de diagnosticar. Manter um schema proprio para o ambiente
+-- de teste e mais honesto, e o PostgreSQL continua sendo o banco de producao.
 --
--- Diferença em relação ao schema de produção:
---   * INTEGER PRIMARY KEY AUTOINCREMENT no lugar de SERIAL
---   * TEXT no lugar de JSONB e TIMESTAMPTZ
---   * Sem índices de expressão (LOWER(email)) — o SQLite não suporta
---
--- As tabelas e colunas são as MESMAS, para que o SQL das rotas e dos testes
--- rode igual nos dois bancos.
+-- As tabelas e colunas sao as MESMAS, para que o SQL das rotas e dos testes
+-- rode igual nos dois bancos. So mudam os tipos.
 
 CREATE TABLE IF NOT EXISTS usuarios (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,6 +29,19 @@ CREATE TABLE IF NOT EXISTS aeroportos (
     longitude REAL,
     hub       INTEGER NOT NULL DEFAULT 0,
     criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tripulantes (
+    id         TEXT PRIMARY KEY,
+    nome       TEXT NOT NULL,
+    sobrenome  TEXT NOT NULL DEFAULT '',
+    cargo      TEXT NOT NULL
+               CHECK (cargo IN ('Comandante', 'Copiloto', 'Comissário')),
+    base       TEXT NOT NULL DEFAULT '',
+    status     TEXT NOT NULL DEFAULT 'Disponível'
+               CHECK (status IN ('Disponível', 'Reserva', 'Indisponível')),
+    criado_em  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS cenarios (
@@ -98,4 +105,4 @@ CREATE TABLE IF NOT EXISTS schema_version (
     aplicado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT OR IGNORE INTO schema_version (versao) VALUES (3);
+INSERT OR IGNORE INTO schema_version (versao) VALUES (4);

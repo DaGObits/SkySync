@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SkySync — Painel de Escalas</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+
+
+<style type="text/css">@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}</style>
 <style>
   :root {
     --navy-950: #0A1930;
@@ -558,8 +558,6 @@
       <li><button type="button" class="nav-btn" data-screen="painel" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg> <span data-i18n="menuPanel">Painel</span></button></li>
       <li><button type="button" class="nav-btn" data-screen="disrupcoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l9 16H3l9-16z"/><path d="M12 10v4M12 17h.01"/></svg> <span data-i18n="menuDisruptions">Disrupções</span></button></li>
       <li><button type="button" class="nav-btn" data-screen="escalas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="1.5"/><path d="M3 9h18M8 3v3M16 3v3"/></svg> <span data-i18n="menuSchedules">Escalas</span></button></li>
-
-      <li><button type="button" class="nav-btn" data-screen="tripulantes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0"/><path d="M16 5.5a3 3 0 010 5.9"/><path d="M17.5 20a5.2 5.2 0 00-2.2-4.3"/></svg> <span data-i18n="menuCrew">Tripulantes</span></button></li>
     </ul>
     <h2 data-i18n="navSystem">Sistema</h2>
     <ul>
@@ -653,8 +651,6 @@
         <div class="table-toolbar">
           <span id="historyCaptionText"><span id="totalCrewCountText">9</span> <span data-i18n="crewMembersWord">tripulantes</span> — <span data-i18n="versionWord">Versão</span> <span id="historyIndexLabel">1</span> <span data-i18n="ofWord">de</span> <span id="historyTotalLabel">1</span> (<span data-i18n="atWord">às</span> <span id="tableTime">--:--</span> UTC)</span>
           <div class="history-controls">
-            <button type="button" class="btn-history-nav" id="btnPrevHistory" title="Versão anterior da escala" data-i18n="btnPrev">◀ Anterior</button>
-            <button type="button" class="btn-history-nav" id="btnNextHistory" title="Próxima versão da escala" data-i18n="btnNext">Próxima ▶</button>
             <button type="button" class="btn-refresh-table" id="btnRefreshTable" title="Gerar novas escalas" data-i18n="btnRefresh">🔄 Atualizar Escalas</button>
           </div>
         </div>
@@ -684,85 +680,6 @@
       </div>
       <div id="liveStatus" role="status" aria-live="polite"></div>
     </section>
-
-    
-    <!-- ABA DE TRIPULANTES -->
-    <section class="screen" id="screen-tripulantes" aria-labelledby="tripulantes-h" tabindex="-1" hidden>
-      <h1 id="tripulantes-h" data-i18n="crewTitle">Tripulantes</h1>
-      <p class="lede" data-i18n="crewSubtitle">Base de tripulacao disponivel para otimizacao, por cargo, base e status.</p>
-
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-card-static">
-          <span class="kpi-label" data-i18n="crewKpiTotal">Tripulantes na base</span>
-          <span class="kpi-value" id="crewKpiTotal">--</span>
-          <span class="kpi-hint" data-i18n="crewKpiBases">bases distintas</span>
-        </div>
-        <div class="kpi-card kpi-card-static">
-          <span class="kpi-label" data-i18n="crewKpiAvailable">Disponiveis</span>
-          <span class="kpi-value" id="crewKpiAvailable">--</span>
-          <span class="kpi-hint" id="crewKpiReserveHint" data-i18n="crewKpiReserve">em reserva</span>
-        </div>
-        <div class="kpi-card kpi-card-static">
-          <span class="kpi-label" data-i18n="crewKpiCommanders">Comandantes</span>
-          <span class="kpi-value" id="crewKpiCommanders">--</span>
-          <span class="kpi-hint" id="crewKpiCopilotsHint">--</span>
-        </div>
-        <div class="kpi-card kpi-card-static">
-          <span class="kpi-label" data-i18n="crewKpiCabin">Tripulantes de cabine</span>
-          <span class="kpi-value" id="crewKpiCabin">--</span>
-          <span class="kpi-hint" data-i18n="crewKpiHint">no pool do otimizador</span>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <div class="table-toolbar">
-          <span id="crewCaption">
-            <span id="crewShown">0</span> <span data-i18n="crewOfWord">de</span>
-            <span id="crewTotal">0</span> <span data-i18n="crewMembersWord">tripulantes</span>
-          </span>
-          <div class="history-controls">
-            <label class="crew-filter-label">
-              <span data-i18n="filterBase">Base</span>
-              <select id="filtroBase" class="setting-input"></select>
-            </label>
-            <label class="crew-filter-label">
-              <span data-i18n="filterRole">Cargo</span>
-              <select id="filtroCargo" class="setting-input">
-                <option value="" data-i18n="filterAllRoles">Todos</option>
-                <option value="Comandante" data-i18n="roleCommander">Comandante</option>
-                <option value="Copiloto" data-i18n="roleCopilot">Copiloto</option>
-                <option value="Comissário" data-i18n="roleCabin">Comissario</option>
-              </select>
-            </label>
-            <label class="crew-filter-label">
-              <span data-i18n="filterStatus">Status</span>
-              <select id="filtroStatus" class="setting-input">
-                <option value="" data-i18n="filterAllStatus">Todos</option>
-                <option value="Disponível" data-i18n="statusAvailable">Disponivel</option>
-                <option value="Reserva" data-i18n="statusReserve">Reserva</option>
-              </select>
-            </label>
-            <button type="button" class="btn-refresh-table" id="btnRefreshCrew" data-i18n="btnRefreshCrew">Atualizar</button>
-          </div>
-        </div>
-        <table id="crewBaseTable" aria-label="Base de tripulantes disponiveis">
-          <thead>
-            <tr>
-              <th scope="col" data-i18n="thCrewId">ID</th>
-              <th scope="col" data-i18n="thCrewName">Nome</th>
-              <th scope="col" data-i18n="thCrewRole">Cargo</th>
-              <th scope="col" data-i18n="thCrewBase">Base</th>
-              <th scope="col" data-i18n="thCrewStatus">Status</th>
-            </tr>
-          </thead>
-          <tbody id="crewBaseBody">
-            <!-- Preenchido por carregarTripulantes() -->
-          </tbody>
-        </table>
-      </div>
-      <div id="crewStatus" role="status" aria-live="polite"></div>
-    </section>
-
 
     <!-- ABA DE CONFIGURAÇÕES -->
     <section class="screen" id="screen-configuracoes" aria-labelledby="config-h" tabindex="-1" hidden>
@@ -1022,38 +939,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         menuPanel: 'Painel',
         menuDisruptions: 'Disrupções',
         menuSchedules: 'Escalas',
-        menuCrew: 'Tripulantes',
-        crewTitle: 'Tripulantes',
-        crewSubtitle: 'Base de tripulação disponível para otimização, por cargo, base e status.',
-        crewKpiTotal: 'Tripulantes na base',
-        crewKpiBases: 'bases distintas',
-        crewKpiAvailable: 'Disponíveis',
-        crewKpiReserve: 'em reserva',
-        crewKpiCommanders: 'Comandantes',
-        crewKpiCabin: 'Tripulantes de cabine',
-        crewKpiHint: 'no pool do otimizador',
-        crewOfWord: 'de',
-        crewMembersWord: 'tripulantes',
-        filterBase: 'Base',
-        filterRole: 'Cargo',
-        filterAllRoles: 'Todos',
-        filterStatus: 'Status',
-        filterAllStatus: 'Todos',
-        roleCommander: 'Comandante',
-        roleCopilot: 'Copiloto',
-        roleCabin: 'Comissário',
-        statusAvailable: 'Disponível',
-        statusReserve: 'Reserva',
-        btnRefreshCrew: '🔄 Atualizar',
-        thCrewId: 'ID',
-        thCrewName: 'Nome',
-        thCrewRole: 'Cargo',
-        thCrewBase: 'Base',
-        thCrewStatus: 'Status',
-        crewLoading: 'Carregando tripulantes...',
-        crewEmpty: 'Nenhum tripulante encontrado com esses filtros.',
-        crewError: 'Não foi possível carregar a base de tripulantes.',
-        crewAllBases: 'Todas as bases',
         navSystem: 'Sistema',
         menuSettings: 'Configurações',
         panelTitle: 'Painel de replanejamento — Base',
@@ -1159,38 +1044,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         menuPanel: 'Dashboard',
         menuDisruptions: 'Disruptions',
         menuSchedules: 'Schedules',
-        menuCrew: 'Tripulantes',
-        crewTitle: 'Tripulantes',
-        crewSubtitle: 'Base de tripulação disponível para otimização, por cargo, base e status.',
-        crewKpiTotal: 'Tripulantes na base',
-        crewKpiBases: 'bases distintas',
-        crewKpiAvailable: 'Disponíveis',
-        crewKpiReserve: 'em reserva',
-        crewKpiCommanders: 'Comandantes',
-        crewKpiCabin: 'Tripulantes de cabine',
-        crewKpiHint: 'no pool do otimizador',
-        crewOfWord: 'de',
-        crewMembersWord: 'tripulantes',
-        filterBase: 'Base',
-        filterRole: 'Cargo',
-        filterAllRoles: 'Todos',
-        filterStatus: 'Status',
-        filterAllStatus: 'Todos',
-        roleCommander: 'Comandante',
-        roleCopilot: 'Copiloto',
-        roleCabin: 'Comissário',
-        statusAvailable: 'Disponível',
-        statusReserve: 'Reserva',
-        btnRefreshCrew: '🔄 Atualizar',
-        thCrewId: 'ID',
-        thCrewName: 'Nome',
-        thCrewRole: 'Cargo',
-        thCrewBase: 'Base',
-        thCrewStatus: 'Status',
-        crewLoading: 'Carregando tripulantes...',
-        crewEmpty: 'Nenhum tripulante encontrado com esses filtros.',
-        crewError: 'Não foi possível carregar a base de tripulantes.',
-        crewAllBases: 'Todas as bases',
         navSystem: 'System',
         menuSettings: 'Settings',
         panelTitle: 'Rescheduling Dashboard — Base',
@@ -1296,38 +1149,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         menuPanel: 'Panel',
         menuDisruptions: 'Disrupciones',
         menuSchedules: 'Tripulaciones',
-        menuCrew: 'Tripulantes',
-        crewTitle: 'Tripulantes',
-        crewSubtitle: 'Base de tripulação disponível para otimização, por cargo, base e status.',
-        crewKpiTotal: 'Tripulantes na base',
-        crewKpiBases: 'bases distintas',
-        crewKpiAvailable: 'Disponíveis',
-        crewKpiReserve: 'em reserva',
-        crewKpiCommanders: 'Comandantes',
-        crewKpiCabin: 'Tripulantes de cabine',
-        crewKpiHint: 'no pool do otimizador',
-        crewOfWord: 'de',
-        crewMembersWord: 'tripulantes',
-        filterBase: 'Base',
-        filterRole: 'Cargo',
-        filterAllRoles: 'Todos',
-        filterStatus: 'Status',
-        filterAllStatus: 'Todos',
-        roleCommander: 'Comandante',
-        roleCopilot: 'Copiloto',
-        roleCabin: 'Comissário',
-        statusAvailable: 'Disponível',
-        statusReserve: 'Reserva',
-        btnRefreshCrew: '🔄 Atualizar',
-        thCrewId: 'ID',
-        thCrewName: 'Nome',
-        thCrewRole: 'Cargo',
-        thCrewBase: 'Base',
-        thCrewStatus: 'Status',
-        crewLoading: 'Carregando tripulantes...',
-        crewEmpty: 'Nenhum tripulante encontrado com esses filtros.',
-        crewError: 'Não foi possível carregar a base de tripulantes.',
-        crewAllBases: 'Todas as bases',
         navSystem: 'Sistema',
         menuSettings: 'Configuración',
         panelTitle: 'Panel de reprogramación — Base',
@@ -1492,134 +1313,18 @@ window.addEventListener('DOMContentLoaded', async () => {
       } catch(e) {}
     }
 
-    const rbacLimitPool = [
-      '11h00 (pouso à noite)',
-      '10h00 (múltiplos pousos / fuso)',
-      '12h00 (jornada diurna padrão)',
-      '13h00 (extensão por revezamento)',
-      '9h30 (não aclimatizado)',
-      '14h00 (tripulação reforçada)',
-      '11h30 (limite adaptado setor)'
-    ];
-
-    let dadosOriginais = [
-      { id: 1, voo: 'TAM-3482', tripulante: 'Rafael Nunes', cargo: 'Comandante', risco: 'alto', badgeKey: 'highFatigueRisk', desc: 'Atraso operacional crítico devido a restrições meteorológicas severas em Guarulhos.', rota: 'GRU → VCP', horario: 'Partida prevista 23:40', horas: '11h30', limitRbac: '11h00 (pouso à noite)', solucao: 'Conexão direta GRU → CNF com reserva imediata', bloqueado: true },
-      { id: 2, voo: 'GLO-1207', tripulante: 'Beatriz Lima', cargo: 'Copiloto', risco: 'medio', badgeKey: 'moderateRisk', desc: 'Manutenção não programada de aeronave em Congonhas. Tripulação reserva acionada.', rota: 'CGH → SSA', horario: 'Partida prevista 06:15', horas: '08h15', limitRbac: '10h00 (múltiplos pousos / fuso)', solucao: 'Realocação CGH → BSB via malha integrada', bloqueado: false },
-      { id: 3, voo: 'AZU-5590', tripulante: 'Carlos Mendonça', cargo: 'Comissário-chefe', risco: 'alto', badgeKey: 'highFatigueRisk', desc: 'Fechamento parcial de pista em Recife afetando conexões diretas e repouso regulamentar.', rota: 'REC → GRU', horario: 'Chegada revisada 21:05', horas: '12h10', limitRbac: '12h00 (jornada diurna padrão)', solucao: 'Ajuste de tripulação REC → GIG com repouso em base', bloqueado: true },
-      { id: 4, voo: 'TAM-2210', tripulante: 'Juliana Prado', cargo: 'Comissária', risco: 'medio', badgeKey: 'moderateRisk', desc: 'Congestionamento e restrição de tráfego aéreo gerando espera em órbita na capital federal.', rota: 'BSB → GIG', horario: 'Partida prevista 18:20', horas: '09h00', limitRbac: '13h00 (extensão por revezamento)', solucao: 'Substituição por tripulação de apoio em BSB', bloqueado: false },
-      { id: 5, voo: 'GLO-4412', tripulante: 'Eduardo Silveira', cargo: 'Comandante', risco: 'baixo', badgeKey: 'normalOperation', desc: 'Voo operando perfeitamente sem restrições ou alertas na rota de interligação Sudeste-Centro-Oeste.', rota: 'GRU → CGB', horario: 'Partida prevista 15:00', horas: '07h30', limitRbac: '14h00 (tripulação reforçada)', solucao: 'Manutenção da escala regular GRU → CGB', bloqueado: false },
-      { id: 6, voo: 'AZU-7891', tripulante: 'Marcos Vinicius', cargo: 'Comandante', risco: 'baixo', badgeKey: 'normalOperation', desc: 'Sem desvios na rota programada na região Norte. Tripulação com banco de folgas ok.', rota: 'MAO → BEL', horario: 'Partida prevista 12:00', horas: '06h45', limitRbac: '12h00 (jornada diurna padrão)', solucao: 'Manutenção da rota regional MAO → BEL', bloqueado: false },
-      { id: 7, voo: 'PTB-9023', tripulante: 'Larissa Martins', cargo: 'Copiloto', risco: 'baixo', badgeKey: 'normalOperation', desc: 'Conexão e plano de voo validados pelo centro de controle do Nordeste.', rota: 'FOR → REC', horario: 'Partida prevista 16:30', horas: '08h00', limitRbac: '11h00 (pouso à noite)', solucao: 'Manutenção do trecho FOR → SSA', bloqueado: false },
-      { id: 8, voo: 'TAM-3104', tripulante: 'Roberto Sampaio', cargo: 'Comandante', risco: 'medio', badgeKey: 'moderateRisk', desc: 'Alerta preventivo de vento cruzado no pouso no litoral catarinense.', rota: 'GIG → FLN', horario: 'Partida prevista 19:10', horas: '09h40', limitRbac: '9h30 (não aclimatizado)', solucao: 'Escala estendida segura com revezamento em Curitiba (CWB)', bloqueado: false },
-      { id: 9, voo: 'GLO-6520', tripulante: 'Camila Dias', cargo: 'Comissária', risco: 'baixo', badgeKey: 'normalOperation', desc: 'Serviço de bordo regular na costa nordestina sem intercorrências reportadas.', rota: 'SSA → FOR', horario: 'Partida prevista 14:00', horas: '07h15', limitRbac: '12h00 (jornada diurna padrão)', solucao: 'Manutenção da rota SSA → FOR', bloqueado: false }
-    ];
-
-    let historicoEscalas = [];
-    let indiceHistoricoAtual = 0;
+    // ---------------------------------------------------------------------
+    // FONTE DE DADOS: a API.
+    //
+    // Antes existiam TRES fontes concorrentes — os 9 itens inventados, o
+    // localStorage e a API — e a tela mostrava a que respondesse primeiro.
+    // Agora ha uma so: o banco, via /api/escalas/alocacoes.
+    // ---------------------------------------------------------------------
     let dadosOperacionais = [];
+    let escalasDoBanco = [];
     let filtroAtual = 'all';
-
-    function carregarDadosLocais() {
-      try {
-        const historicoSalvo = localStorage.getItem('skysync_historico_escalas');
-        const indiceSalvo = localStorage.getItem('skysync_indice_historico');
-        const operacionaisSalvo = localStorage.getItem('skysync_dados_operacionais');
-        const originaisSalvo = localStorage.getItem('skysync_dados_originais');
-
-        if (originaisSalvo) {
-          dadosOriginais = JSON.parse(originaisSalvo);
-        }
-
-        if (historicoSalvo && operacionaisSalvo) {
-          historicoEscalas = JSON.parse(historicoSalvo);
-          indiceHistoricoAtual = indiceSalvo !== null ? parseInt(indiceSalvo, 10) : historicoEscalas.length - 1;
-          dadosOperacionais = JSON.parse(operacionaisSalvo);
-        }
-      } catch (e) {
-        console.error("Erro ao carregar do localStorage:", e);
-      }
-
-      if (!historicoEscalas || historicoEscalas.length === 0) {
-        dadosOperacionais = JSON.parse(JSON.stringify(dadosOriginais));
-        historicoEscalas = [JSON.parse(JSON.stringify(dadosOriginais))];
-        indiceHistoricoAtual = 0;
-      }
-
-      gerarDisruptionsDinamicas();
-      gerarEscalasDinamicas();
-    }
-
-
-    // ---------------------------------------------------------------------
-    // LEITURA DO BANCO — aditivo.
-    //
-    // Roda DEPOIS de carregarDadosLocais(). Se a API responder com escalas,
-    // elas substituem os itens locais. Se falhar, nada muda: a tela continua
-    // exatamente como estava.
-    //
-    // Todo o bloco esta em try/catch: uma falha aqui nao derruba a pagina.
-    // ---------------------------------------------------------------------
-    function buscarEscalasDoBanco() {
-      try {
-        fetch(API_URL + '/escalas/alocacoes', { credentials: 'include' })
-          .then(function (res) {
-            if (!res.ok) return null;
-            return res.json();
-          })
-          .then(function (dados) {
-            if (!dados || !dados.escalas || !dados.escalas.length) return;
-
-            var linhas = dados.escalas.map(function (e) {
-              var min = Math.round((Number(e.limite_aplicado) || 0) * 60);
-              var teto = String(Math.floor(min / 60)).padStart(2, '0') + 'h' +
-                         String(min % 60).padStart(2, '0');
-              return {
-                tripulante: e.tripulante,
-                cargo: e.cargo,
-                voo: e.voo,
-                horas: e.horas,
-                limitRbac: teto,
-                bloqueado: !e.conforme,
-                risco: !e.conforme ? 'alto' : (e.ocupacao_percentual >= 85 ? 'medio' : 'baixo'),
-                badgeKey: !e.conforme ? 'highFatigueRisk' : 'normalOperation',
-                rota: e.rota,
-                solucao: e.motivo,
-                desc: 'Ocupacao de ' + e.ocupacao_percentual + '% do teto.'
-              };
-            });
-
-            dadosOperacionais = linhas;
-            gerarEscalasDinamicas();
-
-            var cap = document.getElementById('historyCaptionText');
-            if (cap) {
-              cap.textContent = dados.total + ' alocacao(oes) do banco em ' + dados.data +
-                                ' (' + dados.conformes + ' conformes)';
-            }
-            showStatus(dados.total + ' alocacao(oes) carregada(s) do banco.', 'ok');
-          })
-          .catch(function (e) { console.error('Banco indisponivel, mantendo dados locais:', e); });
-      } catch (e) {
-        console.error('buscarEscalasDoBanco falhou:', e);
-      }
-    }
-
-    carregarDadosLocais();
-
-    // Tenta o banco imediatamente depois dos dados locais.
-    buscarEscalasDoBanco();
-
-    function registrarNovoHistorico(novoConjunto) {
-      historicoEscalas.push(JSON.parse(JSON.stringify(novoConjunto)));
-      if (historicoEscalas.length > 30) historicoEscalas.shift();
-      indiceHistoricoAtual = historicoEscalas.length - 1;
-      try {
-        localStorage.setItem('skysync_historico_escalas', JSON.stringify(historicoEscalas));
-        localStorage.setItem('skysync_indice_historico', indiceHistoricoAtual);
-        localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
-        localStorage.setItem('skysync_dados_originais', JSON.stringify(dadosOriginais));
-      } catch (e) {}
-    }
+    let dataConsultada = new Date().toISOString().slice(0, 10);
+    let dadosSnapshotSimulacao = null;
 
     function getBadgeText(badgeKey) {
       const lang = settings.idioma || 'pt-BR';
@@ -1629,24 +1334,12 @@ window.addEventListener('DOMContentLoaded', async () => {
       return dict.normalOperation || 'Operação normal';
     }
 
-    function obterTodosVoosHistorico() {
-      const mapaVoos = new Map();
-      historicoEscalas.forEach(versao => {
-        versao.forEach(item => {
-          if (!mapaVoos.has(item.voo) || item.risco === 'alto' || item.risco === 'medio') {
-            mapaVoos.set(item.voo, item);
-          }
-        });
-      });
-      return Array.from(mapaVoos.values());
-    }
-
     function gerarDisruptionsDinamicas() {
       const grid = document.getElementById('disruptionsGrid');
       if (!grid) return;
       grid.innerHTML = '';
 
-      const todosVoos = obterTodosVoosHistorico();
+      const todosVoos = Array.isArray(dadosOperacionais) ? dadosOperacionais.slice() : [];
 
       const filtradas = todosVoos.filter(d => {
         if (filtroAtual === 'all') return true;
@@ -1798,7 +1491,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     function atualizarPainelAcumulado() {
       try {
-        const todosVoos = obterTodosVoosHistorico();
+        const todosVoos = Array.isArray(dadosOperacionais) ? dadosOperacionais.slice() : [];
         const total = todosVoos.length;
         let blockedCount = 0;
         todosVoos.forEach(d => {
@@ -1828,7 +1521,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (blockedTextNum) blockedTextNum.textContent = blockedCount;
         if (compliantTextNum) compliantTextNum.textContent = compliantCount;
         if (kpiImpactedCount) kpiImpactedCount.textContent = total;
-        if (kpiMonitoredTotal) kpiMonitoredTotal.textContent = 42 + (historicoEscalas.length - 1) * 3;
+        if (kpiMonitoredTotal) kpiMonitoredTotal.textContent = dadosOperacionais.length;
 
         const lang = settings.idioma || 'pt-BR';
         const dict = translations[lang] || translations['pt-BR'];
@@ -1851,19 +1544,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (kpiComplianceVal) kpiComplianceVal.textContent = percentCompliant + '%';
         if (kpiComplianceHint) kpiComplianceHint.textContent = `${compliantCount} ${dict.ofWord || 'de'} ${total} ${dict.crewMembersWord || 'tripulantes'} conformes`;
       } catch(e) {}
-    }
-
-    function atualizarBotoesHistorico() {
-      const btnPrev = document.getElementById('btnPrevHistory');
-      const btnNext = document.getElementById('btnNextHistory');
-      const indexLabel = document.getElementById('historyIndexLabel');
-      const totalLabel = document.getElementById('historyTotalLabel');
-
-      if (indexLabel) indexLabel.textContent = indiceHistoricoAtual + 1;
-      if (totalLabel) totalLabel.textContent = historicoEscalas.length;
-
-      if (btnPrev) btnPrev.disabled = indiceHistoricoAtual <= 0;
-      if (btnNext) btnNext.disabled = indiceHistoricoAtual >= historicoEscalas.length - 1;
     }
 
     function gerarEscalasDinamicas() {
@@ -1891,128 +1571,107 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
 
         atualizarPainelAcumulado();
-        atualizarBotoesHistorico();
+        // seletor de versoes removido: o historico agora vive no banco.
       } catch(e) {}
     }
 
     gerarDisruptionsDinamicas();
     gerarEscalasDinamicas();
 
-    const btnPrevHistory = document.getElementById('btnPrevHistory');
-    const btnNextHistory = document.getElementById('btnNextHistory');
-
-    if (btnPrevHistory) {
-      btnPrevHistory.addEventListener('click', () => {
-        if (indiceHistoricoAtual > 0) {
-          indiceHistoricoAtual--;
-          dadosOperacionais = JSON.parse(JSON.stringify(historicoEscalas[indiceHistoricoAtual]));
-          try { localStorage.setItem('skysync_indice_historico', indiceHistoricoAtual); } catch(e){}
-          gerarDisruptionsDinamicas();
-          gerarEscalasDinamicas();
-          showStatus(`Exibindo versão histórica ${indiceHistoricoAtual + 1} de ${historicoEscalas.length}`, 'ok');
-        }
-      });
+    // ---------------------------------------------------------------------
+    // LEITURA DAS ESCALAS DO BANCO
+    //
+    // Converte a resposta de /api/escalas/alocacoes para o formato que a
+    // gerarEscalasDinamicas() ja espera. A funcao de render nao foi tocada.
+    // ---------------------------------------------------------------------
+    function formatarHorasEscala(horas) {
+      var totalMin = Math.round((Number(horas) || 0) * 60);
+      return String(Math.floor(totalMin / 60)).padStart(2, '0') + 'h' +
+             String(totalMin % 60).padStart(2, '0');
     }
 
-    if (btnNextHistory) {
-      btnNextHistory.addEventListener('click', () => {
-        if (indiceHistoricoAtual < historicoEscalas.length - 1) {
-          indiceHistoricoAtual++;
-          dadosOperacionais = JSON.parse(JSON.stringify(historicoEscalas[indiceHistoricoAtual]));
-          try { localStorage.setItem('skysync_indice_historico', indiceHistoricoAtual); } catch(e){}
-          gerarDisruptionsDinamicas();
-          gerarEscalasDinamicas();
-          showStatus(`Exibindo versão histórica ${indiceHistoricoAtual + 1} de ${historicoEscalas.length}`, 'ok');
-        }
-      });
-    }
-
-    function gerarNovaEscalaAleatoria() {
-      const nomesAleatorios = ['Lucas Mendes', 'Fernanda Souza', 'Bruno Ribeiro', 'Camila Rocha', 'Diego Farias', 'Larissa Azevedo', 'Thiago Moreira', 'Mariana Prado', 'Renato Castilho'];
-      const rotasLogicasBr = [
-        { origem: 'GRU', destino: 'VCP', solucao: 'Conexão direta GRU → CNF com reserva imediata' },
-        { origem: 'CGH', destino: 'SSA', solucao: 'Realocação CGH → BSB via malha integrada' },
-        { origem: 'REC', destino: 'GRU', solucao: 'Ajuste de tripulação REC → GIG com repouso em base' },
-        { origem: 'BSB', destino: 'GIG', solucao: 'Substituição por tripulação de apoio em BSB' },
-        { origem: 'GRU', destino: 'CGB', solucao: 'Manutenção da escala regular GRU → CGB' }
-      ];
-      const ciaAereasBrasil = ['TAM', 'GLO', 'AZU', 'PTB'];
-
-      let baseVersao = dadosOperacionais;
-      let novoConjunto = JSON.parse(JSON.stringify(baseVersao));
-      
-      novoConjunto.forEach((item) => {
-        item.tripulante = nomesAleatorios[Math.floor(Math.random() * nomesAleatorios.length)];
-        const rotaSel = rotasLogicasBr[Math.floor(Math.random() * rotasLogicasBr.length)];
-        item.rota = `${rotaSel.origem} → ${rotaSel.destino}`;
-        item.solucao = rotaSel.solucao;
-        
-        const ciaAleatoria = ciaAereasBrasil[Math.floor(Math.random() * ciaAereasBrasil.length)];
-        const numeroVooAleatorio = Math.floor(1000 + Math.random() * 9000);
-        item.voo = `${ciaAleatoria}-${numeroVooAleatorio}`;
-
-        const isBlocked = Math.random() > 0.4;
-        item.bloqueado = isBlocked;
-        item.risco = isBlocked ? 'alto' : 'baixo';
-        item.badgeKey = isBlocked ? 'highFatigueRisk' : 'normalOperation';
-        
-        const horasAleatorias = Math.floor(6 + Math.random() * 5);
-        const minutosAleatorios = Math.floor(Math.random() * 60);
-        item.horas = `${String(horasAleatorias).padStart(2, '0')}h${String(minutosAleatorios).padStart(2, '0')}`;
-        
-        item.limitRbac = rbacLimitPool[Math.floor(Math.random() * rbacLimitPool.length)];
-      });
-
-      registrarNovoHistorico(novoConjunto);
-      dadosOperacionais = JSON.parse(JSON.stringify(novoConjunto));
-      gerarDisruptionsDinamicas();
-      gerarEscalasDinamicas();
-      showStatus(`Nova versão gerada (${indiceHistoricoAtual + 1}) com sucesso!`, 'ok');
-      addFeedItem(`Atualização de escalas executada: Versão ${indiceHistoricoAtual + 1} gerada.`);
-    }
-
-    const btnRefreshTable = document.getElementById('btnRefreshTable');
-    if (btnRefreshTable) {
-      btnRefreshTable.addEventListener('click', () => {
-        gerarNovaEscalaAleatoria();
-      });
+    function escalaParaLinha(e) {
+      return {
+        tripulante: e.tripulante,
+        cargo: e.cargo,
+        voo: e.voo,
+        horas: e.horas,
+        limitRbac: formatarHorasEscala(e.limite_aplicado),
+        bloqueado: !e.conforme,
+        risco: !e.conforme ? 'alto' : (e.ocupacao_percentual >= 85 ? 'medio' : 'baixo'),
+        badgeKey: !e.conforme ? 'highFatigueRisk' : 'normalOperation',
+        rota: e.rota,
+        solucao: e.motivo,
+        desc: 'Ocupacao de ' + e.ocupacao_percentual + '% do teto apos a alocacao.'
+      };
     }
 
 
-
-// TODO(integração): este bloco aplica conformidade localmente, sem chamar o
-    // motor CP-SAT. A próxima etapa é traduzir os itens da tabela para o
-    // formato de /api/otimizacao (horas "11h30" -> 11.5, limitRbac -> limite_horas,
-    // rota "GRU -> VCP" -> origem/destino) e usar a resposta do solver.
-
-    function aplicarEscalaAutomaticaNaVersaoAtual() {
-      dadosOperacionais.forEach(d => {
-        d.bloqueado = false;
-        d.risco = 'baixo';
-        d.badgeKey = 'normalOperation';
-        d.solucao = 'Conformidade ANAC aplicada';
-      });
-
-      historicoEscalas[indiceHistoricoAtual] = JSON.parse(JSON.stringify(dadosOperacionais));
-
+    /** Escreve linhas na tabela reutilizando o render existente. */
+    function aplicarNaTabela(linhas) {
+      var backup = dadosOperacionais;
       try {
-        localStorage.setItem('skysync_historico_escalas', JSON.stringify(historicoEscalas));
-        localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
-      } catch(e){}
-
-      gerarDisruptionsDinamicas();
-      gerarEscalasDinamicas();
-
-      showStatus(`Escala automática aplicada com sucesso na Versão ${indiceHistoricoAtual + 1}!`, 'ok');
-      addFeedItem(`Escala automática aplicada na Versão ${indiceHistoricoAtual + 1}: todos os registros conformes.`);
+        dadosOperacionais = linhas;
+        gerarEscalasDinamicas();
+      } finally {
+        dadosOperacionais = backup;
+      }
     }
 
-    const nowBase = new Date();
-    const feedItemsData = [
-      { text: 'Voo GLO-4412 pousou normalmente dentro do horário previsto.', time: new Date(nowBase.getTime() - 12 * 60 * 1000) },
-      { text: 'Disrupção registrada: fechamento parcial de pista em setor monitorado.', time: new Date(nowBase.getTime() - 25 * 60 * 1000) },
-      { text: 'Motor CP-SAT sincronizou dados entre disrupções e escalas.', time: new Date(nowBase.getTime() - 43 * 60 * 1000) }
-    ];
+    async function carregarEscalasDoBanco(silencioso) {
+      var aviso = document.getElementById('liveStatus');
+      try {
+        var url = API_URL + '/escalas/alocacoes?data=' + dataConsultada;
+        var res = await fetch(url, { credentials: 'include' });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        if (!res.ok) { throw new Error('HTTP ' + res.status); }
+
+        var dados = await res.json();
+        var lista = dados.escalas || [];
+        escalasDoBanco = lista.map(escalaParaLinha);
+
+        var backup = dadosOperacionais;
+        dadosOperacionais = escalasDoBanco;
+        try {
+          gerarEscalasDinamicas();
+        } finally {
+          if (!escalasDoBanco.length) dadosOperacionais = backup;
+        }
+
+        var cap = document.getElementById('historyCaptionText');
+        if (cap) {
+          cap.textContent = dados.total + ' alocacao(oes) do banco em ' + dados.data +
+                            ' (' + dados.conformes + ' conformes)';
+        }
+
+        if (aviso && !silencioso) {
+          if (lista.length) {
+            aviso.style.color = 'var(--green)';
+            aviso.textContent = dados.total + ' alocacao(oes) do banco - ' +
+                                dados.conformes + ' conforme(s) - ' + dados.data + '.';
+          } else {
+            aviso.style.color = 'var(--text-600-solid)';
+            aviso.textContent = 'Nenhuma escala publicada em ' + dados.data +
+                                '. Use "Aplicar escala" para gravar uma.';
+          }
+        }
+      } catch (err) {
+        console.error('Falha ao carregar escalas do banco:', err);
+        if (aviso && !silencioso) {
+          aviso.style.color = 'var(--red)';
+          aviso.textContent = 'Nao foi possivel carregar as escalas do banco.';
+        }
+      }
+    }
+
+    const seletorData = document.getElementById('dataEscalas');
+    if (seletorData) {
+      seletorData.value = dataConsultada;
+      seletorData.addEventListener('change', function () {
+        dataConsultada = seletorData.value || dataConsultada;
+        carregarEscalasDoBanco(false);
+      });
+    }
 
     function getRelativeTimeString(date) {
       try {
@@ -2082,221 +1741,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     tick();
     setInterval(tick, 1000);
 
-
-    // ---------------------------------------------------------------------
-    // ABA DE TRIPULANTES
-    // Carrega a base real do banco via /api/tripulantes. Sem lista fixa no
-    // HTML: o que a tela mostra vem da mesma tabela que o otimizador consulta.
-    // ---------------------------------------------------------------------
-    const estadoTripulantes = { base: '', cargo: '', status: '', carregado: false };
-
-    function texto(chave, padrao) {
-      const dict = (translations[settings.idioma] || translations['pt-BR']);
-      return dict[chave] || padrao || chave;
-    }
-
-    function montarLinhaTripulante(t) {
-      const tr = document.createElement('tr');
-      const statusClasse = t.status === 'Reserva' ? 'over' : '';
-      tr.innerHTML = `
-        <td class="hours">${t.id}</td>
-        <td><span class="crew-name">${t.nome_completo}</span></td>
-        <td>${t.cargo}</td>
-        <td class="hours">${t.base}</td>
-        <td><span class="limit-tag">${t.status}</span></td>
-      `;
-      void statusClasse;
-      return tr;
-    }
-
-    async function carregarResumoTripulantes() {
-      try {
-        const res = await fetch(`${API_URL}/tripulantes/resumo`, { credentials: 'include' });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
-        if (!res.ok) return;
-        const d = await res.json();
-
-        const el = (id) => document.getElementById(id);
-        if (el('crewKpiTotal')) el('crewKpiTotal').textContent = d.total;
-        if (el('crewKpiAvailable')) el('crewKpiAvailable').textContent = d.por_status?.['Disponível'] ?? '--';
-        if (el('crewKpiReserveHint')) el('crewKpiReserveHint').textContent =
-          (d.por_status?.['Reserva'] ?? 0) + ' ' + texto('crewKpiReserve', 'em reserva');
-        if (el('crewKpiCommanders')) el('crewKpiCommanders').textContent = d.por_cargo?.Comandante ?? '--';
-        if (el('crewKpiCopilotsHint')) el('crewKpiCopilotsHint').textContent =
-          (d.por_cargo?.Copiloto ?? 0) + ' ' + texto('roleCopilot', 'Copiloto');
-        if (el('crewKpiCabin')) el('crewKpiCabin').textContent = d.por_cargo?.['Comissário'] ?? '--';
-
-        const filtroBase = el('filtroBase');
-        if (filtroBase && filtroBase.options.length <= 1) {
-          const opcao = document.createElement('option');
-          opcao.value = '';
-          opcao.textContent = texto('crewAllBases', 'Todas as bases');
-          filtroBase.appendChild(opcao);
-          Object.keys(d.por_base || {}).sort().forEach((iata) => {
-            const o = document.createElement('option');
-            o.value = iata;
-            o.textContent = `${iata} (${d.por_base[iata]})`;
-            filtroBase.appendChild(o);
-          });
-        }
-      } catch (e) {
-        console.error('Resumo de tripulantes indisponivel:', e);
-      }
-    }
-
-    async function carregarTripulantes(forcar) {
-      if (estadoTripulantes.carregado && !forcar) return;
-
-      const tbody = document.getElementById('crewBaseBody');
-      const aviso = document.getElementById('crewStatus');
-      if (!tbody) return;
-
-      if (aviso) { aviso.style.color = 'var(--text-600-solid)'; aviso.textContent = texto('crewLoading', 'Carregando...'); }
-
-      const filtros = new URLSearchParams();
-      filtros.set('limite', '300');
-      if (estadoTripulantes.base) filtros.set('base', estadoTripulantes.base);
-      if (estadoTripulantes.cargo) filtros.set('cargo', estadoTripulantes.cargo);
-      if (estadoTripulantes.status) filtros.set('status', estadoTripulantes.status);
-
-      try {
-        const res = await fetch(`${API_URL}/tripulantes?${filtros.toString()}`, { credentials: 'include' });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-
-        const dados = await res.json();
-        tbody.innerHTML = '';
-
-        if (!dados.tripulantes.length) {
-          if (aviso) { aviso.style.color = 'var(--text-400)'; aviso.textContent = texto('crewEmpty', 'Nenhum resultado.'); }
-        } else {
-          dados.tripulantes.forEach((t) => tbody.appendChild(montarLinhaTripulante(t)));
-          if (aviso) { aviso.style.color = 'var(--green)'; aviso.textContent = ''; }
-        }
-
-        const total = document.getElementById('crewTotal');
-        const mostrados = document.getElementById('crewShown');
-        if (total) total.textContent = dados.total;
-        if (mostrados) mostrados.textContent = dados.retornados;
-
-        estadoTripulantes.carregado = true;
-        await carregarResumoTripulantes();
-      } catch (e) {
-        console.error('Falha ao carregar tripulantes:', e);
-        if (aviso) { aviso.style.color = 'var(--red)'; aviso.textContent = texto('crewError', 'Falha ao carregar.'); }
-      }
-    }
-
-    (function ligarFiltrosTripulantes() {
-      const aplicar = () => {
-        const fb = document.getElementById('filtroBase');
-        const fc = document.getElementById('filtroCargo');
-        const fs = document.getElementById('filtroStatus');
-        estadoTripulantes.base = fb ? fb.value : '';
-        estadoTripulantes.cargo = fc ? fc.value : '';
-        estadoTripulantes.status = fs ? fs.value : '';
-        estadoTripulantes.carregado = false;
-        carregarTripulantes(true);
-      };
-      ['filtroBase', 'filtroCargo', 'filtroStatus'].forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', aplicar);
-      });
-      const btn = document.getElementById('btnRefreshCrew');
-      if (btn) btn.addEventListener('click', () => carregarTripulantes(true));
-    })();
-
-
-    // ---------------------------------------------------------------------
-    // LEITURA DA ABA ESCALAS — dados reais do banco
-    //
-    // So LEITURA. Nenhum botao e alterado. Todo o bloco roda dentro de
-    // try/catch, entao uma falha aqui nao derruba o resto da pagina.
-    // ---------------------------------------------------------------------
-    try {
-      window.escalasDoBanco = [];
-
-      window.formatarHorasEscala = function (horas) {
-        var totalMin = Math.round((Number(horas) || 0) * 60);
-        var h = String(Math.floor(totalMin / 60)).padStart(2, '0');
-        var m = String(totalMin % 60).padStart(2, '0');
-        return h + 'h' + m;
-      };
-
-      window.escalaParaLinha = function (e) {
-        return {
-          tripulante: e.tripulante,
-          cargo: e.cargo,
-          voo: e.voo,
-          horas: e.horas,
-          limitRbac: window.formatarHorasEscala(e.limite_aplicado),
-          bloqueado: !e.conforme,
-          risco: !e.conforme ? 'alto' : (e.ocupacao_percentual >= 85 ? 'medio' : 'baixo'),
-          badgeKey: !e.conforme ? 'highFatigueRisk' : 'normalOperation',
-          rota: e.rota,
-          solucao: e.motivo,
-          desc: 'Ocupacao de ' + e.ocupacao_percentual + '% do teto apos a alocacao.'
-        };
-      };
-
-      window.carregarEscalasDoBanco = async function (silencioso) {
-        var aviso = document.getElementById('liveStatus');
-        try {
-          var res = await fetch(API_URL + '/escalas/alocacoes', { credentials: 'include' });
-          if (res.status === 401) { window.location.href = 'login.html'; return; }
-          if (!res.ok) { throw new Error('HTTP ' + res.status); }
-
-          var dados = await res.json();
-          var linhas = (dados.escalas || []).map(window.escalaParaLinha);
-          window.escalasDoBanco = linhas;
-
-          if (!linhas.length) {
-            // Limpa a tabela: sem isto os 9 itens do localStorage ficam na
-            // tela como se fossem dados do banco.
-            try {
-              var tb = document.getElementById('crewTable');
-              if (tb) tb.innerHTML = '';
-              var cap = document.getElementById('historyCaptionText');
-              if (cap) cap.textContent = 'Nenhuma escala publicada';
-            } catch (e) {}
-            if (aviso && !silencioso) {
-              aviso.style.color = 'var(--text-600-solid)';
-              aviso.textContent = 'Nenhuma escala publicada ainda. Use "Aplicar escala" para gravar uma.';
-            }
-            return;
-          }
-
-          var backup = dadosOperacionais;
-          dadosOperacionais = linhas;
-          try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
-
-          if (aviso && !silencioso) {
-            aviso.style.color = 'var(--green)';
-            aviso.textContent = dados.total + ' alocacao(oes) do banco - ' +
-                                dados.conformes + ' conforme(s) - ' + dados.data + '.';
-          }
-        } catch (err) {
-          console.error('Falha ao carregar escalas do banco:', err);
-          if (aviso && !silencioso) {
-            aviso.style.color = 'var(--red)';
-            aviso.textContent = 'Nao foi possivel carregar as escalas do banco.';
-          }
-        }
-      };
-    } catch (e) {
-      console.error('Modulo de escalas nao carregou:', e);
-    }
-
     const screens = document.querySelectorAll('.screen');
     const navButtons = document.querySelectorAll('.nav-btn[data-screen]');
     
     function switchScreen(name) {
-      try {
-        if (name === 'escalas' && typeof window.carregarEscalasDoBanco === 'function') {
-          window.carregarEscalasDoBanco(true);
-        }
-      } catch (e) { console.error('gancho escalas:', e); }
-
       try {
         screens.forEach(s => {
           if (s) s.hidden = (s.id !== 'screen-' + name);
@@ -2489,7 +1937,6 @@ window.addEventListener('DOMContentLoaded', async () => {
           }
         });
         try {
-          localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
         } catch(e){}
         gerarDisruptionsDinamicas();
         gerarEscalasDinamicas();
@@ -2513,10 +1960,9 @@ window.addEventListener('DOMContentLoaded', async () => {
           dadosOperacionais = JSON.parse(JSON.stringify(dadosSnapshotSimulacao));
           dadosSnapshotSimulacao = null;
         } else {
-          dadosOperacionais = JSON.parse(JSON.stringify(dadosOriginais));
+          dadosOperacionais = escalasDoBanco.slice();
         }
         try {
-          localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
         } catch(e){}
 
         gerarDisruptionsDinamicas();

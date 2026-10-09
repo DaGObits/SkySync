@@ -1,8 +1,16 @@
-﻿"""Fixtures compartilhadas dos testes.
+"""Fixtures compartilhadas dos testes.
 
-O banco de teste e um ARQUIVO SQLite temporario (nao :memory:): um banco em
-memoria e destruido quando a ultima conexao fecha, e como o init_db roda num
-app_context que se encerra antes da requisicao, o banco desaparecia.
+SOBRE O BANCO DE TESTE: os testes usam um ARQUIVO SQLite temporario, nao
+`:memory:`. O motivo custou caro para descobrir:
+
+  * no SQLite, cada `connect(":memory:")` abre um banco NOVO e vazio;
+  * um banco em memoria e DESTRUIDO quando a ultima conexao a ele fecha;
+  * o `init_db` roda num `app_context` que se encerra antes da requisicao de
+    teste — o teardown fechava a conexao, o banco desaparecia, e a requisicao
+    seguinte abria um banco vazio: `no such table: usuarios`.
+
+Um arquivo em disco resolve os dois: todas as conexoes abrem o MESMO arquivo,
+e as tabelas persistem entre contextos.
 """
 from __future__ import annotations
 
@@ -21,11 +29,13 @@ import db as db_module  # noqa: E402
 
 CAMINHO_BANCO = Path(os.getenv("SKYSYNC_TEST_DB", str(RAIZ / ".teste_skysync.db")))
 
+#: Tabelas limpas antes de cada teste. A ordem respeita as chaves estrangeiras.
 TABELAS = [
     "execucoes_otimizacao",
     "historico_escalas",
     "disrupcoes",
     "cenarios",
+    "tripulantes",
     "usuarios",
 ]
 
@@ -69,6 +79,7 @@ def client(app):
 
 @pytest.fixture
 def usuario_logado(client):
+    """Registra e autentica um usuario, devolvendo o cliente com sessao ativa."""
     client.post(
         "/api/auth/registrar",
         json={
@@ -118,3 +129,34 @@ def voo_factory():
         )
 
     return _criar
+
+
+@pytest.fixture
+def base_de_tripulantes(app, client):
+    """Popula a tabela tripulantes com uma amostra pequena e diversa.
+
+    Recebe `app` porque a fixture precisa de um app_context aberto: o
+    `db.get_conexao()` le `current_app.config`, e sem contexto ele estoura
+    `RuntimeError: Working outside of application context`.
+    """
+    from db import transacao
+
+    amostra = [
+        ("0001", "Iara", "Ramos", "Comandante", "GRU", "Disponível"),
+        ("0002", "Priscila", "Santos", "Comandante", "CWB", "Disponível"),
+        ("0003", "Matheus", "Amaral", "Comandante", "GRU", "Reserva"),
+        ("0101", "Ana", "Pinto", "Copiloto", "GRU", "Disponível"),
+        ("0102", "Rodrigo", "Coelho", "Copiloto", "SSA", "Disponível"),
+        ("0201", "Cecilia", "Guimarães", "Comissário", "GRU", "Disponível"),
+        ("0202", "Alice", "Aguiar", "Comissário", "GRU", "Disponível"),
+        ("0203", "Gustavo", "Souza", "Comissário", "NAT", "Reserva"),
+    ]
+    with app.app_context():
+        with transacao() as conexao:
+            for registro in amostra:
+                conexao.execute(
+                    "INSERT INTO tripulantes (id, nome, sobrenome, cargo, base, status) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
+                    registro,
+                )
+    return amostra

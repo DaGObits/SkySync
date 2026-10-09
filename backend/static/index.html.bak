@@ -558,8 +558,6 @@
       <li><button type="button" class="nav-btn" data-screen="painel" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg> <span data-i18n="menuPanel">Painel</span></button></li>
       <li><button type="button" class="nav-btn" data-screen="disrupcoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l9 16H3l9-16z"/><path d="M12 10v4M12 17h.01"/></svg> <span data-i18n="menuDisruptions">Disrupções</span></button></li>
       <li><button type="button" class="nav-btn" data-screen="escalas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="1.5"/><path d="M3 9h18M8 3v3M16 3v3"/></svg> <span data-i18n="menuSchedules">Escalas</span></button></li>
-
-      <li><button type="button" class="nav-btn" data-screen="tripulantes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0"/><path d="M16 5.5a3 3 0 010 5.9"/><path d="M17.5 20a5.2 5.2 0 00-2.2-4.3"/></svg> <span data-i18n="menuCrew">Tripulantes</span></button></li>
     </ul>
     <h2 data-i18n="navSystem">Sistema</h2>
     <ul>
@@ -684,85 +682,6 @@
       </div>
       <div id="liveStatus" role="status" aria-live="polite"></div>
     </section>
-
-    
-    <!-- ABA DE TRIPULANTES -->
-    <section class="screen" id="screen-tripulantes" aria-labelledby="tripulantes-h" tabindex="-1" hidden>
-      <h1 id="tripulantes-h" data-i18n="crewTitle">Tripulantes</h1>
-      <p class="lede" data-i18n="crewSubtitle">Base de tripulacao disponivel para otimizacao, por cargo, base e status.</p>
-
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-card-static">
-          <span class="kpi-label" data-i18n="crewKpiTotal">Tripulantes na base</span>
-          <span class="kpi-value" id="crewKpiTotal">--</span>
-          <span class="kpi-hint" data-i18n="crewKpiBases">bases distintas</span>
-        </div>
-        <div class="kpi-card kpi-card-static">
-          <span class="kpi-label" data-i18n="crewKpiAvailable">Disponiveis</span>
-          <span class="kpi-value" id="crewKpiAvailable">--</span>
-          <span class="kpi-hint" id="crewKpiReserveHint" data-i18n="crewKpiReserve">em reserva</span>
-        </div>
-        <div class="kpi-card kpi-card-static">
-          <span class="kpi-label" data-i18n="crewKpiCommanders">Comandantes</span>
-          <span class="kpi-value" id="crewKpiCommanders">--</span>
-          <span class="kpi-hint" id="crewKpiCopilotsHint">--</span>
-        </div>
-        <div class="kpi-card kpi-card-static">
-          <span class="kpi-label" data-i18n="crewKpiCabin">Tripulantes de cabine</span>
-          <span class="kpi-value" id="crewKpiCabin">--</span>
-          <span class="kpi-hint" data-i18n="crewKpiHint">no pool do otimizador</span>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <div class="table-toolbar">
-          <span id="crewCaption">
-            <span id="crewShown">0</span> <span data-i18n="crewOfWord">de</span>
-            <span id="crewTotal">0</span> <span data-i18n="crewMembersWord">tripulantes</span>
-          </span>
-          <div class="history-controls">
-            <label class="crew-filter-label">
-              <span data-i18n="filterBase">Base</span>
-              <select id="filtroBase" class="setting-input"></select>
-            </label>
-            <label class="crew-filter-label">
-              <span data-i18n="filterRole">Cargo</span>
-              <select id="filtroCargo" class="setting-input">
-                <option value="" data-i18n="filterAllRoles">Todos</option>
-                <option value="Comandante" data-i18n="roleCommander">Comandante</option>
-                <option value="Copiloto" data-i18n="roleCopilot">Copiloto</option>
-                <option value="Comissário" data-i18n="roleCabin">Comissario</option>
-              </select>
-            </label>
-            <label class="crew-filter-label">
-              <span data-i18n="filterStatus">Status</span>
-              <select id="filtroStatus" class="setting-input">
-                <option value="" data-i18n="filterAllStatus">Todos</option>
-                <option value="Disponível" data-i18n="statusAvailable">Disponivel</option>
-                <option value="Reserva" data-i18n="statusReserve">Reserva</option>
-              </select>
-            </label>
-            <button type="button" class="btn-refresh-table" id="btnRefreshCrew" data-i18n="btnRefreshCrew">Atualizar</button>
-          </div>
-        </div>
-        <table id="crewBaseTable" aria-label="Base de tripulantes disponiveis">
-          <thead>
-            <tr>
-              <th scope="col" data-i18n="thCrewId">ID</th>
-              <th scope="col" data-i18n="thCrewName">Nome</th>
-              <th scope="col" data-i18n="thCrewRole">Cargo</th>
-              <th scope="col" data-i18n="thCrewBase">Base</th>
-              <th scope="col" data-i18n="thCrewStatus">Status</th>
-            </tr>
-          </thead>
-          <tbody id="crewBaseBody">
-            <!-- Preenchido por carregarTripulantes() -->
-          </tbody>
-        </table>
-      </div>
-      <div id="crewStatus" role="status" aria-live="polite"></div>
-    </section>
-
 
     <!-- ABA DE CONFIGURAÇÕES -->
     <section class="screen" id="screen-configuracoes" aria-labelledby="config-h" tabindex="-1" hidden>
@@ -1022,38 +941,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         menuPanel: 'Painel',
         menuDisruptions: 'Disrupções',
         menuSchedules: 'Escalas',
-        menuCrew: 'Tripulantes',
-        crewTitle: 'Tripulantes',
-        crewSubtitle: 'Base de tripulação disponível para otimização, por cargo, base e status.',
-        crewKpiTotal: 'Tripulantes na base',
-        crewKpiBases: 'bases distintas',
-        crewKpiAvailable: 'Disponíveis',
-        crewKpiReserve: 'em reserva',
-        crewKpiCommanders: 'Comandantes',
-        crewKpiCabin: 'Tripulantes de cabine',
-        crewKpiHint: 'no pool do otimizador',
-        crewOfWord: 'de',
-        crewMembersWord: 'tripulantes',
-        filterBase: 'Base',
-        filterRole: 'Cargo',
-        filterAllRoles: 'Todos',
-        filterStatus: 'Status',
-        filterAllStatus: 'Todos',
-        roleCommander: 'Comandante',
-        roleCopilot: 'Copiloto',
-        roleCabin: 'Comissário',
-        statusAvailable: 'Disponível',
-        statusReserve: 'Reserva',
-        btnRefreshCrew: '🔄 Atualizar',
-        thCrewId: 'ID',
-        thCrewName: 'Nome',
-        thCrewRole: 'Cargo',
-        thCrewBase: 'Base',
-        thCrewStatus: 'Status',
-        crewLoading: 'Carregando tripulantes...',
-        crewEmpty: 'Nenhum tripulante encontrado com esses filtros.',
-        crewError: 'Não foi possível carregar a base de tripulantes.',
-        crewAllBases: 'Todas as bases',
         navSystem: 'Sistema',
         menuSettings: 'Configurações',
         panelTitle: 'Painel de replanejamento — Base',
@@ -1159,38 +1046,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         menuPanel: 'Dashboard',
         menuDisruptions: 'Disruptions',
         menuSchedules: 'Schedules',
-        menuCrew: 'Tripulantes',
-        crewTitle: 'Tripulantes',
-        crewSubtitle: 'Base de tripulação disponível para otimização, por cargo, base e status.',
-        crewKpiTotal: 'Tripulantes na base',
-        crewKpiBases: 'bases distintas',
-        crewKpiAvailable: 'Disponíveis',
-        crewKpiReserve: 'em reserva',
-        crewKpiCommanders: 'Comandantes',
-        crewKpiCabin: 'Tripulantes de cabine',
-        crewKpiHint: 'no pool do otimizador',
-        crewOfWord: 'de',
-        crewMembersWord: 'tripulantes',
-        filterBase: 'Base',
-        filterRole: 'Cargo',
-        filterAllRoles: 'Todos',
-        filterStatus: 'Status',
-        filterAllStatus: 'Todos',
-        roleCommander: 'Comandante',
-        roleCopilot: 'Copiloto',
-        roleCabin: 'Comissário',
-        statusAvailable: 'Disponível',
-        statusReserve: 'Reserva',
-        btnRefreshCrew: '🔄 Atualizar',
-        thCrewId: 'ID',
-        thCrewName: 'Nome',
-        thCrewRole: 'Cargo',
-        thCrewBase: 'Base',
-        thCrewStatus: 'Status',
-        crewLoading: 'Carregando tripulantes...',
-        crewEmpty: 'Nenhum tripulante encontrado com esses filtros.',
-        crewError: 'Não foi possível carregar a base de tripulantes.',
-        crewAllBases: 'Todas as bases',
         navSystem: 'System',
         menuSettings: 'Settings',
         panelTitle: 'Rescheduling Dashboard — Base',
@@ -1296,38 +1151,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         menuPanel: 'Panel',
         menuDisruptions: 'Disrupciones',
         menuSchedules: 'Tripulaciones',
-        menuCrew: 'Tripulantes',
-        crewTitle: 'Tripulantes',
-        crewSubtitle: 'Base de tripulação disponível para otimização, por cargo, base e status.',
-        crewKpiTotal: 'Tripulantes na base',
-        crewKpiBases: 'bases distintas',
-        crewKpiAvailable: 'Disponíveis',
-        crewKpiReserve: 'em reserva',
-        crewKpiCommanders: 'Comandantes',
-        crewKpiCabin: 'Tripulantes de cabine',
-        crewKpiHint: 'no pool do otimizador',
-        crewOfWord: 'de',
-        crewMembersWord: 'tripulantes',
-        filterBase: 'Base',
-        filterRole: 'Cargo',
-        filterAllRoles: 'Todos',
-        filterStatus: 'Status',
-        filterAllStatus: 'Todos',
-        roleCommander: 'Comandante',
-        roleCopilot: 'Copiloto',
-        roleCabin: 'Comissário',
-        statusAvailable: 'Disponível',
-        statusReserve: 'Reserva',
-        btnRefreshCrew: '🔄 Atualizar',
-        thCrewId: 'ID',
-        thCrewName: 'Nome',
-        thCrewRole: 'Cargo',
-        thCrewBase: 'Base',
-        thCrewStatus: 'Status',
-        crewLoading: 'Carregando tripulantes...',
-        crewEmpty: 'Nenhum tripulante encontrado com esses filtros.',
-        crewError: 'Não foi possível carregar a base de tripulantes.',
-        crewAllBases: 'Todas as bases',
         navSystem: 'Sistema',
         menuSettings: 'Configuración',
         panelTitle: 'Panel de reprogramación — Base',
@@ -1549,65 +1372,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       gerarEscalasDinamicas();
     }
 
-
-    // ---------------------------------------------------------------------
-    // LEITURA DO BANCO — aditivo.
-    //
-    // Roda DEPOIS de carregarDadosLocais(). Se a API responder com escalas,
-    // elas substituem os itens locais. Se falhar, nada muda: a tela continua
-    // exatamente como estava.
-    //
-    // Todo o bloco esta em try/catch: uma falha aqui nao derruba a pagina.
-    // ---------------------------------------------------------------------
-    function buscarEscalasDoBanco() {
-      try {
-        fetch(API_URL + '/escalas/alocacoes', { credentials: 'include' })
-          .then(function (res) {
-            if (!res.ok) return null;
-            return res.json();
-          })
-          .then(function (dados) {
-            if (!dados || !dados.escalas || !dados.escalas.length) return;
-
-            var linhas = dados.escalas.map(function (e) {
-              var min = Math.round((Number(e.limite_aplicado) || 0) * 60);
-              var teto = String(Math.floor(min / 60)).padStart(2, '0') + 'h' +
-                         String(min % 60).padStart(2, '0');
-              return {
-                tripulante: e.tripulante,
-                cargo: e.cargo,
-                voo: e.voo,
-                horas: e.horas,
-                limitRbac: teto,
-                bloqueado: !e.conforme,
-                risco: !e.conforme ? 'alto' : (e.ocupacao_percentual >= 85 ? 'medio' : 'baixo'),
-                badgeKey: !e.conforme ? 'highFatigueRisk' : 'normalOperation',
-                rota: e.rota,
-                solucao: e.motivo,
-                desc: 'Ocupacao de ' + e.ocupacao_percentual + '% do teto.'
-              };
-            });
-
-            dadosOperacionais = linhas;
-            gerarEscalasDinamicas();
-
-            var cap = document.getElementById('historyCaptionText');
-            if (cap) {
-              cap.textContent = dados.total + ' alocacao(oes) do banco em ' + dados.data +
-                                ' (' + dados.conformes + ' conformes)';
-            }
-            showStatus(dados.total + ' alocacao(oes) carregada(s) do banco.', 'ok');
-          })
-          .catch(function (e) { console.error('Banco indisponivel, mantendo dados locais:', e); });
-      } catch (e) {
-        console.error('buscarEscalasDoBanco falhou:', e);
-      }
-    }
-
     carregarDadosLocais();
-
-    // Tenta o banco imediatamente depois dos dados locais.
-    buscarEscalasDoBanco();
 
     function registrarNovoHistorico(novoConjunto) {
       historicoEscalas.push(JSON.parse(JSON.stringify(novoConjunto)));
@@ -2082,221 +1847,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     tick();
     setInterval(tick, 1000);
 
-
-    // ---------------------------------------------------------------------
-    // ABA DE TRIPULANTES
-    // Carrega a base real do banco via /api/tripulantes. Sem lista fixa no
-    // HTML: o que a tela mostra vem da mesma tabela que o otimizador consulta.
-    // ---------------------------------------------------------------------
-    const estadoTripulantes = { base: '', cargo: '', status: '', carregado: false };
-
-    function texto(chave, padrao) {
-      const dict = (translations[settings.idioma] || translations['pt-BR']);
-      return dict[chave] || padrao || chave;
-    }
-
-    function montarLinhaTripulante(t) {
-      const tr = document.createElement('tr');
-      const statusClasse = t.status === 'Reserva' ? 'over' : '';
-      tr.innerHTML = `
-        <td class="hours">${t.id}</td>
-        <td><span class="crew-name">${t.nome_completo}</span></td>
-        <td>${t.cargo}</td>
-        <td class="hours">${t.base}</td>
-        <td><span class="limit-tag">${t.status}</span></td>
-      `;
-      void statusClasse;
-      return tr;
-    }
-
-    async function carregarResumoTripulantes() {
-      try {
-        const res = await fetch(`${API_URL}/tripulantes/resumo`, { credentials: 'include' });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
-        if (!res.ok) return;
-        const d = await res.json();
-
-        const el = (id) => document.getElementById(id);
-        if (el('crewKpiTotal')) el('crewKpiTotal').textContent = d.total;
-        if (el('crewKpiAvailable')) el('crewKpiAvailable').textContent = d.por_status?.['Disponível'] ?? '--';
-        if (el('crewKpiReserveHint')) el('crewKpiReserveHint').textContent =
-          (d.por_status?.['Reserva'] ?? 0) + ' ' + texto('crewKpiReserve', 'em reserva');
-        if (el('crewKpiCommanders')) el('crewKpiCommanders').textContent = d.por_cargo?.Comandante ?? '--';
-        if (el('crewKpiCopilotsHint')) el('crewKpiCopilotsHint').textContent =
-          (d.por_cargo?.Copiloto ?? 0) + ' ' + texto('roleCopilot', 'Copiloto');
-        if (el('crewKpiCabin')) el('crewKpiCabin').textContent = d.por_cargo?.['Comissário'] ?? '--';
-
-        const filtroBase = el('filtroBase');
-        if (filtroBase && filtroBase.options.length <= 1) {
-          const opcao = document.createElement('option');
-          opcao.value = '';
-          opcao.textContent = texto('crewAllBases', 'Todas as bases');
-          filtroBase.appendChild(opcao);
-          Object.keys(d.por_base || {}).sort().forEach((iata) => {
-            const o = document.createElement('option');
-            o.value = iata;
-            o.textContent = `${iata} (${d.por_base[iata]})`;
-            filtroBase.appendChild(o);
-          });
-        }
-      } catch (e) {
-        console.error('Resumo de tripulantes indisponivel:', e);
-      }
-    }
-
-    async function carregarTripulantes(forcar) {
-      if (estadoTripulantes.carregado && !forcar) return;
-
-      const tbody = document.getElementById('crewBaseBody');
-      const aviso = document.getElementById('crewStatus');
-      if (!tbody) return;
-
-      if (aviso) { aviso.style.color = 'var(--text-600-solid)'; aviso.textContent = texto('crewLoading', 'Carregando...'); }
-
-      const filtros = new URLSearchParams();
-      filtros.set('limite', '300');
-      if (estadoTripulantes.base) filtros.set('base', estadoTripulantes.base);
-      if (estadoTripulantes.cargo) filtros.set('cargo', estadoTripulantes.cargo);
-      if (estadoTripulantes.status) filtros.set('status', estadoTripulantes.status);
-
-      try {
-        const res = await fetch(`${API_URL}/tripulantes?${filtros.toString()}`, { credentials: 'include' });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-
-        const dados = await res.json();
-        tbody.innerHTML = '';
-
-        if (!dados.tripulantes.length) {
-          if (aviso) { aviso.style.color = 'var(--text-400)'; aviso.textContent = texto('crewEmpty', 'Nenhum resultado.'); }
-        } else {
-          dados.tripulantes.forEach((t) => tbody.appendChild(montarLinhaTripulante(t)));
-          if (aviso) { aviso.style.color = 'var(--green)'; aviso.textContent = ''; }
-        }
-
-        const total = document.getElementById('crewTotal');
-        const mostrados = document.getElementById('crewShown');
-        if (total) total.textContent = dados.total;
-        if (mostrados) mostrados.textContent = dados.retornados;
-
-        estadoTripulantes.carregado = true;
-        await carregarResumoTripulantes();
-      } catch (e) {
-        console.error('Falha ao carregar tripulantes:', e);
-        if (aviso) { aviso.style.color = 'var(--red)'; aviso.textContent = texto('crewError', 'Falha ao carregar.'); }
-      }
-    }
-
-    (function ligarFiltrosTripulantes() {
-      const aplicar = () => {
-        const fb = document.getElementById('filtroBase');
-        const fc = document.getElementById('filtroCargo');
-        const fs = document.getElementById('filtroStatus');
-        estadoTripulantes.base = fb ? fb.value : '';
-        estadoTripulantes.cargo = fc ? fc.value : '';
-        estadoTripulantes.status = fs ? fs.value : '';
-        estadoTripulantes.carregado = false;
-        carregarTripulantes(true);
-      };
-      ['filtroBase', 'filtroCargo', 'filtroStatus'].forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', aplicar);
-      });
-      const btn = document.getElementById('btnRefreshCrew');
-      if (btn) btn.addEventListener('click', () => carregarTripulantes(true));
-    })();
-
-
-    // ---------------------------------------------------------------------
-    // LEITURA DA ABA ESCALAS — dados reais do banco
-    //
-    // So LEITURA. Nenhum botao e alterado. Todo o bloco roda dentro de
-    // try/catch, entao uma falha aqui nao derruba o resto da pagina.
-    // ---------------------------------------------------------------------
-    try {
-      window.escalasDoBanco = [];
-
-      window.formatarHorasEscala = function (horas) {
-        var totalMin = Math.round((Number(horas) || 0) * 60);
-        var h = String(Math.floor(totalMin / 60)).padStart(2, '0');
-        var m = String(totalMin % 60).padStart(2, '0');
-        return h + 'h' + m;
-      };
-
-      window.escalaParaLinha = function (e) {
-        return {
-          tripulante: e.tripulante,
-          cargo: e.cargo,
-          voo: e.voo,
-          horas: e.horas,
-          limitRbac: window.formatarHorasEscala(e.limite_aplicado),
-          bloqueado: !e.conforme,
-          risco: !e.conforme ? 'alto' : (e.ocupacao_percentual >= 85 ? 'medio' : 'baixo'),
-          badgeKey: !e.conforme ? 'highFatigueRisk' : 'normalOperation',
-          rota: e.rota,
-          solucao: e.motivo,
-          desc: 'Ocupacao de ' + e.ocupacao_percentual + '% do teto apos a alocacao.'
-        };
-      };
-
-      window.carregarEscalasDoBanco = async function (silencioso) {
-        var aviso = document.getElementById('liveStatus');
-        try {
-          var res = await fetch(API_URL + '/escalas/alocacoes', { credentials: 'include' });
-          if (res.status === 401) { window.location.href = 'login.html'; return; }
-          if (!res.ok) { throw new Error('HTTP ' + res.status); }
-
-          var dados = await res.json();
-          var linhas = (dados.escalas || []).map(window.escalaParaLinha);
-          window.escalasDoBanco = linhas;
-
-          if (!linhas.length) {
-            // Limpa a tabela: sem isto os 9 itens do localStorage ficam na
-            // tela como se fossem dados do banco.
-            try {
-              var tb = document.getElementById('crewTable');
-              if (tb) tb.innerHTML = '';
-              var cap = document.getElementById('historyCaptionText');
-              if (cap) cap.textContent = 'Nenhuma escala publicada';
-            } catch (e) {}
-            if (aviso && !silencioso) {
-              aviso.style.color = 'var(--text-600-solid)';
-              aviso.textContent = 'Nenhuma escala publicada ainda. Use "Aplicar escala" para gravar uma.';
-            }
-            return;
-          }
-
-          var backup = dadosOperacionais;
-          dadosOperacionais = linhas;
-          try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
-
-          if (aviso && !silencioso) {
-            aviso.style.color = 'var(--green)';
-            aviso.textContent = dados.total + ' alocacao(oes) do banco - ' +
-                                dados.conformes + ' conforme(s) - ' + dados.data + '.';
-          }
-        } catch (err) {
-          console.error('Falha ao carregar escalas do banco:', err);
-          if (aviso && !silencioso) {
-            aviso.style.color = 'var(--red)';
-            aviso.textContent = 'Nao foi possivel carregar as escalas do banco.';
-          }
-        }
-      };
-    } catch (e) {
-      console.error('Modulo de escalas nao carregou:', e);
-    }
-
     const screens = document.querySelectorAll('.screen');
     const navButtons = document.querySelectorAll('.nav-btn[data-screen]');
     
     function switchScreen(name) {
-      try {
-        if (name === 'escalas' && typeof window.carregarEscalasDoBanco === 'function') {
-          window.carregarEscalasDoBanco(true);
-        }
-      } catch (e) { console.error('gancho escalas:', e); }
-
       try {
         screens.forEach(s => {
           if (s) s.hidden = (s.id !== 'screen-' + name);
