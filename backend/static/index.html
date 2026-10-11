@@ -677,12 +677,32 @@
 
       <h2 class="section-sub" id="acoes-h" data-i18n="simulationActionsTitle">Simulação e ações</h2>
       <div class="actions">
-        <button class="btn btn-ghost" id="btnSimular" type="button" data-i18n="btnSimulate">Simular replanejamento</button>
         <button class="btn btn-success" id="btnAplicar" type="button" data-i18n="btnApply">Aplicar escala automática</button>
         <button class="btn btn-primary" id="btnDesfazer" type="button" disabled data-i18n="btnUndo">Desfazer</button>
-        <span class="actions-note" data-i18n="actionsNote">A simulação recalcula jornadas sem alterar a escala publicada.</span>
+        <span class="actions-note" data-i18n="actionsNote">A escala é calculada pelo motor CP-SAT sobre a malha de voos e as jornadas do banco, e publicada com a análise de conformidade.</span>
       </div>
       <div id="liveStatus" role="status" aria-live="polite"></div>
+
+      <div id="painelMudancas" class="table-wrap" hidden>
+        <div class="table-toolbar">
+          <span data-i18n="changesTitle">Mudanças em relação à escala anterior</span>
+          <div class="history-controls">
+            <button type="button" class="btn-history-nav" id="btnFecharMudancas">Fechar</button>
+          </div>
+        </div>
+        <div id="resumoMudancas" style="padding: 12px 14px; font-size: .9rem;"></div>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="thCrew">Tripulante</th>
+              <th scope="col" data-i18n="thFlight">Voo anterior</th>
+              <th scope="col" data-i18n="thFlight">Voo novo</th>
+              <th scope="col">Situação</th>
+            </tr>
+          </thead>
+          <tbody id="corpoMudancas"></tbody>
+        </table>
+      </div>
     </section>
 
     
@@ -2060,6 +2080,8 @@ window.addEventListener('DOMContentLoaded', async () => {
           : 'Simulando — a escala publicada nao sera alterada.';
       }
 
+      var escalaAntes = capturarEscalaAtual();
+
       fetch(API_URL + '/escalas/otimizar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2097,6 +2119,8 @@ window.addEventListener('DOMContentLoaded', async () => {
           dadosOperacionais = linhas;
           try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
 
+          var mudancas = compararEscalas(escalaAntes, linhas);
+
           var resumo = d.status + ' · ' + d.total_alocacoes + ' alocacao(oes) · ' +
                        'conformidade ' + d.conformidade + '% · ' + d.wall_time_seconds + 's';
 
@@ -2108,6 +2132,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
           var eng = document.getElementById('engineLabel');
           if (eng) eng.textContent = 'Motor CP-SAT — ' + d.status;
+
+          if (gravar) { mostrarMudancas(mudancas, resumo); }
         })
         .catch(function (err) {
           console.error('Falha na otimizacao:', err);
@@ -2120,6 +2146,100 @@ window.addEventListener('DOMContentLoaded', async () => {
           if (btnS) { btnS.disabled = false; btnS.innerText = rotuloS; }
           if (btnA) { btnA.disabled = false; btnA.innerText = rotuloA; }
         });
+    }
+
+
+    // ---------------------------------------------------------------------
+    // PAINEL DE MUDANCAS
+    //
+    // Guarda a escala que estava na TELA antes de aplicar, e depois compara
+    // com a que voltou do motor. Mostra quem trocou de voo, quem entrou e
+    // quem saiu — que e o que evidencia o replanejamento acontecendo.
+    // ---------------------------------------------------------------------
+    function capturarEscalaAtual() {
+      try {
+        return (dadosOperacionais || []).map(function (d) {
+          return { tripulante: d.tripulante, voo: d.voo, cargo: d.cargo };
+        });
+      } catch (e) { return []; }
+    }
+
+    function compararEscalas(antes, depois) {
+      var porNome = {};
+      antes.forEach(function (a) { if (a.tripulante) porNome[a.tripulante] = a; });
+
+      var mudancas = [];
+      var vistos = {};
+
+      depois.forEach(function (d) {
+        if (!d.tripulante) return;
+        vistos[d.tripulante] = true;
+        var a = porNome[d.tripulante];
+
+        if (!a) {
+          mudancas.push({ tripulante: d.tripulante, antes: '—', depois: d.voo, situacao: 'entrou' });
+        } else if (a.voo !== d.voo) {
+          mudancas.push({ tripulante: d.tripulante, antes: a.voo, depois: d.voo, situacao: 'trocou' });
+        }
+      });
+
+      antes.forEach(function (a) {
+        if (a.tripulante && !vistos[a.tripulante]) {
+          mudancas.push({ tripulante: a.tripulante, antes: a.voo, depois: '—', situacao: 'saiu' });
+        }
+      });
+
+      return mudancas;
+    }
+
+    function mostrarMudancas(mudancas, resumo) {
+      try {
+        var painel = document.getElementById('painelMudancas');
+        var corpo = document.getElementById('corpoMudancas');
+        var texto = document.getElementById('resumoMudancas');
+        if (!painel || !corpo) return;
+
+        corpo.innerHTML = '';
+
+        var trocaram = mudancas.filter(function (m) { return m.situacao === 'trocou'; }).length;
+        var entrou = mudancas.filter(function (m) { return m.situacao === 'entrou'; }).length;
+        var saiu = mudancas.filter(function (m) { return m.situacao === 'saiu'; }).length;
+
+        if (texto) {
+          texto.innerHTML = resumo + '<br><strong>' +
+            trocaram + '</strong> trocaram de voo · <strong>' +
+            entrou + '</strong> entraram · <strong>' +
+            saiu + '</strong> saíram · <strong>' +
+            (mudancas.length) + '</strong> mudanças no total';
+        }
+
+        var ordem = { trocou: 1, entrou: 2, saiu: 3 };
+        mudancas.sort(function (a, b) { return (ordem[a.situacao] || 9) - (ordem[b.situacao] || 9); });
+
+        mudancas.slice(0, 200).forEach(function (m) {
+          var tr = document.createElement('tr');
+          var cor = m.situacao === 'trocou' ? 'var(--amber)' :
+                    (m.situacao === 'entrou' ? 'var(--green)' : 'var(--red)');
+          tr.innerHTML =
+            '<td><span class="crew-name">' + m.tripulante + '</span></td>' +
+            '<td class="hours">' + m.antes + '</td>' +
+            '<td class="hours">' + m.depois + '</td>' +
+            '<td><span class="limit-tag" style="color:' + cor + '">' + m.situacao + '</span></td>';
+          corpo.appendChild(tr);
+        });
+
+        painel.hidden = mudancas.length === 0;
+
+        var btnFechar = document.getElementById('btnFecharMudancas');
+        if (btnFechar && !btnFechar.dataset.ligado) {
+          btnFechar.dataset.ligado = '1';
+          btnFechar.addEventListener('click', function () {
+            document.getElementById('painelMudancas').hidden = true;
+          });
+        }
+      } catch (e) {
+        console.error('painel de mudancas:', e);
+      }
     }
 
     var rodarMotor = executarMotor;
