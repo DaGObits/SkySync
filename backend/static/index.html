@@ -2007,6 +2007,123 @@ window.addEventListener('DOMContentLoaded', async () => {
       addFeedItem(`Escala automática aplicada na Versão ${indiceHistoricoAtual + 1}: todos os registros conformes.`);
     }
 
+
+    // ---------------------------------------------------------------------
+    // BOTAO DE OTIMIZACAO — ligado ao motor CP-SAT
+    //
+    // Antes, os dois botoes reescreviam os dados na mao (risco='baixo',
+    // solucao='Conforme ANAC aplicada') sem calcular nada. Agora chamam
+    // /api/escalas/otimizar, que roda o CP-SAT sobre `voos` e `jornadas`.
+    //
+    // Todo o bloco esta em try/catch: uma falha aqui nao derruba a pagina.
+    // ---------------------------------------------------------------------
+    function horasFormatadas(horas) {
+      var totalMin = Math.round((Number(horas) || 0) * 60);
+      return String(Math.floor(totalMin / 60)).padStart(2, '0') + 'h' +
+             String(totalMin % 60).padStart(2, '0');
+    }
+
+    function alocacaoParaLinha(a) {
+      var antes = Number(a.horas_antes) || 0;
+      var limite = Number(a.limite_aplicado) || 11;
+      var depois = antes + (Number(a.duracao_horas) || 0);
+      var ocupacao = limite ? Math.round((depois / limite) * 1000) / 10 : 0;
+      var conforme = depois <= limite;
+      return {
+        tripulante: a.tripulante,
+        cargo: a.cargo,
+        voo: a.voo,
+        horas: a.horas || horasFormatadas(a.duracao_horas),
+        limitRbac: horasFormatadas(limite),
+        bloqueado: !conforme,
+        risco: !conforme ? 'alto' : (ocupacao >= 85 ? 'medio' : 'baixo'),
+        badgeKey: !conforme ? 'highFatigueRisk' : 'normalOperation',
+        rota: a.rota,
+        solucao: a.motivo || (conforme ? 'Alocada pelo motor CP-SAT' : 'Excede o limite'),
+        desc: 'Ocupacao de ' + ocupacao + '% do teto apos a alocacao.'
+      };
+    }
+
+    function executarMotor(gravar) {
+      var aviso = document.getElementById('liveStatus');
+      var btnS = document.getElementById('btnSimular');
+      var btnA = document.getElementById('btnAplicar');
+      var rotuloS = btnS ? btnS.innerText : '';
+      var rotuloA = btnA ? btnA.innerText : '';
+
+      if (btnS) { btnS.disabled = true; btnS.innerText = 'Executando...'; }
+      if (btnA) { btnA.disabled = true; }
+      if (aviso) {
+        aviso.style.color = 'var(--text-600-solid)';
+        aviso.textContent = gravar
+          ? 'Executando o motor e publicando a escala...'
+          : 'Simulando — a escala publicada nao sera alterada.';
+      }
+
+      fetch(API_URL + '/escalas/otimizar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ limite_voos: 15, gravar: gravar === true })
+      })
+        .then(function (res) {
+          return res.json().then(function (dados) { return { status: res.status, dados: dados }; });
+        })
+        .then(function (r) {
+          if (r.status === 401) { window.location.href = 'login.html'; return; }
+
+          if (r.status === 409) {
+            var causas = (r.dados.diagnostico && r.dados.diagnostico.causas) || [];
+            if (aviso) {
+              aviso.style.color = 'var(--red)';
+              aviso.textContent = 'Inviavel: ' + causas.join(' ');
+            }
+            addFeedItem('Otimizacao inviavel: ' + causas.join(' '));
+            return;
+          }
+
+          if (r.status !== 200) {
+            if (aviso) {
+              aviso.style.color = 'var(--red)';
+              aviso.textContent = r.dados.mensagem || 'O motor nao convergiu.';
+            }
+            return;
+          }
+
+          var d = r.dados;
+          var linhas = (d.alocacoes || []).map(alocacaoParaLinha);
+
+          var backup = dadosOperacionais;
+          dadosOperacionais = linhas;
+          try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
+
+          var resumo = d.status + ' · ' + d.total_alocacoes + ' alocacao(oes) · ' +
+                       'conformidade ' + d.conformidade + '% · ' + d.wall_time_seconds + 's';
+
+          if (aviso) {
+            aviso.style.color = gravar ? 'var(--green)' : 'var(--text-600-solid)';
+            aviso.textContent = (gravar ? 'Escala publicada: ' : 'Simulacao (nao publicada): ') + resumo;
+          }
+          addFeedItem((gravar ? 'Escala publicada no banco: ' : 'Simulacao: ') + resumo);
+
+          var eng = document.getElementById('engineLabel');
+          if (eng) eng.textContent = 'Motor CP-SAT — ' + d.status;
+        })
+        .catch(function (err) {
+          console.error('Falha na otimizacao:', err);
+          if (aviso) {
+            aviso.style.color = 'var(--red)';
+            aviso.textContent = 'Nao foi possivel falar com o motor.';
+          }
+        })
+        .finally(function () {
+          if (btnS) { btnS.disabled = false; btnS.innerText = rotuloS; }
+          if (btnA) { btnA.disabled = false; btnA.innerText = rotuloA; }
+        });
+    }
+
+    var rodarMotor = executarMotor;
+
     const nowBase = new Date();
     const feedItemsData = [
       { text: 'Voo GLO-4412 pousou normalmente dentro do horário previsto.', time: new Date(nowBase.getTime() - 12 * 60 * 1000) },
@@ -2476,34 +2593,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (btnSimular) {
-      btnSimular.addEventListener('click', () => {
-        dadosSnapshotSimulacao = JSON.parse(JSON.stringify(dadosOperacionais));
-
-        dadosOperacionais.forEach(d => {
-          if (d.risco === 'alto' || d.risco === 'medio') {
-            d.risco = 'baixo';
-            d.badgeKey = 'normalOperation';
-            d.bloqueado = false;
-            d.solucao = 'replanejado com sucesso';
-            d.horas = '06h30';
-          }
-        });
-        try {
-          localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
-        } catch(e){}
-        gerarDisruptionsDinamicas();
-        gerarEscalasDinamicas();
-
-        if (engineLabel) engineLabel.textContent = 'Simulação em andamento — conflitos atenuados';
-        showStatus('Simulação executada com sucesso. Clique em "Desfazer" para retornar à visualização das disrupções anteriores.', 'ok-msg');
-        if (btnDesfazer) btnDesfazer.disabled = false;
-        addFeedItem('Simulação de replanejamento executada: conflitos mitigados temporariamente.');
+      btnSimular.addEventListener('click', function () {
+        rodarMotor(false);
       });
     }
 
     if (btnAplicar) {
-      btnAplicar.addEventListener('click', () => {
-        aplicarEscalaAutomaticaNaVersaoAtual();
+      btnAplicar.addEventListener('click', function () {
+        rodarMotor(true);
       });
     }
 
