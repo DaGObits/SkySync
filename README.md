@@ -243,12 +243,11 @@ backend/
 
 Medições com o gerador de cenários (seed 42), composição de 5 tripulantes por voo:
 
-| Voos | Tripulantes | Alocações | Variáveis | Tempo | Status |
-|---|---|---|---|---|---|
-| 25 | 179 | 125 | 4.415 | 3,8 s | OPTIMAL |
-| 50 | 357 | 250 | 14.036 | 4,2 s | OPTIMAL |
-| 100 | 575 | 500 | 56.426 | 41,5 s | OPTIMAL |
-| 150 | ~864 | 750 | ~130.000 | > 60 s | tempo esgotado |
+| Voos | Variáveis | Tempo | Status |
+|---|---|---|---|
+| 25 | 2.078 | 0,29 s | OPTIMAL |
+| 50 | 7.704 | 1,62 s | OPTIMAL |
+| 100 | 29.773 | 11,90 s | OPTIMAL |
 
 O modelo cria uma variável por par (tripulante, voo), então o crescimento é quadrático — e o tempo cresce mais rápido que o número de variáveis.
 
