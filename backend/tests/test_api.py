@@ -231,15 +231,15 @@ def _payload_composicao(voos=1):
     tripulantes = []
     for i in range(voos):
         tripulantes += [
-            {"id": f"cm{i}", "nome": f"CM {i}", "cargo": "Comandante",
+            {"id": f"cm{i}", "nome": f"CM {i}", "base": "GRU", "cargo": "Comandante",
              "horas_acumuladas": 1.0, "limite_horas": 11.0},
-            {"id": f"cp{i}", "nome": f"CP {i}", "cargo": "Copiloto",
+            {"id": f"cp{i}", "nome": f"CP {i}", "base": "GRU", "cargo": "Copiloto",
              "horas_acumuladas": 1.0, "limite_horas": 11.0},
-            {"id": f"cc{i}a", "nome": f"CC {i}A", "cargo": "Comissário",
+            {"id": f"cc{i}a", "nome": f"CC {i}A", "base": "GRU", "cargo": "Comissário",
              "horas_acumuladas": 1.0, "limite_horas": 11.0},
-            {"id": f"cc{i}b", "nome": f"CC {i}B", "cargo": "Comissário",
+            {"id": f"cc{i}b", "nome": f"CC {i}B", "base": "GRU", "cargo": "Comissário",
              "horas_acumuladas": 1.0, "limite_horas": 11.0},
-            {"id": f"cc{i}c", "nome": f"CC {i}C", "cargo": "Comissário",
+            {"id": f"cc{i}c", "nome": f"CC {i}C", "base": "GRU", "cargo": "Comissário",
              "horas_acumuladas": 1.0, "limite_horas": 11.0},
         ]
     return {
