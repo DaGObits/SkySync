@@ -693,6 +693,7 @@
 
       <h2 class="section-sub" id="acoes-h" data-i18n="simulationActionsTitle">Simulação e ações</h2>
       <div class="actions">
+        <button class="btn btn-ghost" id="btnSimular" type="button">Simular replanejamento (sem publicar)</button>
         <button class="btn btn-success" id="btnAplicar" type="button" data-i18n="btnApply">Aplicar escala automática</button>
         <button class="btn btn-primary" id="btnDesfazer" type="button" disabled data-i18n="btnUndo">Desfazer</button>
         <span class="actions-note" data-i18n="actionsNote">A escala é calculada pelo motor CP-SAT sobre a malha de voos e as jornadas do banco, e publicada com a análise de conformidade.</span>
@@ -1627,6 +1628,14 @@ window.addEventListener('DOMContentLoaded', async () => {
             dadosOperacionais = linhas;
             gerarEscalasDinamicas();
 
+            // A tabela recebe os dados do banco SEMPRE — inclusive quando
+            // vierem vazios. Sem isso ela continuava exibindo os 9 itens
+            // fixos do HTML, que e o que dava a impressao de "dados aleatorios".
+            var backupTabela = dadosOperacionais;
+            dadosOperacionais = escalasDoBanco;
+            try { gerarEscalasDinamicas(); }
+            finally { if (escalasDoBanco.length) dadosOperacionais = backupTabela; }
+
             var cap = document.getElementById('historyCaptionText');
             if (cap) {
               cap.textContent = dados.total + ' alocacao(oes) do banco em ' + dados.data +
@@ -2014,8 +2023,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const btnRefreshTable = document.getElementById('btnRefreshTable');
     if (btnRefreshTable) {
-      btnRefreshTable.addEventListener('click', () => {
-        gerarNovaEscalaAleatoria();
+      // Antes este botao chamava gerarNovaEscalaAleatoria(), que mexia em
+      // `historicoEscalas` e `indiceHistoricoAtual` — variaveis do front
+      // antigo. Era isso que fazia a tabela saltar para a "ultima versao".
+      // Agora recarrega a escala publicada do banco.
+      btnRefreshTable.addEventListener('click', function () {
+        carregarEscalasDoBanco(false);
       });
     }
 
@@ -2553,6 +2566,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (name === 'escalas' && typeof window.carregarEscalasDoBanco === 'function') {
           window.carregarEscalasDoBanco(true);
         }
+        if (name === 'tripulantes' && typeof window.carregarTripulantes === 'function') {
+          window.carregarTripulantes(false);
+        }
       } catch (e) { console.error('gancho escalas:', e); }
 
       try {
@@ -2737,6 +2753,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       btnSimular.addEventListener('click', function () {
         rodarMotor(false);
       });
+    }
+
+    var btnSimularNovo = document.getElementById('btnSimular');
+    if (btnSimularNovo) {
+      btnSimularNovo.addEventListener('click', function () { rodarMotor(false); });
     }
 
     if (btnAplicar) {
