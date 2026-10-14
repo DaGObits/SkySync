@@ -1,0 +1,110 @@
+LISTA DE REFERÊNCIA — AEROPORTOS COM SERVIÇO AÉREO REGULAR NO BRASIL
+Data de montagem: 13/10/2026
+
+Formato: UF;MUNICIPIO;AEROPORTO;IATA;CATEGORIA
+
+IMPORTANTE:
+- Arquivo de referência para prototipagem e base de dados simulada; não é uma extração oficial exaustiva do VRA.
+- A categoria "REDE REGULAR" identifica aeroportos com oferta regular consolidada. "REGIONAL" e "SAZONAL" indicam aeroportos cuja oferta pode variar ou ocorrer com frequência limitada.
+- A operação de alguns aeroportos regionais pode variar conforme a época do ano e a oferta das companhias aéreas.
+- Fonte oficial para conferência: https://siros.anac.gov.br/siros/registros/diversos/vra/
+- A ANAC descreve o VRA como base mensal de voos de empresas de transporte aéreo regular. A página de concessões da ANAC informou 180 aeroportos com voos regulares no Brasil usando dados de 2023; esta lista é uma seleção de referência e pode não cobrir todos os aeroportos regionais.
+- Códigos IATA são códigos de localização. Para sistemas que exigem identificação aeronáutica, acrescente os códigos ICAO usando cadastro oficial de aeródromos.
+
+AC;Cruzeiro do Sul;Aeroporto de Cruzeiro do Sul;CZS;REDE REGULAR
+AC;Rio Branco;Aeroporto Internacional de Rio Branco - Plácido de Castro;RBR;REDE REGULAR
+AL;Maceió;Aeroporto Internacional Zumbi dos Palmares;MCZ;REDE REGULAR
+AM;Manaus;Aeroporto Internacional de Manaus - Eduardo Gomes;MAO;REDE REGULAR
+AP;Macapá;Aeroporto Internacional de Macapá - Alberto Alcolumbre;MCP;REDE REGULAR
+BA;Barreiras;Aeroporto de Barreiras;BRA;REGIONAL
+BA;Bom Jesus da Lapa;Aeroporto de Bom Jesus da Lapa;LAZ;REGIONAL
+BA;Guanambi;Aeroporto de Guanambi;GNM;REGIONAL
+BA;Ilhéus;Aeroporto de Ilhéus - Jorge Amado;IOS;REDE REGULAR
+BA;Lençóis;Aeroporto de Lençóis - Coronel Horácio de Mattos;LEC;REGIONAL
+BA;Paulo Afonso;Aeroporto de Paulo Afonso;PAV;REGIONAL
+BA;Porto Seguro;Aeroporto de Porto Seguro;BPS;REDE REGULAR
+BA;Salvador;Aeroporto Internacional de Salvador - Deputado Luís Eduardo Magalhães;SSA;REDE REGULAR
+BA;Teixeira de Freitas;Aeroporto de Teixeira de Freitas;TXF;REGIONAL
+BA;Vitória da Conquista;Aeroporto Glauber Rocha;VDC;REDE REGULAR
+CE;Fortaleza;Aeroporto Internacional de Fortaleza - Pinto Martins;FOR;REDE REGULAR
+CE;Jericoacoara;Aeroporto de Jericoacoara - Comandante Ariston Pessoa;JJD;REDE REGULAR / SAZONAL
+CE;Juazeiro do Norte;Aeroporto de Juazeiro do Norte - Orlando Bezerra de Menezes;JDO;REDE REGULAR
+DF;Brasília;Aeroporto Internacional de Brasília - Presidente Juscelino Kubitschek;BSB;REDE REGULAR
+ES;Vitória;Aeroporto de Vitória - Eurico de Aguiar Salles;VIX;REDE REGULAR
+GO;Caldas Novas;Aeroporto de Caldas Novas;CLV;REGIONAL / SAZONAL
+GO;Goiânia;Aeroporto de Goiânia - Santa Genoveva;GYN;REDE REGULAR
+GO;Rio Verde;Aeroporto de Rio Verde;RVD;REGIONAL
+MA;Imperatriz;Aeroporto de Imperatriz - Prefeito Renato Moreira;IMP;REDE REGULAR
+MA;São Luís;Aeroporto Internacional de São Luís - Marechal Cunha Machado;SLZ;REDE REGULAR
+MG;Araxá;Aeroporto de Araxá - Romeu Zema;AAX;REGIONAL
+MG;Belo Horizonte/Confins;Aeroporto Internacional de Belo Horizonte - Tancredo Neves;CNF;REDE REGULAR
+MG;Governador Valadares;Aeroporto de Governador Valadares;GVR;REGIONAL
+MG;Ipatinga;Aeroporto Regional do Vale do Aço;IPN;REDE REGULAR / REGIONAL
+MG;Montes Claros;Aeroporto de Montes Claros - Mário Ribeiro;MOC;REDE REGULAR
+MG;Uberaba;Aeroporto de Uberaba - Mário de Almeida Franco;UBA;REGIONAL
+MG;Uberlândia;Aeroporto de Uberlândia - Tenente-Coronel Aviador César Bombonato;UDI;REDE REGULAR
+MG;Zona da Mata/Goianá;Aeroporto Regional da Zona da Mata;IZA;REDE REGULAR / REGIONAL
+MS;Bonito;Aeroporto Regional de Bonito;BYO;REDE REGULAR / SAZONAL
+MS;Campo Grande;Aeroporto Internacional de Campo Grande;CGR;REDE REGULAR
+MS;Dourados;Aeroporto Regional de Dourados;DOU;REGIONAL
+MT;Alta Floresta;Aeroporto de Alta Floresta - Piloto Osvaldo Marques Dias;AFL;REDE REGULAR / REGIONAL
+MT;Barra do Garças;Aeroporto de Barra do Garças;BPG;REGIONAL
+MT;Cuiabá;Aeroporto Internacional de Cuiabá - Marechal Rondon;CGB;REDE REGULAR
+MT;Rondonópolis;Aeroporto de Rondonópolis - Maestro Marinho Franco;ROO;REGIONAL
+MT;Sinop;Aeroporto de Sinop - Presidente João Batista Figueiredo;OPS;REDE REGULAR
+MT;Sorriso;Aeroporto Regional de Sorriso - Adolino Bedin;SMT;REGIONAL
+PA;Altamira;Aeroporto de Altamira;ATM;REGIONAL
+PA;Belém;Aeroporto Internacional de Belém - Val-de-Cans;BEL;REDE REGULAR
+PA;Carajás/Parauapebas;Aeroporto de Carajás;CKS;REDE REGULAR / REGIONAL
+PA;Itaituba;Aeroporto de Itaituba;ITB;REGIONAL
+PA;Marabá;Aeroporto de Marabá;MAB;REDE REGULAR
+PA;Redenção;Aeroporto de Redenção;RDC;REGIONAL
+PA;Santarém;Aeroporto de Santarém - Maestro Wilson Fonseca;STM;REDE REGULAR
+PA;Tucuruí;Aeroporto de Tucuruí;TUR;REGIONAL
+PB;João Pessoa;Aeroporto Internacional Presidente Castro Pinto;JPA;REDE REGULAR
+PE;Fernando de Noronha;Aeroporto de Fernando de Noronha;FEN;REDE REGULAR / SAZONAL
+PE;Petrolina;Aeroporto de Petrolina - Senador Nilo Coelho;PNZ;REDE REGULAR
+PE;Recife;Aeroporto Internacional do Recife - Guararapes/Gilberto Freyre;REC;REDE REGULAR
+PI;Parnaíba;Aeroporto de Parnaíba - Prefeito Dr. João Silva Filho;PHB;REGIONAL / SAZONAL
+PI;Teresina;Aeroporto de Teresina - Senador Petrônio Portella;THE;REDE REGULAR
+PR;Cascavel;Aeroporto Regional de Cascavel;CAC;REDE REGULAR
+PR;Curitiba;Aeroporto Internacional Afonso Pena;CWB;REDE REGULAR
+PR;Foz do Iguaçu;Aeroporto Internacional de Foz do Iguaçu;IGU;REDE REGULAR
+PR;Londrina;Aeroporto de Londrina - Governador José Richa;LDB;REDE REGULAR
+PR;Maringá;Aeroporto Regional de Maringá - Silvio Name Júnior;MGF;REDE REGULAR
+PR;Ponta Grossa;Aeroporto de Ponta Grossa - Comandante Antonio Amilton Beraldo;PGZ;REGIONAL
+RJ;Cabo Frio;Aeroporto Internacional de Cabo Frio;CFB;REGIONAL / SAZONAL
+RJ;Rio de Janeiro/Galeão;Aeroporto Internacional do Rio de Janeiro - Galeão;GIG;REDE REGULAR
+RJ;Rio de Janeiro/Santos Dumont;Aeroporto Santos Dumont;SDU;REDE REGULAR
+RN;Mossoró;Aeroporto de Mossoró - Dix-Sept Rosado;MVF;REGIONAL
+RN;Natal;Aeroporto Internacional de Natal - Governador Aluízio Alves;NAT;REDE REGULAR
+RO;Cacoal;Aeroporto de Cacoal;OAL;REGIONAL
+RO;Ji-Paraná;Aeroporto de Ji-Paraná;JPR;REGIONAL
+RO;Porto Velho;Aeroporto Internacional de Porto Velho - Governador Jorge Teixeira;PVH;REDE REGULAR
+RO;Vilhena;Aeroporto de Vilhena;BVH;REGIONAL
+RR;Boa Vista;Aeroporto Internacional de Boa Vista - Atlas Brasil Cantanhede;BVB;REDE REGULAR
+RS;Caxias do Sul;Aeroporto Regional Hugo Cantergiani;CXJ;REDE REGULAR / REGIONAL
+RS;Passo Fundo;Aeroporto Lauro Kortz;PFB;REDE REGULAR / REGIONAL
+RS;Pelotas;Aeroporto Internacional de Pelotas - João Simões Lopes Neto;PET;REGIONAL
+RS;Porto Alegre;Aeroporto Internacional de Porto Alegre - Salgado Filho;POA;REDE REGULAR
+RS;Santa Maria;Aeroporto de Santa Maria;RIA;REGIONAL
+RS;Uruguaiana;Aeroporto Rubem Berta;URG;REGIONAL
+SC;Chapecó;Aeroporto de Chapecó - Serafim Enoss Bertaso;XAP;REDE REGULAR
+SC;Florianópolis;Aeroporto Internacional de Florianópolis - Hercílio Luz;FLN;REDE REGULAR
+SC;Forquilhinha/Criciúma;Aeroporto Diomício Freitas;CCM;REGIONAL
+SC;Jaguaruna;Aeroporto Regional Sul - Humberto Ghizzo Bortoluzzi;JJG;REDE REGULAR / REGIONAL
+SC;Joinville;Aeroporto de Joinville - Lauro Carneiro de Loyola;JOI;REDE REGULAR
+SC;Navegantes;Aeroporto Internacional de Navegantes - Ministro Victor Konder;NVT;REDE REGULAR
+SE;Aracaju;Aeroporto Internacional de Aracaju - Santa Maria;AJU;REDE REGULAR
+SP;Araçatuba;Aeroporto de Araçatuba - Dario Guarita;ARU;REDE REGULAR / REGIONAL
+SP;Bauru/Arealva;Aeroporto de Bauru-Arealva - Moussa Nakhl Tobias;JTC;REDE REGULAR / REGIONAL
+SP;Campinas;Aeroporto Internacional de Viracopos;VCP;REDE REGULAR
+SP;Marília;Aeroporto de Marília - Frank Miloye Milenkowichi;MII;REGIONAL
+SP;Presidente Prudente;Aeroporto Estadual de Presidente Prudente;PPB;REDE REGULAR / REGIONAL
+SP;Ribeirão Preto;Aeroporto Estadual Leite Lopes;RAO;REDE REGULAR
+SP;São José do Rio Preto;Aeroporto Estadual Professor Eribelto Manoel Reino;SJP;REDE REGULAR
+SP;São José dos Campos;Aeroporto de São José dos Campos - Professor Urbano Ernesto Stumpf;SJK;REGIONAL
+SP;São Paulo/Congonhas;Aeroporto de São Paulo - Congonhas;CGH;REDE REGULAR
+SP;São Paulo/Guarulhos;Aeroporto Internacional de São Paulo - Guarulhos;GRU;REDE REGULAR
+TO;Araguaína;Aeroporto de Araguaína;AUX;REGIONAL
+TO;Palmas;Aeroporto de Palmas - Brigadeiro Lysias Rodrigues;PMW;REDE REGULAR
