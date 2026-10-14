@@ -1650,13 +1650,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     function obterTodosVoosHistorico() {
+      // FONTE UNICA: `dadosOperacionais`, que vem de /api/escalas/alocacoes.
+      //
+      // Antes esta funcao varria `historicoEscalas` — o historico guardado no
+      // localStorage pelo front antigo. Os KPIs do painel eram calculados
+      // sobre aquelas versoes, e nao sobre a escala real do banco. Era dai
+      // que vinham os numeros inconsistentes.
       const mapaVoos = new Map();
-      historicoEscalas.forEach(versao => {
-        versao.forEach(item => {
-          if (!mapaVoos.has(item.voo) || item.risco === 'alto' || item.risco === 'medio') {
-            mapaVoos.set(item.voo, item);
-          }
-        });
+      (dadosOperacionais || []).forEach(item => {
+        if (!item || !item.voo) return;
+        if (!mapaVoos.has(item.voo) || item.risco === 'alto' || item.risco === 'medio') {
+          mapaVoos.set(item.voo, item);
+        }
       });
       return Array.from(mapaVoos.values());
     }
@@ -1844,11 +1849,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         if (blockedCountNum) blockedCountNum.textContent = blockedCount;
         if (totalCrewNum) totalCrewNum.textContent = total;
-        if (totalCrewCountText) totalCrewCountText.textContent = dadosOperacionais.length;
+        if (totalCrewCountText) totalCrewCountText.textContent = (dadosOperacionais || []).length;
         if (blockedTextNum) blockedTextNum.textContent = blockedCount;
         if (compliantTextNum) compliantTextNum.textContent = compliantCount;
         if (kpiImpactedCount) kpiImpactedCount.textContent = total;
-        if (kpiMonitoredTotal) kpiMonitoredTotal.textContent = 42 + (historicoEscalas.length - 1) * 3;
+        if (kpiMonitoredTotal) kpiMonitoredTotal.textContent = total;
 
         const lang = settings.idioma || 'pt-BR';
         const dict = translations[lang] || translations['pt-BR'];
