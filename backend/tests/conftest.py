@@ -1,16 +1,20 @@
 """Fixtures compartilhadas dos testes.
 
-SOBRE O BANCO DE TESTE: os testes usam um ARQUIVO SQLite temporario, nao
-`:memory:`. O motivo custou caro para descobrir:
+TRÊS DETALHES QUE QUEBRAM SE IGNORADOS:
 
-  * no SQLite, cada `connect(":memory:")` abre um banco NOVO e vazio;
-  * um banco em memoria e DESTRUIDO quando a ultima conexao a ele fecha;
-  * o `init_db` roda num `app_context` que se encerra antes da requisicao de
-    teste — o teardown fechava a conexao, o banco desaparecia, e a requisicao
-    seguinte abria um banco vazio: `no such table: usuarios`.
+1. **Banco em ARQUIVO, não em memória.** No SQLite, cada `connect(":memory:")`
+   abre um banco novo e vazio, e um banco em memória é destruído quando a
+   última conexão fecha. O `init_db` roda num `app_context` que se encerra
+   antes da requisição de teste, então o banco desaparecia.
 
-Um arquivo em disco resolve os dois: todas as conexoes abrem o MESMO arquivo,
-e as tabelas persistem entre contextos.
+2. **Limpeza entre testes.** O `init_db` só cria tabela que não existe — não
+   apaga dados. Sem a limpeza, um usuário criado num teste sobrevive para o
+   próximo, e o segundo registro do mesmo e-mail devolve 409.
+
+3. **A malha NÃO é limpa.** `aeroportos` é dado de referência (os 97
+   aeroportos regulares), não dado de teste. O `dados/malha.py` lê dela para
+   gerar cenários e para o filtro por região do solver — apagá-la deixaria o
+   sistema sem malha.
 """
 from __future__ import annotations
 
@@ -30,10 +34,14 @@ import db as db_module  # noqa: E402
 CAMINHO_BANCO = Path(os.getenv("SKYSYNC_TEST_DB", str(RAIZ / ".teste_skysync.db")))
 
 #: Tabelas limpas antes de cada teste. A ordem respeita as chaves estrangeiras.
+#: `aeroportos` NÃO está aqui: é dado de referência, e o `dados.malha` lê dela.
 TABELAS = [
     "execucoes_otimizacao",
     "historico_escalas",
     "disrupcoes",
+    "escalas",
+    "jornadas",
+    "voos",
     "cenarios",
     "tripulantes",
     "usuarios",
@@ -42,13 +50,29 @@ TABELAS = [
 
 @pytest.fixture(scope="session", autouse=True)
 def banco_de_teste():
-    """Prepara um banco limpo e o remove no fim da sessao."""
+    """Prepara um banco limpo, carrega a malha e remove tudo no fim."""
     for sufixo in ("", "-wal", "-shm"):
         p = Path(str(CAMINHO_BANCO) + sufixo)
         if p.exists():
             p.unlink()
     os.environ["SKYSYNC_TEST_DB"] = str(CAMINHO_BANCO)
+
+    # A malha precisa existir: o gerador de cenários e o filtro por região do
+    # solver leem dela. Carrega uma vez por sessão.
+    aplicacao = create_app("testing")
+    with aplicacao.app_context():
+        db_module.init_db()
+        from dados.malha import limpar_cache
+        from dados.malha_seed import ARQUIVO_PADRAO, semear
+
+        caminho = RAIZ / ARQUIVO_PADRAO
+        if caminho.exists():
+            with db_module.transacao() as conexao:
+                semear(conexao, caminho)
+            limpar_cache()
+
     yield CAMINHO_BANCO
+
     for sufixo in ("", "-wal", "-shm"):
         p = Path(str(CAMINHO_BANCO) + sufixo)
         if p.exists():
@@ -57,18 +81,19 @@ def banco_de_teste():
 
 @pytest.fixture
 def app():
-    """Aplicacao de teste com o esquema aplicado e os dados ZERADOS.
-
-    O init_db so cria tabela que nao existe — nao apaga dados. Sem a limpeza
-    abaixo, um usuario criado num teste sobrevive para o proximo, e o segundo
-    registro do mesmo e-mail devolve 409.
-    """
+    """Aplicação de teste com o esquema aplicado e os dados de teste ZERADOS."""
     aplicacao = create_app("testing")
     with aplicacao.app_context():
         db_module.init_db()
         with db_module.transacao() as conexao:
             for tabela in TABELAS:
                 conexao.execute("DELETE FROM " + tabela)
+
+        # O cache da malha guarda a lista por app_context; limpar aqui evita
+        # que um teste veja dados de outro.
+        from dados.malha import limpar_cache
+
+        limpar_cache()
     yield aplicacao
 
 
@@ -79,7 +104,7 @@ def client(app):
 
 @pytest.fixture
 def usuario_logado(client):
-    """Registra e autentica um usuario, devolvendo o cliente com sessao ativa."""
+    """Registra e autentica um usuário, devolvendo o cliente com sessão ativa."""
     client.post(
         "/api/auth/registrar",
         json={
@@ -136,8 +161,7 @@ def base_de_tripulantes(app, client):
     """Popula a tabela tripulantes com uma amostra pequena e diversa.
 
     Recebe `app` porque a fixture precisa de um app_context aberto: o
-    `db.get_conexao()` le `current_app.config`, e sem contexto ele estoura
-    `RuntimeError: Working outside of application context`.
+    `db.get_conexao()` lê `current_app.config`.
     """
     from db import transacao
 

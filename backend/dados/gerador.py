@@ -4,28 +4,19 @@ Cria tripulantes e voos com parâmetros realistas da malha brasileira. Cada
 chamada com a mesma `seed` produz exatamente o mesmo cenário — o que permite à
 banca repetir um experimento e comparar os números.
 
-DIMENSIONAMENTO POR BASE DE PARTIDA (a correção que importa): a versão anterior
-escolhia as bases dos tripulantes por probabilidade — 60% nos hubs, 40% na
-malha inteira. Isso deixava aeroportos secundários sem nenhum candidato, e um
-único voo sem tripulante elegível torna o cenário inteiro INFEASIBLE.
+DIMENSIONAMENTO POR BASE DE PARTIDA: o número de VOOS é o parâmetro que manda.
+O pool de tripulantes é calculado a partir dele, porque é assim que a operação
+funciona — você sabe quantos voos precisa cobrir, e a tripulação é consequência.
 
-Agora o gerador:
-
-  1. sorteia os VOOS primeiro (origem e destino);
-  2. conta quantos voos partem de cada aeroporto;
-  3. distribui os tripulantes de acordo com essa contagem — cada base recebe
-     o número de comandantes, copilotos e comissários necessários para cobrir
-     os voos que partem dela, mais a folga.
-
-Assim o filtro de domínio por base (raio_bases=1) fica seguro: há candidato
-para todo voo, em toda base.
+A malha vem do BANCO (`dados.malha`), não de uma lista em Python: são os 97
+aeroportos regulares, em 27 UFs.
 """
 from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
 
-from dados.malha import HUBS, MALHA, POR_IATA
+from dados.malha import distancia_km, hubs, malha, por_iata
 from dados.nomes import nome_completo
 
 #: Companhias usadas nos códigos de voo.
@@ -87,27 +78,6 @@ class Cenario:
         }
 
 
-def _distancia_km(iata_a: str, iata_b: str) -> float:
-    """Distância aproximada entre dois aeroportos (Haversine)."""
-    import math
-
-    a = POR_IATA.get(iata_a)
-    b = POR_IATA.get(iata_b)
-    if a is None or b is None:
-        return 500.0
-
-    raio = 6371.0
-    dlat = math.radians(b.lat - a.lat)
-    dlon = math.radians(b.lon - a.lon)
-    h = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(math.radians(a.lat))
-        * math.cos(math.radians(b.lat))
-        * math.sin(dlon / 2) ** 2
-    )
-    return 2 * raio * math.asin(min(1.0, math.sqrt(h)))
-
-
 def _duracao_estimada(km: float, rng: random.Random) -> float:
     for limite, minimo, maximo in FAIXAS_DURACAO:
         if km <= limite:
@@ -117,20 +87,22 @@ def _duracao_estimada(km: float, rng: random.Random) -> float:
 
 def _par_de_aeroportos(rng: random.Random, base: str) -> tuple[str, str]:
     """Escolhe origem e destino. 45% dos voos partem da base do cenário."""
-    if rng.random() < 0.45 and base in POR_IATA:
+    aeroportos = malha()
+    codigos = [a.iata for a in aeroportos]
+    indice = por_iata()
+
+    if rng.random() < 0.45 and base in indice:
         origem = base
     else:
-        origem = rng.choice(MALHA).iata
+        origem = rng.choice(codigos)
 
-    destino = rng.choice(MALHA).iata
+    destino = rng.choice(codigos)
     while destino == origem:
-        destino = rng.choice(MALHA).iata
+        destino = rng.choice(codigos)
     return origem, destino
 
 
-def gerar_voos(
-    voos: int, base: str, seed: int = 42
-) -> tuple[list, random.Random]:
+def gerar_voos(voos: int, base: str, seed: int = 42) -> tuple[list, random.Random]:
     """Primeira etapa: sorteia os voos. A distribuição de bases vem deles."""
     from models import Voo
 
@@ -138,7 +110,7 @@ def gerar_voos(
     lista_voos = []
     for i in range(voos):
         origem, destino = _par_de_aeroportos(rng, base)
-        km = _distancia_km(origem, destino)
+        km = distancia_km(origem, destino)
         duracao = _duracao_estimada(km, rng)
         noturno = rng.random() < 0.25
 
@@ -157,7 +129,7 @@ def gerar_voos(
 
 
 def dimensionar_por_base(
-    voos: list, composicao: dict, folga: float = 0.15, disrupcao: float = 0.0
+    voos_lista: list, composicao: dict, folga: float = 0.15, disrupcao: float = 0.0
 ) -> dict[str, dict[str, int]]:
     """Quantos tripulantes de cada cargo são necessários em CADA base.
 
@@ -168,32 +140,25 @@ def dimensionar_por_base(
 
     1. **Piso mínimo de 1 reserva por cargo e por base.** Sem isso, uma base com
        um único voo recebia exatamente 1 comandante — e bastava a disrupção
-       marcá-lo como indisponível para aquele voo ficar impossível. Um piso
-       absoluto é o que garante que toda base sobreviva a uma baixa.
+       marcá-lo como indisponível para aquele voo ficar impossível.
 
     2. **A folga precisa superar a disrupção esperada.** Se ~15% do pool fica
-       indisponível, uma reserva de 15% não cobre as baixas: o cenário nasce
-       inviável por construção, e o solver não tem o que resolver.
+       indisponível, uma reserva de 15% não cobre as baixas.
 
     3. **Pilotos têm reserva maior que comissários.** Um comissário a mais é
-       barato; um comandante a mais é o que salva o cenário. A criticidade do
-       posto define a reserva.
+       barato; um comandante a mais é o que salva o cenário.
     """
     from optimizer.solver import bases_de_partida
 
-    #: Multiplicador de reserva por criticidade do posto.
     reserva_por_cargo = {
         "Comandante": 2.0,
         "Copiloto": 1.5,
         "Comissário": 1.0,
     }
-
-    # Reserva efetiva = a folga pedida, mas nunca menor que a disrupção
-    # esperada mais uma margem.
     reserva_efetiva = max(folga, disrupcao + 0.10)
 
     necessarios: dict[str, dict[str, int]] = {}
-    for iata, quantidade in bases_de_partida(voos).items():
+    for iata, quantidade in bases_de_partida(voos_lista).items():
         por_cargo: dict[str, int] = {}
         for cargo, qtd in composicao.items():
             exigidos = qtd * quantidade
@@ -213,14 +178,7 @@ def gerar_cenario(
     folga: float = 0.15,
     tripulantes: int | None = None,
 ) -> Cenario:
-    """Gera um cenário completo, com cobertura garantida por base de partida.
-
-    `voos` é o parâmetro que define o tamanho. O pool é dimensionado a partir
-    da distribuição das origens — então todo voo tem candidato.
-
-    Passe `tripulantes` explicitamente apenas para forçar um pool insuficiente
-    e demonstrar o tratamento de INFEASIBLE.
-    """
+    """Gera um cenário completo, com cobertura garantida por base de partida."""
     from models import Tripulante
 
     if voos < 1:
@@ -228,22 +186,20 @@ def gerar_cenario(
 
     composicao = composicao or COMPOSICAO_PADRAO
 
-    # --- 1. Voos primeiro ------------------------------------------------------
+    # --- 1. Voos primeiro ----------------------------------------------------
     lista_voos, _ = gerar_voos(voos, base, seed)
 
-    # --- 2. Dimensionamento por base de partida --------------------------------
+    # --- 2. Dimensionamento por base de partida ------------------------------
     if tripulantes is None:
         necessario = dimensionar_por_base(lista_voos, composicao, folga, disrupcao)
         pool_explicito = False
     else:
-        # Pool explícito: distribui na proporção da composição, concentrado na
-        # base do cenário. Serve para forçar cenário inviável de propósito.
         pools = {c: int(round(tripulantes * q / sum(composicao.values())))
                  for c, q in composicao.items()}
         necessario = {base: pools}
         pool_explicito = True
 
-    # --- 3. Tripulantes por base ----------------------------------------------
+    # --- 3. Tripulantes por base ---------------------------------------------
     rng = random.Random(seed + 1)
     lista_tripulantes = []
     indice_global = 0

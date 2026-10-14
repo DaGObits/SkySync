@@ -1,12 +1,8 @@
--- SkySync — esquema para os TESTES (SQLite)
+-- SkySync - esquema para os TESTES (SQLite)
 --
--- Por que este arquivo existe: traduzir o schema PostgreSQL para SQLite por
--- expressao regular era fragil — cada mudanca no schema quebrava os testes de
--- uma forma dificil de diagnosticar. Manter um schema proprio para o ambiente
--- de teste e mais honesto, e o PostgreSQL continua sendo o banco de producao.
---
--- As tabelas e colunas sao as MESMAS, para que o SQL das rotas e dos testes
--- rode igual nos dois bancos. So mudam os tipos.
+-- Espelha o schema.sql de producao, com os tipos que o SQLite entende.
+-- As tabelas e colunas sao as MESMAS, para o SQL das rotas e dos testes rodar
+-- igual nos dois bancos.
 
 CREATE TABLE IF NOT EXISTS usuarios (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,12 +32,66 @@ CREATE TABLE IF NOT EXISTS tripulantes (
     nome       TEXT NOT NULL,
     sobrenome  TEXT NOT NULL DEFAULT '',
     cargo      TEXT NOT NULL
-               CHECK (cargo IN ('Comandante', 'Copiloto', 'Comissário')),
+               CHECK (cargo IN ('Comandante', 'Copiloto', 'Comissário', 'Comissario')),
     base       TEXT NOT NULL DEFAULT '',
-    status     TEXT NOT NULL DEFAULT 'Disponível'
-               CHECK (status IN ('Disponível', 'Reserva', 'Indisponível')),
+    status     TEXT NOT NULL DEFAULT 'Disponivel'
+               CHECK (status IN ('Disponível', 'Disponivel', 'Reserva', 'Indisponível', 'Indisponivel')),
     criado_em  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS voos (
+    id              TEXT PRIMARY KEY,
+    codigo          TEXT NOT NULL,
+    origem          TEXT NOT NULL DEFAULT '',
+    destino         TEXT NOT NULL DEFAULT '',
+    partida         TEXT NOT NULL DEFAULT '',
+    chegada         TEXT NOT NULL DEFAULT '',
+    duracao_horas   REAL NOT NULL,
+    distancia_km    REAL,
+    aeronave        TEXT NOT NULL DEFAULT '',
+    pouso_noturno   INTEGER NOT NULL DEFAULT 0,
+    status          TEXT NOT NULL DEFAULT 'Programado',
+    criado_em       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS jornadas (
+    id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    tripulante_id      TEXT NOT NULL REFERENCES tripulantes (id) ON DELETE CASCADE,
+    periodo            DATE NOT NULL,
+    horas_voadas       REAL NOT NULL DEFAULT 0,
+    horas_acumuladas   REAL NOT NULL DEFAULT 0,
+    limite_horas       REAL NOT NULL DEFAULT 11.0,
+    voos_no_periodo    INTEGER NOT NULL DEFAULT 0,
+    ultimo_pouso       TEXT NOT NULL DEFAULT '',
+    descanso_ok        INTEGER NOT NULL DEFAULT 1,
+    aclimatado         INTEGER NOT NULL DEFAULT 1,
+    observacao         TEXT NOT NULL DEFAULT '',
+    criado_em          TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (tripulante_id, periodo)
+);
+
+CREATE TABLE IF NOT EXISTS escalas (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    tripulante_id       TEXT NOT NULL REFERENCES tripulantes (id) ON DELETE CASCADE,
+    voo_id              TEXT NOT NULL REFERENCES voos (id) ON DELETE CASCADE,
+    data                DATE NOT NULL,
+    cargo               TEXT NOT NULL DEFAULT '',
+    origem              TEXT NOT NULL DEFAULT '',
+    destino             TEXT NOT NULL DEFAULT '',
+    duracao_horas       REAL NOT NULL DEFAULT 0,
+    horas_antes         REAL NOT NULL DEFAULT 0,
+    horas_depois        REAL NOT NULL DEFAULT 0,
+    limite_aplicado     REAL NOT NULL DEFAULT 11.0,
+    ocupacao_percentual REAL NOT NULL DEFAULT 0,
+    conforme            INTEGER NOT NULL DEFAULT 1,
+    motivo              TEXT NOT NULL DEFAULT '',
+    status              TEXT NOT NULL DEFAULT 'planejado',
+    execucao_id         INTEGER REFERENCES execucoes_otimizacao (id) ON DELETE SET NULL,
+    criado_em           TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (tripulante_id, voo_id, data)
 );
 
 CREATE TABLE IF NOT EXISTS cenarios (
@@ -105,4 +155,4 @@ CREATE TABLE IF NOT EXISTS schema_version (
     aplicado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT OR IGNORE INTO schema_version (versao) VALUES (4);
+INSERT OR IGNORE INTO schema_version (versao) VALUES (5);

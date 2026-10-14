@@ -3,6 +3,9 @@
 Diferença central em relação à versão antiga: o endpoint devolvia
 `new_compliance: '100%'` hardcoded, sem calcular nada. Aqui ele roda o CP-SAT
 de verdade e devolve o status real do solver.
+
+A malha (bases por região) é carregada aqui — que tem `app_context` — e passada
+ao solver por parâmetro. É o que mantém o motor livre de Flask.
 """
 from __future__ import annotations
 
@@ -11,6 +14,7 @@ import json
 from flask import Blueprint, current_app, jsonify, request
 
 from blueprints.auth import login_obrigatorio
+from dados.malha import bases_por_regiao as malha_por_regiao
 from db import transacao
 from models import RequisicaoOtimizacao, ValidacaoError
 from optimizer.restricoes import catalogo_restricoes
@@ -21,11 +25,7 @@ bp = Blueprint("otimizacao", __name__, url_prefix="/api/otimizacao")
 
 @bp.get("/restricoes")
 def listar_restricoes():
-    """Catálogo de restrições ativas — documentação viva do modelo.
-
-    Sem exigir login de propósito: é conteúdo informativo e ajuda a inspecionar
-    o sistema durante a apresentação.
-    """
+    """Catálogo de restrições ativas — documentação viva do modelo."""
     return jsonify(catalogo_restricoes())
 
 
@@ -37,19 +37,11 @@ def executar_otimizacao():
     Corpo:
         {
           "base": "GRU",
-          "limite_horas": 11.0,                  # opcional
-          "composicao": {                        # opcional (padrão 1 CM, 1 CP, 3 CC)
-             "Comandante": 1, "Copiloto": 1, "Comissário": 3
-          },
+          "limite_horas": 11.0,
+          "composicao": { "Comandante": 1, "Copiloto": 1, "Comissário": 3 },
           "tripulantes": [{...}, ...],
           "voos": [{...}, ...]
         }
-
-    Respostas:
-        200  solução encontrada (OPTIMAL ou FEASIBLE)
-        400  entrada inválida
-        409  restrições tornam o cenário inviável, com diagnóstico
-        500  o solver não convergiu no tempo limite
     """
     try:
         requisicao = RequisicaoOtimizacao.from_payload(
@@ -60,6 +52,12 @@ def executar_otimizacao():
         return jsonify({"erro": "dados inválidos", "campos": err.campos}), 400
 
     try:
+        regioes = malha_por_regiao()
+    except Exception:
+        current_app.logger.warning("malha indisponível — filtro por região desligado")
+        regioes = {}
+
+    try:
         solucao = otimizar(
             base=requisicao.base,
             tripulantes=requisicao.tripulantes,
@@ -67,34 +65,28 @@ def executar_otimizacao():
             limite_horas=requisicao.limite_horas,
             max_time_seconds=current_app.config["SOLVER_MAX_TIME_SECONDS"],
             composicao=requisicao.composicao,
+            bases_por_regiao=regioes,
         )
     except OtimizacaoInviavel as err:
-        # Inviabilidade não é erro do servidor: é um resultado regulatório.
-        # Registrar e devolver 409 é o que permite à operação reagir.
         current_app.logger.info(
             "otimização inviável para base=%s: %s", requisicao.base, err
         )
-        _registrar_execucao(requisicao.base, "INFEASIBLE", None, requisicao)
-        return (
-            jsonify(
-                {
-                    "status": "INFEASIBLE",
-                    "base": requisicao.base,
-                    "mensagem": str(err),
-                    "diagnostico": err.diagnostico,
-                }
-            ),
-            409,
-        )
+        _registrar_execucao(requisicao.base, "INFEASIBLE", None)
+        return jsonify({
+            "status": "INFEASIBLE",
+            "base": requisicao.base,
+            "mensagem": str(err),
+            "diagnostico": err.diagnostico,
+        }), 409
     except RuntimeError as err:
         current_app.logger.warning("solver sem convergência: %s", err)
         return jsonify({"status": "UNKNOWN", "mensagem": str(err)}), 500
 
-    _registrar_execucao(requisicao.base, solucao.status, solucao, requisicao)
+    _registrar_execucao(requisicao.base, solucao.status, solucao)
     return jsonify(solucao.to_dict())
 
 
-def _registrar_execucao(base: str, status: str, solucao, requisicao=None) -> None:
+def _registrar_execucao(base: str, status: str, solucao) -> None:
     """Trilha de auditoria — permite à banca reconstruir cada execução."""
     try:
         with transacao() as conexao:
@@ -120,5 +112,5 @@ def _registrar_execucao(base: str, status: str, solucao, requisicao=None) -> Non
                     json.dumps(solucao.to_dict(), ensure_ascii=False) if solucao else None,
                 ),
             )
-    except Exception:  # noqa: BLE001 - auditoria não pode derrubar a resposta
+    except Exception:
         current_app.logger.exception("falha ao registrar execução da otimização")

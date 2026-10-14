@@ -17,7 +17,7 @@ from flask import Blueprint, current_app, jsonify, request
 
 from blueprints.auth import login_obrigatorio
 from dados.gerador import gerar_cenario
-from dados.malha import HUBS, MALHA
+from dados.malha import hubs, malha
 from db import transacao
 
 bp = Blueprint("cenarios", __name__, url_prefix="/api")
@@ -29,22 +29,12 @@ MAX_VOOS = 1000
 @bp.get("/malha")
 def listar_malha():
     """Aeroportos da malha — conteúdo informativo, aberto como o catálogo."""
+    aeroportos = malha()
     return jsonify(
         {
-            "total": len(MALHA),
-            "hubs": list(HUBS),
-            "aeroportos": [
-                {
-                    "iata": a.iata,
-                    "cidade": a.cidade,
-                    "uf": a.uf,
-                    "regiao": a.regiao,
-                    "latitude": a.lat,
-                    "longitude": a.lon,
-                    "hub": a.hub,
-                }
-                for a in MALHA
-            ],
+            "total": len(aeroportos),
+            "hubs": list(hubs()),
+            "aeroportos": [a.to_dict() for a in aeroportos],
         }
     )
 
@@ -58,7 +48,6 @@ def criar_cenario():
         {
           "nome": "Carga alta - outubro",
           "base": "GRU",
-          "tripulantes": 400,
           "voos": 150,
           "disrupcao": 0.15,
           "seed": 42,
@@ -85,7 +74,6 @@ def criar_cenario():
             return padrao
         return valor
 
-    n_tripulantes = inteiro("tripulantes", 400, 10, MAX_TRIPULANTES)
     n_voos = inteiro("voos", 150, 1, MAX_VOOS)
     seed = inteiro("seed", 42, 0, 2**31 - 1)
 
@@ -104,13 +92,7 @@ def criar_cenario():
         return jsonify({"erro": "dados inválidos", "campos": erros}), 400
 
     try:
-        cenario = gerar_cenario(
-            tripulantes=n_tripulantes,
-            voos=n_voos,
-            disrupcao=disrupcao,
-            base=base,
-            seed=seed,
-        )
+        cenario = gerar_cenario(voos=n_voos, disrupcao=disrupcao, base=base, seed=seed)
     except ValueError as err:
         return jsonify({"erro": str(err)}), 400
 
@@ -142,7 +124,6 @@ def criar_cenario():
             payload["id"] = linha["id"]
         except Exception:
             current_app.logger.exception("falha ao persistir cenário")
-            # O cenário gerado ainda é útil: devolvemos sem id em vez de falhar.
             payload["aviso"] = "cenário gerado, mas não foi possível persistir"
 
     payload["resumo"] = cenario.resumo()

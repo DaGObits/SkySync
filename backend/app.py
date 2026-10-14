@@ -129,17 +129,24 @@ def _registrar_cli(app: Flask) -> None:
 
     @app.cli.command("seed-malha")
     def seed_malha_cmd():
-        """Carrega os aeroportos da malha no banco. Não precisa de psql."""
-        from dados.malha_seed import contar, semear
+        """Carrega os 97 aeroportos regulares da malha no banco.
+
+        Lê `aeroportos_voos_regulares_brasil.txt`. Idempotente: aeroporto que
+        já existe tem região e hub atualizados, e as coordenadas preservadas.
+        """
+        from dados.malha_seed import ARQUIVO_PADRAO, contar, semear
         from db import transacao
 
+        caminho = Path(app.root_path) / ARQUIVO_PADRAO
+        print(f"Arquivo: {caminho}")
+
         with transacao() as conexao:
-            inseridos = semear(conexao)
+            inseridos, atualizados = semear(conexao, caminho)
         with transacao() as conexao:
             total = contar(conexao)
 
-        print(f"Malha carregada: {inseridos} aeroporto(s) inserido(s).")
-        print(f"  total na tabela: {total}")
+        print(f"Malha carregada: {inseridos} inserido(s), {atualizados} atualizado(s).")
+        print(f"  total na tabela: {total} aeroportos")
 
     @app.cli.command("diagnostico")
     def diagnostico_cmd():
@@ -181,7 +188,19 @@ def _registrar_cli(app: Flask) -> None:
                 duracao_horas=2.0, pouso_noturno=False, prioridade=1),
         ]
 
-        solucao = otimizar("GRU", tripulantes, voos, limite_horas=11.0)
+        # A malha é passada por parâmetro — o solver não importa Flask.
+        from dados.malha import bases_por_regiao as malha_por_regiao
+
+        try:
+            regioes = malha_por_regiao()
+        except Exception:
+            print("  aviso: malha indisponível — filtro por região desligado")
+            regioes = {}
+
+        solucao = otimizar(
+            "GRU", tripulantes, voos, limite_horas=11.0,
+            raio_bases=1, bases_por_regiao=regioes,
+        )
         for a in solucao.alocacoes:
             print(f"  {a.voo_codigo} -> {a.tripulante_nome} [{a.cargo}]")
         print(

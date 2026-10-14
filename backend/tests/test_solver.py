@@ -1,13 +1,7 @@
-"""Testes do motor de otimização.
+﻿"""Testes do motor de otimização.
 
-Estes testes não tocam em Flask nem em banco — é exatamente o ganho de manter o
-solver isolado. Cada teste corresponde a uma afirmação que você pode defender na
-banca: "o modelo respeita a composição da aeronave", "respeita o teto de
-jornada", "detecta inviabilidade e explica por quê".
-
-NOTA SOBRE A COMPOSIÇÃO: o modelo exige 1 comandante + 1 copiloto + 3
-comissários por voo. Por isso os cenários de teste montam o pool por cargo —
-um teste com "dois tripulantes quaisquer" não tem como tripular um voo.
+Não tocam em Flask nem em banco — é o ganho de manter o solver isolado.
+Cada teste corresponde a uma afirmação defensável na banca.
 """
 from __future__ import annotations
 
@@ -88,8 +82,6 @@ def test_tres_voos_exigem_quinze_alocacoes(tripulante_factory, voo_factory):
 # Um tripulante por voo
 # ---------------------------------------------------------------------------
 def test_tripulante_nao_e_designado_a_dois_voos(tripulante_factory, voo_factory):
-    """Sem a restrição de exclusividade, o solver colocaria a mesma pessoa
-    em vários voos."""
     tripulantes = pool(tripulante_factory, voos=2)
     voos = [voo_factory("v1", duracao=1.0), voo_factory("v2", duracao=1.0)]
 
@@ -105,7 +97,6 @@ def test_tripulante_nao_e_designado_a_dois_voos(tripulante_factory, voo_factory)
 def test_respeita_teto_de_jornada(tripulante_factory, voo_factory):
     """t1 já está no teto: não pode receber voo nenhum."""
     tripulantes = pool(tripulante_factory, voos=1, horas=10.0)
-    # Um voo de 3h não cabe em quem já tem 10h de 11h.
     voos = [voo_factory("v1", duracao=3.0)]
 
     with pytest.raises(OtimizacaoInviavel):
@@ -114,7 +105,7 @@ def test_respeita_teto_de_jornada(tripulante_factory, voo_factory):
 
 def test_par_inviavel_nao_e_criado_para_voo_longo(tripulante_factory, voo_factory):
     """O filtro de domínio descarta o par (tripulante, voo) quando o voo é
-    maior que a jornada restante — sem isso o modelo seria maior e mais lento."""
+    maior que a jornada restante."""
     tripulantes = pool(tripulante_factory, voos=1, horas=9.0)
     voos = [voo_factory("v1", duracao=3.0)]
 
@@ -136,7 +127,6 @@ def test_sem_descanso_nao_recebe_voo(tripulante_factory, voo_factory):
 def test_sem_descanso_parcial_ainda_tripula(tripulante_factory, voo_factory):
     """Se há reserva descansada, o voo sai — com os disponíveis."""
     tripulantes = pool(tripulante_factory, voos=2)
-    # Metade do pool sem descanso.
     for i, t in enumerate(tripulantes):
         if i % 2 == 0:
             t.descanso_ok = False
@@ -170,28 +160,24 @@ def test_nao_aclimatado_recebe_voo_diurno(tripulante_factory, voo_factory):
 # Objetivo e métricas
 # ---------------------------------------------------------------------------
 def test_objetivo_distribui_a_carga(tripulante_factory, voo_factory):
-    """Com reserva no pool, o solver não concentra as jornadas nos primeiros."""
     tripulantes = pool(tripulante_factory, voos=2, horas=0.0)
     voos = [voo_factory("v1", duracao=1.0), voo_factory("v2", duracao=1.0)]
 
     solucao = otimizar("GRU", tripulantes, voos, limite_horas=11.0)
 
     designados = {a.tripulante_id for a in solucao.alocacoes}
-    # 10 designações (2 voos x 5) — com 30 no pool, ninguém se repete.
     assert len(designados) == 10
 
 
 def test_conformidade_reflete_bloqueados(tripulante_factory, voo_factory):
-    """A conformidade cai quando parte do pool esta acima do teto.
+    """A conformidade cai quando parte do pool está acima do teto.
 
-    O pool e montado com RESERVA (3 voos) e o teste usa apenas 2: bloquear um
-    tripulante de cada cargo nao pode deixar falta para compor os voos. Com o
-    pool exato, bloquear 3 zerava a conta e o cenario virava INFEASIBLE —
-    testando outra coisa que nao a conformidade.
+    O pool é o DOBRO do necessário, e o bloqueio é UM POR CARGO: com o pool
+    exato, bloquear 3 deixava alguns cargos sem ninguém elegível e o cenário
+    virava INFEASIBLE — o que testaria outra coisa.
     """
     tripulantes = pool(tripulante_factory, voos=3, horas=0.0)
 
-    # Um bloqueado por cargo: o pool tem folga para absorver.
     cargos_bloqueados = set()
     for t in tripulantes:
         if t.cargo not in cargos_bloqueados:
@@ -204,12 +190,10 @@ def test_conformidade_reflete_bloqueados(tripulante_factory, voo_factory):
 
     assert solucao.tripulantes_bloqueados == 3, "um bloqueado por cargo"
     assert 0 <= solucao.conformidade < 100
-    assert solucao.total_alocacoes == 10, "os 2 voos ainda saem completos"
-
+    assert solucao.total_alocacoes == 10
 
 
 def test_solucao_reporta_metricas_para_o_tcc(tripulante_factory, voo_factory):
-    """Os campos que alimentam o capítulo de resultados precisam existir."""
     tripulantes = pool(tripulante_factory, voos=2)
     voos = [voo_factory("v1", duracao=1.0), voo_factory("v2", duracao=2.0)]
 
@@ -229,8 +213,6 @@ def test_conversao_de_horas_para_minutos():
 
 
 def test_catalogo_de_restricoes_documentado():
-    """Toda restrição precisa de nome, referência e descrição — é o material do
-    capítulo de metodologia."""
     nomes = set()
     for item in catalogo_restricoes():
         assert item["nome"]
@@ -238,7 +220,6 @@ def test_catalogo_de_restricoes_documentado():
         assert item["descricao"]
         nomes.add(item["nome"])
 
-    # As cinco restrições que o modelo aplica.
     assert nomes == {
         "descanso_minimo",
         "aclimatacao_fuso",
@@ -248,21 +229,32 @@ def test_catalogo_de_restricoes_documentado():
     }
 
 
-def test_cenario_realista_com_gerador(tripulante_factory, voo_factory):
-    """Integração com o gerador: 30 voos devem resolver."""
+def test_cenario_realista_com_gerador(app):
+    """Integração com o gerador: 30 voos devem resolver.
+
+    O gerador lê a malha do BANCO (`dados.malha`), então este teste precisa do
+    app_context e da tabela `aeroportos` populada — a fixture `app` garante
+    isso, e a `banco_de_teste` carrega a malha uma vez por sessão.
+    """
     from dados.gerador import gerar_cenario
+    from dados.malha import bases_por_regiao
 
-    cenario = gerar_cenario(voos=30, seed=7)
+    # O gerador le a malha do BANCO, entao precisa de app_context ativo:
+    # `dados.malha` consulta a tabela `aeroportos`. A fixture `app` abre o
+    # contexto, mas so dentro do `with`.
+    with app.app_context():
+        cenario = gerar_cenario(voos=30, seed=7)
 
-    solucao = otimizar(
-        "GRU",
-        cenario.tripulantes,
-        cenario.voos,
-        limite_horas=11.0,
-        max_time_seconds=20,
-    )
+        solucao = otimizar(
+            "GRU",
+            cenario.tripulantes,
+            cenario.voos,
+            limite_horas=11.0,
+            max_time_seconds=20,
+            raio_bases=1,
+            bases_por_regiao=bases_por_regiao(),
+        )
 
     assert solucao.status in {"OPTIMAL", "FEASIBLE"}
     assert solucao.total_voos == 30
-    # Nem todo voo sai necessariamente: parte do pool está em disrupção.
     assert solucao.total_alocacoes > 0

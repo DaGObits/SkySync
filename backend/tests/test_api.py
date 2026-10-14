@@ -184,20 +184,6 @@ def test_cenario_reprodutivel_com_mesma_seed(usuario_logado):
     assert [v["codigo"] for v in a["voos"]] == [v["codigo"] for v in b["voos"]]
 
 
-def test_cenario_com_pool_insuficiente_devolve_400(usuario_logado):
-    """Pool pequeno demais e RECUSADO com explicacao.
-
-    Com 10 voos e composicao 1:1:3 o gerador precisa de 10 comandantes. Um
-    pool de 5 nao cobre nem a metade. A versao anterior devolvia um cenario
-    que o solver jamais resolveria — falha silenciosa. Recusar com mensagem e
-    o comportamento honesto.
-    """
-    resposta = usuario_logado.post(
-        "/api/cenarios", json={"voos": 10, "tripulantes": 5, "seed": 2}
-    )
-    assert resposta.status_code == 400
-    assert "erro" in resposta.get_json()
-
 
 def test_cenario_com_parametros_invalidos(usuario_logado):
     resposta = usuario_logado.post("/api/cenarios", json={"voos": 0})

@@ -182,7 +182,7 @@ def listar_jornadas():
 # ---------------------------------------------------------------------------
 # Escalas gravadas
 # ---------------------------------------------------------------------------
-@bp.get("/escalas/alocacoes")
+@bp.get("/escalas")
 @login_obrigatorio
 def listar_escalas():
     """As alocacoes gravadas. Query string: data, conforme, limite."""
@@ -321,6 +321,16 @@ def otimizar_e_gravar():
         for l in linhas_jornadas
     ]
 
+    # A malha é carregada AQUI (temos app_context) e passada ao solver, que
+    # por regra não importa Flask.
+    from dados.malha import bases_por_regiao as malha_por_regiao
+
+    try:
+        regioes = malha_por_regiao()
+    except Exception:
+        current_app.logger.warning("malha indisponível — filtro por região desligado")
+        regioes = {}
+
     try:
         solucao = otimizar(
             base=base,
@@ -329,6 +339,7 @@ def otimizar_e_gravar():
             limite_horas=current_app.config["SOLVER_DEFAULT_HOUR_LIMIT"],
             max_time_seconds=current_app.config["SOLVER_MAX_TIME_SECONDS"],
             composicao=COMPOSICAO_PADRAO,
+            bases_por_regiao=regioes,
         )
     except OtimizacaoInviavel as err:
         _registrar_execucao(base, "INFEASIBLE", None, len(tripulantes), len(voos))

@@ -1,16 +1,11 @@
-"""Gera uma malha aerea realista a partir dos 36 aeroportos do banco.
+"""Gera uma malha aérea realista a partir dos aeroportos do banco.
 
-Os VOOS sao reais no sentido operacional: origem e destino existem, a duracao
-vem da distancia geografica entre eles (Haversine) e a partida se distribui ao
-longo do dia como uma malha domestica de verdade. Os NUMEROS de voo e as placas
-sao sinteticos.
+Os VOOS são reais no sentido operacional: origem e destino existem na malha,
+a duração vem da distância geográfica (Haversine) e a partida se distribui ao
+longo do dia como uma malha doméstica de verdade. Os NÚMEROS de voo e as
+aeronaves são sintéticos.
 
-Distribuicao pensada para a operacao brasileira:
-  * 45% dos voos partem do hub principal (GRU por padrao)
-  * os demais partem de qualquer aeroporto da malha
-  * duracao calculada pela distancia, nao sorteada
-  * partidas espalhadas entre 05:00 e 23:30
-  * ~25% com pouso noturno (aciona a restricao 117.135)
+A malha vem do BANCO (`dados.malha`) — são os 97 aeroportos regulares.
 
 Uso:
     from dados.malha_voos import gerar_voos
@@ -21,19 +16,19 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
-from dados.malha import MALHA, POR_IATA
+from dados.malha import distancia_km, malha, por_iata
 
-#: Companhias brasileiras, usadas nos codigos de voo.
+#: Companhias brasileiras, usadas nos códigos de voo.
 COMPANHIAS = ("TAM", "GLO", "AZU", "PTB")
 
-#: Modelos por faixa de distancia — narrow-body no curto, wide-body no longo.
+#: Modelos por faixa de distância — narrow-body no curto, wide-body no longo.
 AERONAVES = {
     "curto": ("A320", "B737", "E195"),
     "medio": ("A320", "B738", "A321"),
     "longo": ("A321", "B738", "A330"),
 }
 
-#: Faixas de duracao por distancia (km): (limite, min_h, max_h).
+#: Faixas de duração por distância (km): (limite, min_h, max_h).
 FAIXAS = (
     (400, 0.7, 1.3),
     (800, 1.3, 2.1),
@@ -48,8 +43,8 @@ class VooGerado:
     codigo: str
     origem: str
     destino: str
-    partida: str          # HH:MM
-    chegada: str          # HH:MM
+    partida: str
+    chegada: str
     duracao_horas: float
     distancia_km: float
     aeronave: str
@@ -68,27 +63,6 @@ class VooGerado:
             "aeronave": self.aeronave,
             "pouso_noturno": self.pouso_noturno,
         }
-
-
-def distancia_km(iata_a: str, iata_b: str) -> float:
-    """Distancia entre dois aeroportos da malha (Haversine)."""
-    import math
-
-    a = POR_IATA.get(iata_a)
-    b = POR_IATA.get(iata_b)
-    if a is None or b is None:
-        return 600.0
-
-    raio = 6371.0
-    dlat = math.radians(b.lat - a.lat)
-    dlon = math.radians(b.lon - a.lon)
-    h = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(math.radians(a.lat))
-        * math.cos(math.radians(b.lat))
-        * math.sin(dlon / 2) ** 2
-    )
-    return round(2 * raio * math.asin(min(1.0, math.sqrt(h))), 1)
 
 
 def _duracao(km: float, rng: random.Random) -> float:
@@ -112,33 +86,33 @@ def _hhmm(minutos_totais: int) -> str:
 
 
 def gerar_voos(quantidade: int = 140, base: str = "GRU", seed: int = 42) -> list[VooGerado]:
-    """Gera a malha. Reproduzivel: a mesma seed produz os mesmos voos."""
+    """Gera a malha. Reproduzível: a mesma seed produz os mesmos voos."""
     rng = random.Random(seed)
+    codigos = [a.iata for a in malha()]
+    indice = por_iata()
+
     voos: list[VooGerado] = []
     codigos_usados: set[str] = set()
 
     for i in range(quantidade):
-        if rng.random() < 0.45 and base in POR_IATA:
+        if rng.random() < 0.45 and base in indice:
             origem = base
         else:
-            origem = rng.choice(MALHA).iata
+            origem = rng.choice(codigos)
 
-        destino = rng.choice(MALHA).iata
+        destino = rng.choice(codigos)
         while destino == origem:
-            destino = rng.choice(MALHA).iata
+            destino = rng.choice(codigos)
 
         km = distancia_km(origem, destino)
         duracao = _duracao(km, rng)
 
-        # Partida entre 05:00 e 23:30.
         partida_min = rng.randint(5 * 60, 23 * 60 + 30)
         chegada_min = partida_min + int(round(duracao * 60))
 
-        # Pouso noturno: chegada depois das 21:00 ou antes das 06:00.
         hora_chegada = (chegada_min // 60) % 24
         noturno = hora_chegada >= 21 or hora_chegada < 6
 
-        # Codigo unico, como na operacao real.
         while True:
             codigo = f"{rng.choice(COMPANHIAS)}-{rng.randint(1000, 9999)}"
             if codigo not in codigos_usados:

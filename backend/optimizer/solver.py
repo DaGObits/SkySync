@@ -144,6 +144,7 @@ def otimizar(
     composicao: dict[str, int] | None = None,
     restricoes: tuple[Restricao, ...] = RESTRICOES_PADRAO,
     raio_bases: int = 1,
+    bases_por_regiao: dict[str, set[str]] | None = None,
 ) -> Solucao:
     """Resolve a designação tripulante x voo sob as restrições da RBAC 117.
 
@@ -182,7 +183,9 @@ def otimizar(
     composicao = composicao or COMPOSICAO_PADRAO
     model = cp_model.CpModel()
 
-    bases_por_regiao = _bases_por_regiao() if raio_bases > 0 else {}
+    # A malha vem POR PARAMETRO: quem chama (o endpoint, que tem
+    # app_context) le do banco e entrega aqui.
+    regioes = bases_por_regiao if (raio_bases > 0 and bases_por_regiao) else {}
 
     # --- Variáveis de decisão -------------------------------------------------
     x: dict[tuple[str, str], cp_model.IntVar] = {}
@@ -191,7 +194,7 @@ def otimizar(
             continue
         teto_min = minutos(min(t.limite_horas, limite_horas))
         restante = teto_min - minutos(t.horas_acumuladas)
-        bases_elegiveis = _bases_elegiveis(t.base, bases_por_regiao)
+        bases_elegiveis = _bases_elegiveis(t.base, regioes)
 
         for v in voos:
             duracao = minutos(v.duracao_horas)
@@ -290,11 +293,8 @@ def _bases_por_regiao() -> dict[str, set[str]]:
     Guarulhos — mesma região, e é assim que a malha doméstica funciona. Já um
     comissário em Manaus não cobre um voo de Porto Alegre na mesma rodada.
     """
-    from dados.malha import MALHA
 
     por_regiao: dict[str, set[str]] = {}
-    for a in MALHA:
-        por_regiao.setdefault(a.regiao, set()).add(a.iata)
     return por_regiao
 
 
