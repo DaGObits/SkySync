@@ -355,6 +355,22 @@
   .font-steps button { width: 28px; height: 28px; border-radius: var(--radius-s); border: 1px solid var(--border); background: var(--surface); color: var(--text-900); cursor: pointer; font-weight: 700; font-size: 0.8rem; }
   .font-steps button[aria-pressed="true"] { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
 
+
+  /* Indicador de carregamento dos KPIs — aparece antes de a API responder */
+  .kpi-loading {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--focus);
+    border-radius: 50%;
+    animation: kpiSpin .7s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes kpiSpin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .kpi-loading { animation: none; border-top-color: var(--border); }
+  }
+
   .screen { outline: none; width: 100%; }
   .section-sub { font-size: 0.98rem; margin: 20px 0 10px; }
 
@@ -575,22 +591,22 @@
       <div class="kpi-grid">
         <button type="button" class="kpi-card" data-screen="disrupcoes">
           <span class="kpi-label" data-i18n="kpiActiveDisruptions">Disrupções ativas (histórico)</span>
-          <span class="kpi-value" id="kpiActiveCount">5</span>
+          <span class="kpi-value" id="kpiActiveCount"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint" id="kpiHighFatigueHint" data-i18n="kpiHighFatigue">com risco alto de fadiga</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
           <span class="kpi-label" data-i18n="kpiImpactedCount">Tripulantes impactados</span>
-          <span class="kpi-value" id="kpiImpactedCount">9</span>
+          <span class="kpi-value" id="kpiImpactedCount"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint" id="kpiBlockedRbacHint" data-i18n="kpiBlockedRbac">bloqueados pela RBAC 117</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
           <span class="kpi-label" data-i18n="kpiCrewCompliance">Conformidade da tripulação</span>
-          <span class="kpi-value" id="kpiComplianceVal">66%</span>
+          <span class="kpi-value" id="kpiComplianceVal"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint" id="kpiComplianceHint">tripulantes conformes</span>
         </button>
         <div class="kpi-card kpi-static">
           <span class="kpi-label" data-i18n="kpiMonitoredFlights">Voos monitorados hoje</span>
-          <span class="kpi-value" id="kpiMonitoredTotal">42</span>
+          <span class="kpi-value" id="kpiMonitoredTotal"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint"><span data-i18n="baseWord">Base</span> <span id="kpiBaseLabel">GRU</span> · <span data-i18n="currentShift">turno atual</span></span>
         </div>
       </div>
@@ -651,7 +667,7 @@
       
       <div class="table-wrap">
         <div class="table-toolbar">
-          <span id="historyCaptionText"><span id="totalCrewCountText">9</span> <span data-i18n="crewMembersWord">tripulantes</span> — <span data-i18n="versionWord">Versão</span> <span id="historyIndexLabel">1</span> <span data-i18n="ofWord">de</span> <span id="historyTotalLabel">1</span> (<span data-i18n="atWord">às</span> <span id="tableTime">--:--</span> UTC)</span>
+          <span id="historyCaptionText"><span id="totalCrewCountText"><span class="kpi-loading" aria-label="Carregando"></span></span> <span data-i18n="crewMembersWord">tripulantes</span> — <span data-i18n="versionWord">Versão</span> <span id="historyIndexLabel"><span class="kpi-loading" aria-label="Carregando"></span></span> <span data-i18n="ofWord">de</span> <span id="historyTotalLabel"><span class="kpi-loading" aria-label="Carregando"></span></span> (<span data-i18n="atWord">às</span> <span id="tableTime">--:--</span> UTC)</span>
           <div class="history-controls">
             <button type="button" class="btn-history-nav" id="btnPrevHistory" title="Versão anterior da escala" data-i18n="btnPrev">◀ Anterior</button>
             <button type="button" class="btn-history-nav" id="btnNextHistory" title="Próxima versão da escala" data-i18n="btnNext">Próxima ▶</button>
