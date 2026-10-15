@@ -3,9 +3,11 @@
 Todos os valores que mudam entre ambientes (dev / teste / produção) ficam aqui.
 Nada de credencial hardcoded: tudo vem de variável de ambiente com default seguro.
 
-IMPORTANTE: este módulo lê `os.getenv` no momento da IMPORTAÇÃO. Por isso o
-`.env` precisa estar carregado antes de `config` ser importado — quem faz isso é
-o topo do `app.py`, com uma chamada explícita a `load_dotenv()`.
+IMPORTANTE: este módulo lê `os.getenv` no momento da IMPORTAÇÃO, então o `.env`
+precisa estar carregado ANTES de `config` ser importado. Para que isso nao
+dependa de cada script lembrar da chamada, o `load_dotenv()` acontece aqui
+mesmo, algumas linhas abaixo — qualquer modulo que importe `config` (inclusive
+`db.py`) passa a ter o `.env` disponivel.
 """
 from __future__ import annotations
 
@@ -13,6 +15,16 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+
+# Carrega o .env AQUI, e nao em cada script: o `app.py` ja fazia isso, mas os
+# scripts de diagnostico e de carga importavam `db` direto e ficavam sem as
+# credenciais — foi assim que o teste do OpenSky devolveu NAO_AUTENTICADO.
+# Uma chamada, um lugar, todos os caminhos de entrada cobertos.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / ".env")
+except ImportError:  # python-dotenv nao instalado: segue com o ambiente do SO
+    pass
 
 
 def _normalizar_url(url: str) -> str:

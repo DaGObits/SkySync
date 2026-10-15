@@ -1,6 +1,15 @@
 """Blueprints da API do SkySync."""
 
-from blueprints import auth, cenarios, escalas, escalas_voos, otimizacao, perfil, tripulantes
+from blueprints import (
+    ao_vivo,
+    auth,
+    cenarios,
+    escalas,
+    escalas_voos,
+    otimizacao,
+    perfil,
+    tripulantes,
+)
 
 # Ordem de registro. O Flask roteia por url_prefix, entao a ordem aqui e so
 # legibilidade.
@@ -12,10 +21,12 @@ TODOS = (
     cenarios.bp,
     tripulantes.bp,
     escalas_voos.bp,
+    ao_vivo.bp,
 )
 
 __all__ = [
     "TODOS",
+    "ao_vivo",
     "auth",
     "cenarios",
     "escalas",

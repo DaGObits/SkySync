@@ -20,7 +20,7 @@ from dados.malha import distancia_km, hubs, malha, por_iata
 from dados.nomes import nome_completo
 
 #: Companhias usadas nos códigos de voo.
-COMPANHIAS = ("TAM", "GLO", "AZU", "PTB")
+COMPANHIAS = ("TAM", "GLO", "AZU")
 
 #: Composição de um narrow-body (A320 / 737).
 COMPOSICAO_PADRAO = {"Comandante": 1, "Copiloto": 1, "Comissário": 3}

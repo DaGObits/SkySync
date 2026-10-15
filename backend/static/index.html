@@ -2278,12 +2278,48 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     var rodarMotor = executarMotor;
 
-    const nowBase = new Date();
-    const feedItemsData = [
-      { text: 'Voo GLO-4412 pousou normalmente dentro do horário previsto.', time: new Date(nowBase.getTime() - 12 * 60 * 1000) },
-      { text: 'Disrupção registrada: fechamento parcial de pista em setor monitorado.', time: new Date(nowBase.getTime() - 25 * 60 * 1000) },
-      { text: 'Motor CP-SAT sincronizou dados entre disrupções e escalas.', time: new Date(nowBase.getTime() - 43 * 60 * 1000) }
-    ];
+let feedItemsData = [];
+    let feedAoVivo = [];
+
+    async function carregarAtividadeAoVivo() {
+      try {
+        const res = await fetch(`${API_URL}/ao-vivo?limite=12`, { credentials: 'include' });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        if (!res.ok) { renderFeed(); return; }
+
+        const dados = await res.json();
+        if (!dados.disponivel) {
+          console.warn('OpenSky indisponível:', dados.erro);
+          renderFeed();
+          return;
+        }
+
+        feedAoVivo = (dados.voos || []).map(function (v) {
+          const altitude = v.altitude_m ? Math.round(v.altitude_m / 100) * 100 : null;
+          const velocidade = v.velocidade_kmh || null;
+          const detalhe = [
+            altitude ? (altitude / 1000).toFixed(1) + ' km de altitude' : null,
+            velocidade ? velocidade + ' km/h' : null,
+            v.na_malha ? 'na malha local' : null
+          ].filter(Boolean).join(' · ');
+
+          return {
+            text: 'Voo ' + v.callsign + (detalhe ? ' — ' + detalhe : ''),
+            time: v.atualizado_em ? new Date(v.atualizado_em) : new Date(),
+            fonte: 'OpenSky'
+          };
+        });
+
+        feedItemsData = feedAoVivo.slice();
+        renderFeed();
+      } catch (e) {
+        console.error('Atividade ao vivo indisponível:', e);
+        renderFeed();
+      }
+    }
+
+    carregarAtividadeAoVivo();
+    setInterval(carregarAtividadeAoVivo, 60000);
 
     function getRelativeTimeString(date) {
       try {
@@ -2306,9 +2342,22 @@ window.addEventListener('DOMContentLoaded', async () => {
         const feedList = document.getElementById('feedList');
         if (!feedList) return;
         feedList.innerHTML = '';
+
+        if (!feedItemsData.length) {
+          const li = document.createElement('li');
+          li.innerHTML = '<span class="feed-time">aguardando</span>' +
+            'Conectando à fonte de dados ao vivo...';
+          feedList.appendChild(li);
+          return;
+        }
+
         feedItemsData.forEach(item => {
           const li = document.createElement('li');
-          li.innerHTML = `<span class="feed-time">${getRelativeTimeString(item.time)}</span>${item.text}`;
+          const selo = item.fonte
+            ? ' <span class="feed-time">(' + item.fonte + ')</span>'
+            : '';
+          li.innerHTML = '<span class="feed-time">' + getRelativeTimeString(item.time) +
+            '</span>' + item.text + selo;
           feedList.appendChild(li);
         });
       } catch(e) {}
@@ -2316,8 +2365,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     function addFeedItem(text) {
       try {
-        feedItemsData.unshift({ text: text, time: new Date() });
-        if (feedItemsData.length > 10) feedItemsData.pop();
+        // Ações do usuário entram no feed, mas não expulsam os voos ao vivo:
+        // a mensagem vai para o topo e o array mantém as entradas do OpenSky.
+        const acao = { text: text, time: new Date(), fonte: null, acao: true };
+        feedItemsData = [acao].concat(feedAoVivo.slice(0, 11));
         renderFeed();
       } catch(e) {}
     }

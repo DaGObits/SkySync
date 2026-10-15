@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from dados.malha import distancia_km, malha, por_iata
 
 #: Companhias brasileiras, usadas nos códigos de voo.
-COMPANHIAS = ("TAM", "GLO", "AZU", "PTB")
+COMPANHIAS = ("TAM", "GLO", "AZU")
 
 #: Modelos por faixa de distância — narrow-body no curto, wide-body no longo.
 AERONAVES = {
