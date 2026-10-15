@@ -44,7 +44,9 @@ bp = Blueprint("ao_vivo", __name__, url_prefix="/api/ao-vivo")
 BRASIL = {"lamin": -34.0, "lomin": -74.0, "lamax": 6.0, "lomax": -33.0}
 
 #: Tempo de vida do cache, em segundos.
-TTL_CACHE = 60
+#: Sem token o OpenSky permite ~100 consultas/dia por IP. Com 300s, um
+#: painel aberto o dia inteiro usa ~288 consultas — dentro do limite.
+TTL_CACHE = 300
 
 #: URL da API do OpenSky.
 API_OPENSKY = "https://opensky-network.org/api/states/all"
@@ -264,14 +266,18 @@ def _consultar_airplanes_live() -> dict:
 
 
 def _consultar_com_fallback() -> dict:
-    """OpenSky primeiro; se falhar (ou estiver em pausa), airplanes.live."""
-    if time.time() >= _cache.get("opensky_pausado_ate", 0.0):
-        try:
-            return _consultar_opensky()
-        except Exception as err:
-            _cache["erro_consulta_opensky"] = str(err)[:200]
-            _cache["opensky_pausado_ate"] = time.time() + PAUSA_OPENSKY
-            current_app.logger.warning("OpenSky falhou, usando airplanes.live: %s", err)
+    """OpenSky primeiro; airplanes.live so se o OpenSky falhar.
+
+    Sem pausa entre tentativas: o host de dados do OpenSky responde em poucos
+    segundos a partir do Render. A pausa era ligada por falha do host de AUTH
+    (que nao responde de nuvem), e com ela ligada toda consulta ia direto para
+    a airplanes.live, que responde 403.
+    """
+    try:
+        return _consultar_opensky()
+    except Exception as err:
+        _cache["erro_consulta_opensky"] = str(err)[:200]
+        current_app.logger.warning("OpenSky falhou, usando airplanes.live: %s", err)
     return _consultar_airplanes_live()
 
 
