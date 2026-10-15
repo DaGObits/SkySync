@@ -94,8 +94,13 @@ def _token() -> str | None:
         # Renova 30s antes de expirar, para não usar um token vencido.
         _cache["expira"] = agora + int(dados.get("expires_in", 1800)) - 30
         return _cache["token"]
-    except Exception:
-        current_app.logger.warning("OpenSky: falha ao obter token — seguindo anônimo")
+    except Exception as err:
+        detalhe = str(err)
+        resp = getattr(err, "response", None)
+        if resp is not None:
+            detalhe = f"HTTP {resp.status_code}: {resp.text[:200]}"
+        _cache["erro_token"] = detalhe
+        current_app.logger.warning("OpenSky: falha ao obter token — %s", detalhe)
         _cache["token"] = None
         _cache["expira"] = 0.0
         return None
@@ -267,6 +272,16 @@ def status():
             round(time.time() - _cache["quando"]) if _cache["quando"] else None
         ),
         "ttl_segundos": TTL_CACHE,
+        "erro_token": _cache.get("erro_token"),
+        "erro_consulta": (_cache.get("dados") or {}).get("erro"),
+        "client_id_tamanho": len(os.getenv("OPENSKY_CLIENT_ID", "")),
+        "client_id_tem_espaco_ou_aspas": any(
+            c in os.getenv("OPENSKY_CLIENT_ID", "") for c in " \"'\n\r"
+        ),
+        "secret_tamanho": len(os.getenv("OPENSKY_CLIENT_SECRET", "")),
+        "secret_tem_espaco_ou_aspas": any(
+            c in os.getenv("OPENSKY_CLIENT_SECRET", "") for c in " \"'\n\r"
+        ),
     })
 
 
