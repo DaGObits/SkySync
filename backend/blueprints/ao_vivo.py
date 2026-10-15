@@ -100,8 +100,6 @@ def _token() -> str | None:
         if resp is not None:
             detalhe = f"HTTP {resp.status_code}: {resp.text[:200]}"
         _cache["erro_token"] = detalhe
-        if "timed out" in detalhe or "Max retries" in detalhe:
-            _cache["opensky_pausado_ate"] = time.time() + PAUSA_OPENSKY
         current_app.logger.warning("OpenSky: falha ao obter token — %s", detalhe)
         _cache["token"] = None
         # Nao insiste: o host de auth nao responde do Render (timeout).
@@ -289,8 +287,12 @@ def _do_cache() -> dict:
 
     try:
         dados = _consultar_com_fallback()
-        _cache["dados"] = dados
-        _cache["quando"] = agora
+        # So guarda resultado BOM: um dict com disponivel=false nao levanta
+        # excecao, e sem esta guarda o erro ficava preso no cache por tempo
+        # indeterminado, repetindo a mesma falha em vez de tentar de novo.
+        if dados.get("disponivel"):
+            _cache["dados"] = dados
+            _cache["quando"] = agora
         dados["cache"] = False
         dados["idade_segundos"] = 0
         return dados
