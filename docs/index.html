@@ -355,6 +355,22 @@
   .font-steps button { width: 28px; height: 28px; border-radius: var(--radius-s); border: 1px solid var(--border); background: var(--surface); color: var(--text-900); cursor: pointer; font-weight: 700; font-size: 0.8rem; }
   .font-steps button[aria-pressed="true"] { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
 
+
+  /* Indicador de carregamento dos KPIs — aparece antes de a API responder */
+  .kpi-loading {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--focus);
+    border-radius: 50%;
+    animation: kpiSpin .7s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes kpiSpin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .kpi-loading { animation: none; border-top-color: var(--border); }
+  }
+
   .screen { outline: none; width: 100%; }
   .section-sub { font-size: 0.98rem; margin: 20px 0 10px; }
 
@@ -575,22 +591,22 @@
       <div class="kpi-grid">
         <button type="button" class="kpi-card" data-screen="disrupcoes">
           <span class="kpi-label" data-i18n="kpiActiveDisruptions">Disrupções ativas (histórico)</span>
-          <span class="kpi-value" id="kpiActiveCount">5</span>
+          <span class="kpi-value" id="kpiActiveCount"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint" id="kpiHighFatigueHint" data-i18n="kpiHighFatigue">com risco alto de fadiga</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
           <span class="kpi-label" data-i18n="kpiImpactedCount">Tripulantes impactados</span>
-          <span class="kpi-value" id="kpiImpactedCount">9</span>
+          <span class="kpi-value" id="kpiImpactedCount"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint" id="kpiBlockedRbacHint" data-i18n="kpiBlockedRbac">bloqueados pela RBAC 117</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
           <span class="kpi-label" data-i18n="kpiCrewCompliance">Conformidade da tripulação</span>
-          <span class="kpi-value" id="kpiComplianceVal">66%</span>
+          <span class="kpi-value" id="kpiComplianceVal"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint" id="kpiComplianceHint">tripulantes conformes</span>
         </button>
         <div class="kpi-card kpi-static">
           <span class="kpi-label" data-i18n="kpiMonitoredFlights">Voos monitorados hoje</span>
-          <span class="kpi-value" id="kpiMonitoredTotal">42</span>
+          <span class="kpi-value" id="kpiMonitoredTotal"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint"><span data-i18n="baseWord">Base</span> <span id="kpiBaseLabel">GRU</span> · <span data-i18n="currentShift">turno atual</span></span>
         </div>
       </div>
@@ -651,7 +667,7 @@
       
       <div class="table-wrap">
         <div class="table-toolbar">
-          <span id="historyCaptionText"><span id="totalCrewCountText">9</span> <span data-i18n="crewMembersWord">tripulantes</span> — <span data-i18n="versionWord">Versão</span> <span id="historyIndexLabel">1</span> <span data-i18n="ofWord">de</span> <span id="historyTotalLabel">1</span> (<span data-i18n="atWord">às</span> <span id="tableTime">--:--</span> UTC)</span>
+          <span id="historyCaptionText"><span id="totalCrewCountText"><span class="kpi-loading" aria-label="Carregando"></span></span> <span data-i18n="crewMembersWord">tripulantes</span> — <span data-i18n="versionWord">Versão</span> <span id="historyIndexLabel"><span class="kpi-loading" aria-label="Carregando"></span></span> <span data-i18n="ofWord">de</span> <span id="historyTotalLabel"><span class="kpi-loading" aria-label="Carregando"></span></span> (<span data-i18n="atWord">às</span> <span id="tableTime">--:--</span> UTC)</span>
           <div class="history-controls">
             <button type="button" class="btn-history-nav" id="btnPrevHistory" title="Versão anterior da escala" data-i18n="btnPrev">◀ Anterior</button>
             <button type="button" class="btn-history-nav" id="btnNextHistory" title="Próxima versão da escala" data-i18n="btnNext">Próxima ▶</button>
@@ -677,12 +693,33 @@
 
       <h2 class="section-sub" id="acoes-h" data-i18n="simulationActionsTitle">Simulação e ações</h2>
       <div class="actions">
-        <button class="btn btn-ghost" id="btnSimular" type="button" data-i18n="btnSimulate">Simular replanejamento</button>
+        <button class="btn btn-ghost" id="btnSimular" type="button">Simular replanejamento (sem publicar)</button>
         <button class="btn btn-success" id="btnAplicar" type="button" data-i18n="btnApply">Aplicar escala automática</button>
         <button class="btn btn-primary" id="btnDesfazer" type="button" disabled data-i18n="btnUndo">Desfazer</button>
-        <span class="actions-note" data-i18n="actionsNote">A simulação recalcula jornadas sem alterar a escala publicada.</span>
+        <span class="actions-note" data-i18n="actionsNote">A escala é calculada pelo motor CP-SAT sobre a malha de voos e as jornadas do banco, e publicada com a análise de conformidade.</span>
       </div>
       <div id="liveStatus" role="status" aria-live="polite"></div>
+
+      <div id="painelMudancas" class="table-wrap" hidden>
+        <div class="table-toolbar">
+          <span data-i18n="changesTitle">Mudanças em relação à escala anterior</span>
+          <div class="history-controls">
+            <button type="button" class="btn-history-nav" id="btnFecharMudancas">Fechar</button>
+          </div>
+        </div>
+        <div id="resumoMudancas" style="padding: 12px 14px; font-size: .9rem;"></div>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="thCrew">Tripulante</th>
+              <th scope="col" data-i18n="thFlight">Voo anterior</th>
+              <th scope="col" data-i18n="thFlight">Voo novo</th>
+              <th scope="col">Situação</th>
+            </tr>
+          </thead>
+          <tbody id="corpoMudancas"></tbody>
+        </table>
+      </div>
     </section>
 
     
@@ -1591,6 +1628,14 @@ window.addEventListener('DOMContentLoaded', async () => {
             dadosOperacionais = linhas;
             gerarEscalasDinamicas();
 
+            // A tabela recebe os dados do banco SEMPRE — inclusive quando
+            // vierem vazios. Sem isso ela continuava exibindo os 9 itens
+            // fixos do HTML, que e o que dava a impressao de "dados aleatorios".
+            var backupTabela = dadosOperacionais;
+            dadosOperacionais = escalasDoBanco;
+            try { gerarEscalasDinamicas(); }
+            finally { if (escalasDoBanco.length) dadosOperacionais = backupTabela; }
+
             var cap = document.getElementById('historyCaptionText');
             if (cap) {
               cap.textContent = dados.total + ' alocacao(oes) do banco em ' + dados.data +
@@ -1630,13 +1675,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     function obterTodosVoosHistorico() {
+      // FONTE UNICA: `dadosOperacionais`, que vem de /api/escalas/alocacoes.
+      //
+      // Antes esta funcao varria `historicoEscalas` — o historico guardado no
+      // localStorage pelo front antigo. Os KPIs do painel eram calculados
+      // sobre aquelas versoes, e nao sobre a escala real do banco. Era dai
+      // que vinham os numeros inconsistentes.
       const mapaVoos = new Map();
-      historicoEscalas.forEach(versao => {
-        versao.forEach(item => {
-          if (!mapaVoos.has(item.voo) || item.risco === 'alto' || item.risco === 'medio') {
-            mapaVoos.set(item.voo, item);
-          }
-        });
+      (dadosOperacionais || []).forEach(item => {
+        if (!item || !item.voo) return;
+        if (!mapaVoos.has(item.voo) || item.risco === 'alto' || item.risco === 'medio') {
+          mapaVoos.set(item.voo, item);
+        }
       });
       return Array.from(mapaVoos.values());
     }
@@ -1824,11 +1874,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         if (blockedCountNum) blockedCountNum.textContent = blockedCount;
         if (totalCrewNum) totalCrewNum.textContent = total;
-        if (totalCrewCountText) totalCrewCountText.textContent = dadosOperacionais.length;
+        if (totalCrewCountText) totalCrewCountText.textContent = (dadosOperacionais || []).length;
         if (blockedTextNum) blockedTextNum.textContent = blockedCount;
         if (compliantTextNum) compliantTextNum.textContent = compliantCount;
         if (kpiImpactedCount) kpiImpactedCount.textContent = total;
-        if (kpiMonitoredTotal) kpiMonitoredTotal.textContent = 42 + (historicoEscalas.length - 1) * 3;
+        if (kpiMonitoredTotal) kpiMonitoredTotal.textContent = total;
 
         const lang = settings.idioma || 'pt-BR';
         const dict = translations[lang] || translations['pt-BR'];
@@ -1973,8 +2023,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const btnRefreshTable = document.getElementById('btnRefreshTable');
     if (btnRefreshTable) {
-      btnRefreshTable.addEventListener('click', () => {
-        gerarNovaEscalaAleatoria();
+      // Antes este botao chamava gerarNovaEscalaAleatoria(), que mexia em
+      // `historicoEscalas` e `indiceHistoricoAtual` — variaveis do front
+      // antigo. Era isso que fazia a tabela saltar para a "ultima versao".
+      // Agora recarrega a escala publicada do banco.
+      btnRefreshTable.addEventListener('click', function () {
+        carregarEscalasDoBanco(false);
       });
     }
 
@@ -2007,12 +2061,265 @@ window.addEventListener('DOMContentLoaded', async () => {
       addFeedItem(`Escala automática aplicada na Versão ${indiceHistoricoAtual + 1}: todos os registros conformes.`);
     }
 
-    const nowBase = new Date();
-    const feedItemsData = [
-      { text: 'Voo GLO-4412 pousou normalmente dentro do horário previsto.', time: new Date(nowBase.getTime() - 12 * 60 * 1000) },
-      { text: 'Disrupção registrada: fechamento parcial de pista em setor monitorado.', time: new Date(nowBase.getTime() - 25 * 60 * 1000) },
-      { text: 'Motor CP-SAT sincronizou dados entre disrupções e escalas.', time: new Date(nowBase.getTime() - 43 * 60 * 1000) }
-    ];
+
+    // ---------------------------------------------------------------------
+    // BOTAO DE OTIMIZACAO — ligado ao motor CP-SAT
+    //
+    // Antes, os dois botoes reescreviam os dados na mao (risco='baixo',
+    // solucao='Conforme ANAC aplicada') sem calcular nada. Agora chamam
+    // /api/escalas/otimizar, que roda o CP-SAT sobre `voos` e `jornadas`.
+    //
+    // Todo o bloco esta em try/catch: uma falha aqui nao derruba a pagina.
+    // ---------------------------------------------------------------------
+    function horasFormatadas(horas) {
+      var totalMin = Math.round((Number(horas) || 0) * 60);
+      return String(Math.floor(totalMin / 60)).padStart(2, '0') + 'h' +
+             String(totalMin % 60).padStart(2, '0');
+    }
+
+    function alocacaoParaLinha(a) {
+      var antes = Number(a.horas_antes) || 0;
+      var limite = Number(a.limite_aplicado) || 11;
+      var depois = antes + (Number(a.duracao_horas) || 0);
+      var ocupacao = limite ? Math.round((depois / limite) * 1000) / 10 : 0;
+      var conforme = depois <= limite;
+      return {
+        tripulante: a.tripulante,
+        cargo: a.cargo,
+        voo: a.voo,
+        horas: a.horas || horasFormatadas(a.duracao_horas),
+        limitRbac: horasFormatadas(limite),
+        bloqueado: !conforme,
+        risco: !conforme ? 'alto' : (ocupacao >= 85 ? 'medio' : 'baixo'),
+        badgeKey: !conforme ? 'highFatigueRisk' : 'normalOperation',
+        rota: a.rota,
+        solucao: a.motivo || (conforme ? 'Alocada pelo motor CP-SAT' : 'Excede o limite'),
+        desc: 'Ocupacao de ' + ocupacao + '% do teto apos a alocacao.'
+      };
+    }
+
+    function executarMotor(gravar) {
+      var aviso = document.getElementById('liveStatus');
+      var btnS = document.getElementById('btnSimular');
+      var btnA = document.getElementById('btnAplicar');
+      var rotuloS = btnS ? btnS.innerText : '';
+      var rotuloA = btnA ? btnA.innerText : '';
+
+      if (btnS) { btnS.disabled = true; btnS.innerText = 'Executando...'; }
+      if (btnA) { btnA.disabled = true; }
+      if (aviso) {
+        aviso.style.color = 'var(--text-600-solid)';
+        aviso.textContent = gravar
+          ? 'Executando o motor e publicando a escala...'
+          : 'Simulando — a escala publicada nao sera alterada.';
+      }
+
+      var escalaAntes = capturarEscalaAtual();
+
+      fetch(API_URL + '/escalas/otimizar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ limite_voos: 15, gravar: gravar === true })
+      })
+        .then(function (res) {
+          return res.json().then(function (dados) { return { status: res.status, dados: dados }; });
+        })
+        .then(function (r) {
+          if (r.status === 401) { window.location.href = 'login.html'; return; }
+
+          if (r.status === 409) {
+            var causas = (r.dados.diagnostico && r.dados.diagnostico.causas) || [];
+            if (aviso) {
+              aviso.style.color = 'var(--red)';
+              aviso.textContent = 'Inviavel: ' + causas.join(' ');
+            }
+            addFeedItem('Otimizacao inviavel: ' + causas.join(' '));
+            return;
+          }
+
+          if (r.status !== 200) {
+            if (aviso) {
+              aviso.style.color = 'var(--red)';
+              aviso.textContent = r.dados.mensagem || 'O motor nao convergiu.';
+            }
+            return;
+          }
+
+          var d = r.dados;
+          var linhas = (d.alocacoes || []).map(alocacaoParaLinha);
+
+          var backup = dadosOperacionais;
+          dadosOperacionais = linhas;
+          try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
+
+          var mudancas = compararEscalas(escalaAntes, linhas);
+
+          var resumo = d.status + ' · ' + d.total_alocacoes + ' alocacao(oes) · ' +
+                       'conformidade ' + d.conformidade + '% · ' + d.wall_time_seconds + 's';
+
+          if (aviso) {
+            aviso.style.color = gravar ? 'var(--green)' : 'var(--text-600-solid)';
+            aviso.textContent = (gravar ? 'Escala publicada: ' : 'Simulacao (nao publicada): ') + resumo;
+          }
+          addFeedItem((gravar ? 'Escala publicada no banco: ' : 'Simulacao: ') + resumo);
+
+          var eng = document.getElementById('engineLabel');
+          if (eng) eng.textContent = 'Motor CP-SAT — ' + d.status;
+
+          if (gravar) { mostrarMudancas(mudancas, resumo); }
+        })
+        .catch(function (err) {
+          console.error('Falha na otimizacao:', err);
+          if (aviso) {
+            aviso.style.color = 'var(--red)';
+            aviso.textContent = 'Nao foi possivel falar com o motor.';
+          }
+        })
+        .finally(function () {
+          if (btnS) { btnS.disabled = false; btnS.innerText = rotuloS; }
+          if (btnA) { btnA.disabled = false; btnA.innerText = rotuloA; }
+        });
+    }
+
+
+    // ---------------------------------------------------------------------
+    // PAINEL DE MUDANCAS
+    //
+    // Guarda a escala que estava na TELA antes de aplicar, e depois compara
+    // com a que voltou do motor. Mostra quem trocou de voo, quem entrou e
+    // quem saiu — que e o que evidencia o replanejamento acontecendo.
+    // ---------------------------------------------------------------------
+    function capturarEscalaAtual() {
+      try {
+        return (dadosOperacionais || []).map(function (d) {
+          return { tripulante: d.tripulante, voo: d.voo, cargo: d.cargo };
+        });
+      } catch (e) { return []; }
+    }
+
+    function compararEscalas(antes, depois) {
+      var porNome = {};
+      antes.forEach(function (a) { if (a.tripulante) porNome[a.tripulante] = a; });
+
+      var mudancas = [];
+      var vistos = {};
+
+      depois.forEach(function (d) {
+        if (!d.tripulante) return;
+        vistos[d.tripulante] = true;
+        var a = porNome[d.tripulante];
+
+        if (!a) {
+          mudancas.push({ tripulante: d.tripulante, antes: '—', depois: d.voo, situacao: 'entrou' });
+        } else if (a.voo !== d.voo) {
+          mudancas.push({ tripulante: d.tripulante, antes: a.voo, depois: d.voo, situacao: 'trocou' });
+        }
+      });
+
+      antes.forEach(function (a) {
+        if (a.tripulante && !vistos[a.tripulante]) {
+          mudancas.push({ tripulante: a.tripulante, antes: a.voo, depois: '—', situacao: 'saiu' });
+        }
+      });
+
+      return mudancas;
+    }
+
+    function mostrarMudancas(mudancas, resumo) {
+      try {
+        var painel = document.getElementById('painelMudancas');
+        var corpo = document.getElementById('corpoMudancas');
+        var texto = document.getElementById('resumoMudancas');
+        if (!painel || !corpo) return;
+
+        corpo.innerHTML = '';
+
+        var trocaram = mudancas.filter(function (m) { return m.situacao === 'trocou'; }).length;
+        var entrou = mudancas.filter(function (m) { return m.situacao === 'entrou'; }).length;
+        var saiu = mudancas.filter(function (m) { return m.situacao === 'saiu'; }).length;
+
+        if (texto) {
+          texto.innerHTML = resumo + '<br><strong>' +
+            trocaram + '</strong> trocaram de voo · <strong>' +
+            entrou + '</strong> entraram · <strong>' +
+            saiu + '</strong> saíram · <strong>' +
+            (mudancas.length) + '</strong> mudanças no total';
+        }
+
+        var ordem = { trocou: 1, entrou: 2, saiu: 3 };
+        mudancas.sort(function (a, b) { return (ordem[a.situacao] || 9) - (ordem[b.situacao] || 9); });
+
+        mudancas.slice(0, 200).forEach(function (m) {
+          var tr = document.createElement('tr');
+          var cor = m.situacao === 'trocou' ? 'var(--amber)' :
+                    (m.situacao === 'entrou' ? 'var(--green)' : 'var(--red)');
+          tr.innerHTML =
+            '<td><span class="crew-name">' + m.tripulante + '</span></td>' +
+            '<td class="hours">' + m.antes + '</td>' +
+            '<td class="hours">' + m.depois + '</td>' +
+            '<td><span class="limit-tag" style="color:' + cor + '">' + m.situacao + '</span></td>';
+          corpo.appendChild(tr);
+        });
+
+        painel.hidden = mudancas.length === 0;
+
+        var btnFechar = document.getElementById('btnFecharMudancas');
+        if (btnFechar && !btnFechar.dataset.ligado) {
+          btnFechar.dataset.ligado = '1';
+          btnFechar.addEventListener('click', function () {
+            document.getElementById('painelMudancas').hidden = true;
+          });
+        }
+      } catch (e) {
+        console.error('painel de mudancas:', e);
+      }
+    }
+
+    var rodarMotor = executarMotor;
+
+let feedItemsData = [];
+    let feedAoVivo = [];
+
+    async function carregarAtividadeAoVivo() {
+      try {
+        const res = await fetch(`${API_URL}/ao-vivo?limite=12`, { credentials: 'include' });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        if (!res.ok) { renderFeed(); return; }
+
+        const dados = await res.json();
+        if (!dados.disponivel) {
+          console.warn('OpenSky indisponível:', dados.erro);
+          renderFeed();
+          return;
+        }
+
+        feedAoVivo = (dados.voos || []).map(function (v) {
+          const altitude = v.altitude_m ? Math.round(v.altitude_m / 100) * 100 : null;
+          const velocidade = v.velocidade_kmh || null;
+          const detalhe = [
+            altitude ? (altitude / 1000).toFixed(1) + ' km de altitude' : null,
+            velocidade ? velocidade + ' km/h' : null,
+            v.na_malha ? 'na malha local' : null
+          ].filter(Boolean).join(' · ');
+
+          return {
+            text: 'Voo ' + v.callsign + (detalhe ? ' — ' + detalhe : ''),
+            time: v.atualizado_em ? new Date(v.atualizado_em) : new Date(),
+            fonte: 'OpenSky'
+          };
+        });
+
+        feedItemsData = feedAoVivo.slice();
+        renderFeed();
+      } catch (e) {
+        console.error('Atividade ao vivo indisponível:', e);
+        renderFeed();
+      }
+    }
+
+    carregarAtividadeAoVivo();
+    setInterval(carregarAtividadeAoVivo, 60000);
 
     function getRelativeTimeString(date) {
       try {
@@ -2035,9 +2342,22 @@ window.addEventListener('DOMContentLoaded', async () => {
         const feedList = document.getElementById('feedList');
         if (!feedList) return;
         feedList.innerHTML = '';
+
+        if (!feedItemsData.length) {
+          const li = document.createElement('li');
+          li.innerHTML = '<span class="feed-time">aguardando</span>' +
+            'Conectando à fonte de dados ao vivo...';
+          feedList.appendChild(li);
+          return;
+        }
+
         feedItemsData.forEach(item => {
           const li = document.createElement('li');
-          li.innerHTML = `<span class="feed-time">${getRelativeTimeString(item.time)}</span>${item.text}`;
+          const selo = item.fonte
+            ? ' <span class="feed-time">(' + item.fonte + ')</span>'
+            : '';
+          li.innerHTML = '<span class="feed-time">' + getRelativeTimeString(item.time) +
+            '</span>' + item.text + selo;
           feedList.appendChild(li);
         });
       } catch(e) {}
@@ -2045,8 +2365,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     function addFeedItem(text) {
       try {
-        feedItemsData.unshift({ text: text, time: new Date() });
-        if (feedItemsData.length > 10) feedItemsData.pop();
+        // Ações do usuário entram no feed, mas não expulsam os voos ao vivo:
+        // a mensagem vai para o topo e o array mantém as entradas do OpenSky.
+        const acao = { text: text, time: new Date(), fonte: null, acao: true };
+        feedItemsData = [acao].concat(feedAoVivo.slice(0, 11));
         renderFeed();
       } catch(e) {}
     }
@@ -2295,6 +2617,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (name === 'escalas' && typeof window.carregarEscalasDoBanco === 'function') {
           window.carregarEscalasDoBanco(true);
         }
+        if (name === 'tripulantes' && typeof window.carregarTripulantes === 'function') {
+          window.carregarTripulantes(false);
+        }
       } catch (e) { console.error('gancho escalas:', e); }
 
       try {
@@ -2476,34 +2801,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (btnSimular) {
-      btnSimular.addEventListener('click', () => {
-        dadosSnapshotSimulacao = JSON.parse(JSON.stringify(dadosOperacionais));
-
-        dadosOperacionais.forEach(d => {
-          if (d.risco === 'alto' || d.risco === 'medio') {
-            d.risco = 'baixo';
-            d.badgeKey = 'normalOperation';
-            d.bloqueado = false;
-            d.solucao = 'replanejado com sucesso';
-            d.horas = '06h30';
-          }
-        });
-        try {
-          localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
-        } catch(e){}
-        gerarDisruptionsDinamicas();
-        gerarEscalasDinamicas();
-
-        if (engineLabel) engineLabel.textContent = 'Simulação em andamento — conflitos atenuados';
-        showStatus('Simulação executada com sucesso. Clique em "Desfazer" para retornar à visualização das disrupções anteriores.', 'ok-msg');
-        if (btnDesfazer) btnDesfazer.disabled = false;
-        addFeedItem('Simulação de replanejamento executada: conflitos mitigados temporariamente.');
+      btnSimular.addEventListener('click', function () {
+        rodarMotor(false);
       });
     }
 
+    var btnSimularNovo = document.getElementById('btnSimular');
+    if (btnSimularNovo) {
+      btnSimularNovo.addEventListener('click', function () { rodarMotor(false); });
+    }
+
     if (btnAplicar) {
-      btnAplicar.addEventListener('click', () => {
-        aplicarEscalaAutomaticaNaVersaoAtual();
+      btnAplicar.addEventListener('click', function () {
+        rodarMotor(true);
       });
     }
 
