@@ -86,7 +86,7 @@ def _token() -> str | None:
                 "client_id": cid,
                 "client_secret": secret,
             },
-            timeout=5,
+            timeout=3,
         )
         resposta.raise_for_status()
         dados = resposta.json()
@@ -104,7 +104,9 @@ def _token() -> str | None:
             _cache["opensky_pausado_ate"] = time.time() + PAUSA_OPENSKY
         current_app.logger.warning("OpenSky: falha ao obter token — %s", detalhe)
         _cache["token"] = None
-        _cache["expira"] = 0.0
+        # Nao insiste: o host de auth nao responde do Render (timeout).
+        # A consulta de dados segue anonima, e esse caminho funciona.
+        _cache["expira"] = time.time() + 600
         return None
 
 
@@ -171,7 +173,7 @@ def _consultar_opensky() -> dict:
         "disponivel": True,
         "fonte": "OpenSky Network",
         "consultado_em": datetime.now(timezone.utc).isoformat(),
-        "autenticado": token is not None,
+        "autenticado": token is not None,  # False = consulta anonima, que funciona
         "total": len(voos),
         "voos": voos,
     }
