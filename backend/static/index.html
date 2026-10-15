@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SkySync — Painel de Escalas</title>
 
-
 <style type="text/css">@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}</style>
+
+
+<style type="text/css">@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}</style>
 <style>
   :root {
     --navy-950: #0A1930;
@@ -405,6 +407,17 @@
   .feed-list li { font-size: 0.85rem; color: var(--text-600-solid); padding-left: 14px; border-left: 2px solid var(--border); line-height: 1.4; word-break: break-word; }
   .feed-time { display: block; font-family: var(--mono); font-size: 0.74rem; color: var(--text-400); }
 
+  /* Mapa da malha — SVG gerado a partir das coordenadas do banco. */
+  .mapa-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-m); padding: 8px; }
+  #mapaMalha { width: 100%; height: auto; display: block; max-height: 420px; }
+  .mapa-pais { fill: var(--surface-alt); stroke: var(--border); stroke-width: 1.5; }
+  .mapa-rota { fill: none; stroke: var(--navy-700); stroke-linecap: round; }
+  .mapa-ponto { fill: var(--navy-900); stroke: var(--surface); stroke-width: 1.5; transition: opacity .25s; }
+  .mapa-hub { fill: var(--focus); stroke-width: 2; }
+  .mapa-label { font-family: var(--mono); font-size: 13px; font-weight: 600; fill: var(--text-600-solid); text-anchor: middle; pointer-events: none; }
+  .mapa-apagado { opacity: 0.12; }
+  .mapa-totais { font-size: 0.82rem; color: var(--text-400); margin: 0 0 12px; }
+
   .interactive-widget { 
     cursor: pointer; 
     transition: all 0.2s ease; 
@@ -613,11 +626,12 @@
 
       <div class="monitor-grid">
         <div class="monitor-card">
-          <h2 class="section-sub monitor-h" data-i18n="realtimeActivity">Atividade em tempo real</h2>
-          <ul class="feed-list" id="feedList">
-            <!-- Gerido dinamicamente -->
-          </ul>
-        </div>
+          <h2 class="section-sub monitor-h">Malha aérea monitorada</h2>
+          <p class="mapa-totais" id="mapaTotais">Carregando a malha...</p>
+          <div class="mapa-wrap">
+            <svg id="mapaMalha" viewBox="0 0 900 900" role="img"
+                 aria-label="Mapa da malha aérea brasileira monitorada pelo SkySync"></svg>
+          </div>
 
         <div class="monitor-card">
           <div class="interactive-widget" id="widgetFatigue" title="Clique para ver detalhes do risco de fadiga acumulado">
@@ -1551,7 +1565,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       } catch (e) {
         console.error("Erro ao carregar do localStorage:", e);
       }
-      // Sem historico local: a tabela espera /api/escalas/alocacoes.
+      // Sem historico local: a tabela espera /api/escalas.
 
       gerarDisruptionsDinamicas();
       gerarEscalasDinamicas();
@@ -1569,7 +1583,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     // ---------------------------------------------------------------------
     function buscarEscalasDoBanco() {
       try {
-        fetch(API_URL + '/escalas/alocacoes', { credentials: 'include' })
+        fetch(API_URL + '/escalas', { credentials: 'include' })
           .then(function (res) {
             if (!res.ok) return null;
             return res.json();
@@ -1640,7 +1654,7 @@ function registrarNovoHistorico(novoConjunto) {
     }
 
     function obterTodosVoosHistorico() {
-      // FONTE UNICA: `dadosOperacionais`, que vem de /api/escalas/alocacoes.
+      // FONTE UNICA: `dadosOperacionais`, que vem de /api/escalas.
       //
       // Antes esta funcao varria `historicoEscalas` — o historico guardado no
       // localStorage pelo front antigo. Os KPIs do painel eram calculados
@@ -2043,7 +2057,6 @@ function registrarNovoHistorico(novoConjunto) {
               aviso.style.color = 'var(--red)';
               aviso.textContent = 'Inviavel: ' + causas.join(' ');
             }
-            addFeedItem('Otimizacao inviavel: ' + causas.join(' '));
             return;
           }
 
@@ -2071,7 +2084,6 @@ function registrarNovoHistorico(novoConjunto) {
             aviso.style.color = gravar ? 'var(--green)' : 'var(--text-600-solid)';
             aviso.textContent = (gravar ? 'Escala publicada: ' : 'Simulacao (nao publicada): ') + resumo;
           }
-          addFeedItem((gravar ? 'Escala publicada no banco: ' : 'Simulacao: ') + resumo);
 
           var eng = document.getElementById('engineLabel');
           if (eng) eng.textContent = 'Motor CP-SAT — ' + d.status;
@@ -2199,7 +2211,7 @@ let feedItemsData = [];
         const dados = await res.json();
         if (!dados.disponivel) {
           console.warn('OpenSky indisponível:', dados.erro);
-          renderFeed();
+
           return;
         }
 
@@ -2220,10 +2232,10 @@ let feedItemsData = [];
         });
 
         feedItemsData = feedAoVivo.slice();
-        renderFeed();
+
       } catch (e) {
         console.error('Atividade ao vivo indisponível:', e);
-        renderFeed();
+
       }
     }
 
@@ -2246,44 +2258,139 @@ let feedItemsData = [];
       } catch(e) { return 'há pouco'; }
     }
 
-    function renderFeed() {
-      try {
-        const feedList = document.getElementById('feedList');
-        if (!feedList) return;
-        feedList.innerHTML = '';
+// Bloco do mapa SVG — substitui a "Atividade em tempo real".
+// Aplicado em docs/index.html e backend/static/index.html.
 
-        if (!feedItemsData.length) {
-          const li = document.createElement('li');
-          li.innerHTML = '<span class="feed-time">aguardando</span>' +
-            'Conectando à fonte de dados ao vivo...';
-          feedList.appendChild(li);
-          return;
-        }
+// ---------------------------------------------------------------------------
+// MAPA DA MALHA AÉREA
+//
+// Substitui o feed de atividade. Desenha os 97 aeroportos e as 140 rotas da
+// malha com as coordenadas reais do banco, em SVG puro — sem Leaflet, sem
+// tiles, sem serviço externo. Foi decisão de projeto depois do episódio com
+// as APIs de ADS-B: eliminar dependência de rede que não podemos controlar.
+// ---------------------------------------------------------------------------
+const MAPA_LARGURA = 900;
+const MAPA_ALTURA = 900;
 
-        feedItemsData.forEach(item => {
-          const li = document.createElement('li');
-          const selo = item.fonte
-            ? ' <span class="feed-time">(' + item.fonte + ')</span>'
-            : '';
-          li.innerHTML = '<span class="feed-time">' + getRelativeTimeString(item.time) +
-            '</span>' + item.text + selo;
-          feedList.appendChild(li);
-        });
-      } catch(e) {}
+let dadosMapa = null;
+
+async function carregarMapaMalha() {
+  try {
+    const res = await fetch(`${API_URL}/mapa/malha?largura=${MAPA_LARGURA}&altura=${MAPA_ALTURA}`, {
+      credentials: 'include'
+    });
+    if (res.status === 401) { window.location.href = 'login.html'; return; }
+    if (!res.ok) { console.warn('mapa indisponível'); return; }
+
+    dadosMapa = await res.json();
+    desenharMapa();
+    atualizarTotaisMapa();
+  } catch (e) {
+    console.error('mapa da malha indisponível:', e);
+  }
+}
+
+function atualizarTotaisMapa() {
+  if (!dadosMapa || !dadosMapa.totais) return;
+  const t = dadosMapa.totais;
+  const el = document.getElementById('mapaTotais');
+  if (!el) return;
+  el.textContent = t.aeroportos + ' aeroportos · ' + t.voos + ' voos · ' +
+                   t.tripulantes + ' tripulantes · ' + t.alocacoes + ' alocações';
+}
+
+function desenharMapa() {
+  const svg = document.getElementById('mapaMalha');
+  if (!svg || !dadosMapa) return;
+
+  const { largura, altura } = dadosMapa.viewBox;
+  svg.setAttribute('viewBox', `0 0 ${largura} ${altura}`);
+
+  // Espessura do arco pela frequência da rota (1 a 4 px).
+  const maxFreq = Math.max(1, ...dadosMapa.rotas.map(r => r.frequencia));
+
+  let html = '';
+
+  // 1. Contorno do Brasil
+  const pontos = dadosMapa.contorno.map(p => `${p.x},${p.y}`).join(' ');
+  html += `<polygon class="mapa-pais" points="${pontos}" />`;
+
+  // 2. Rotas — arcos curvos entre origem e destino.
+  //    A curvatura (perpendicular ao meio da linha) evita que a ida e a volta
+  //    fiquem sobrepostas.
+  html += '<g class="mapa-rotas">';
+  for (const r of dadosMapa.rotas) {
+    const mx = (r.x1 + r.x2) / 2;
+    const my = (r.y1 + r.y2) / 2;
+    const dx = r.x2 - r.x1;
+    const dy = r.y2 - r.y1;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const curvatura = Math.min(dist * 0.18, 90);
+    const cx = mx - (dy / dist) * curvatura;
+    const cy = my + (dx / dist) * curvatura;
+
+    const grossura = (0.6 + (r.frequencia / maxFreq) * 3.4).toFixed(2);
+    const opacidade = (0.25 + (r.frequencia / maxFreq) * 0.5).toFixed(2);
+
+    html += `<path class="mapa-rota" d="M ${r.x1} ${r.y1} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${r.x2} ${r.y2}" ` +
+            `stroke-width="${grossura}" stroke-opacity="${opacidade}">` +
+            `<title>${r.origem} → ${r.destino} · ${r.frequencia} voo(s)</title></path>`;
+  }
+  html += '</g>';
+
+  // 3. Aeroportos — raio pelo volume de partidas.
+  const maxPart = Math.max(1, ...dadosMapa.aeroportos.map(a => a.partidas));
+  html += '<g class="mapa-aeroportos">';
+  for (const a of dadosMapa.aeroportos) {
+    const raio = (2.4 + (a.partidas / maxPart) * 5.6).toFixed(2);
+    const classe = a.hub ? 'mapa-ponto mapa-hub' : 'mapa-ponto';
+    html += `<circle class="${classe}" cx="${a.x}" cy="${a.y}" r="${raio}" ` +
+            `data-regiao="${a.regiao}" data-iata="${a.iata}">` +
+            `<title>${a.iata} — ${a.cidade}/${a.uf} · ${a.partidas} partida(s)</title></circle>`;
+    // Rótulo só nos aeroportos com movimento, para não poluir.
+    if (a.partidas >= maxPart * 0.25 || a.hub) {
+      html += `<text class="mapa-label" x="${a.x}" y="${a.y - 8}">${a.iata}</text>`;
     }
+  }
+  html += '</g>';
 
-    function addFeedItem(text) {
-      try {
-        // Ações do usuário entram no feed, mas não expulsam os voos ao vivo:
-        // a mensagem vai para o topo e o array mantém as entradas do OpenSky.
-        const acao = { text: text, time: new Date(), fonte: null, acao: true };
-        feedItemsData = [acao].concat(feedAoVivo.slice(0, 11));
-        renderFeed();
-      } catch(e) {}
-    }
+  svg.innerHTML = html;
+}
 
-    renderFeed();
-    setInterval(renderFeed, 60000);
+// Filtro por região — os botões que já existem na aba passam a filtrar o mapa.
+function filtrarMapaPorRegiao(regiao) {
+  const svg = document.getElementById('mapaMalha');
+  if (!svg) return;
+  const pontos = svg.querySelectorAll('.mapa-ponto');
+  const rotas = svg.querySelectorAll('.mapa-rota');
+
+  if (!regiao || regiao === 'todas') {
+    pontos.forEach(p => p.classList.remove('mapa-apagado'));
+    rotas.forEach(r => r.classList.remove('mapa-apagado'));
+    return;
+  }
+
+  // Quais aeroportos pertencem à região
+  const daRegiao = new Set(
+    (dadosMapa.aeroportos || [])
+      .filter(a => a.regiao === regiao)
+      .map(a => a.iata)
+  );
+
+  pontos.forEach(p => {
+    p.classList.toggle('mapa-apagado', !daRegiao.has(p.dataset.iata));
+  });
+
+  // Rota fica visível se uma das pontas é da região
+  dadosMapa.rotas.forEach((r, i) => {
+    const visivel = daRegiao.has(r.origem) || daRegiao.has(r.destino);
+    if (rotas[i]) rotas[i].classList.toggle('mapa-apagado', !visivel);
+  });
+}
+
+carregarMapaMalha();
+setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
+
 
     function tick() {
       try {
@@ -2473,7 +2580,7 @@ let feedItemsData = [];
       window.carregarEscalasDoBanco = async function (silencioso) {
         var aviso = document.getElementById('liveStatus');
         try {
-          var res = await fetch(API_URL + '/escalas/alocacoes', { credentials: 'include' });
+          var res = await fetch(API_URL + '/escalas', { credentials: 'include' });
           if (res.status === 401) { window.location.href = 'login.html'; return; }
           if (!res.ok) { throw new Error('HTTP ' + res.status); }
 
@@ -2742,7 +2849,6 @@ let feedItemsData = [];
         if (engineLabel) engineLabel.textContent = 'Ativo — otimizado com sucesso';
         showStatus('Simulação desfeita. As disrupções e escalas anteriores foram restauradas.', 'blocked');
         if (btnDesfazer) btnDesfazer.disabled = true;
-        addFeedItem('Simulação desfeita: estado anterior restaurado.');
       });
     }
   } catch (err) {
