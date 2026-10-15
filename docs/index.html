@@ -2306,7 +2306,7 @@ let feedItemsData = [];
           return {
             text: 'Voo ' + v.callsign + (detalhe ? ' — ' + detalhe : ''),
             time: v.atualizado_em ? new Date(v.atualizado_em) : new Date(),
-            fonte: 'OpenSky'
+            fonte: dados.fonte || 'ADS-B'
           };
         });
 

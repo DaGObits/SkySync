@@ -86,7 +86,7 @@ def _token() -> str | None:
                 "client_id": cid,
                 "client_secret": secret,
             },
-            timeout=10,
+            timeout=5,
         )
         resposta.raise_for_status()
         dados = resposta.json()
@@ -100,6 +100,8 @@ def _token() -> str | None:
         if resp is not None:
             detalhe = f"HTTP {resp.status_code}: {resp.text[:200]}"
         _cache["erro_token"] = detalhe
+        if "timed out" in detalhe or "Max retries" in detalhe:
+            _cache["opensky_pausado_ate"] = time.time() + PAUSA_OPENSKY
         current_app.logger.warning("OpenSky: falha ao obter token — %s", detalhe)
         _cache["token"] = None
         _cache["expira"] = 0.0
@@ -123,7 +125,7 @@ def _consultar_opensky() -> dict:
         API_OPENSKY,
         params=BRASIL,
         headers=headers,
-        timeout=15,
+        timeout=5,
     )
     resposta.raise_for_status()
     bruto = resposta.json()
@@ -175,6 +177,87 @@ def _consultar_opensky() -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Fonte alternativa: airplanes.live
+#
+# O OpenSky nao responde a conexoes vindas do Render (timeout ao conectar em
+# auth.opensky-network.org), embora funcione de uma rede residencial. Para o
+# painel nao depender de uma unica fonte, cai para a airplanes.live, que serve
+# os mesmos dados ADS-B sem autenticacao. A API consulta por ponto + raio
+# (max. 250 NM), entao o Brasil e coberto por cinco pontos.
+# ---------------------------------------------------------------------------
+API_AIRPLANES = "[api.airplanes.live](https://api.airplanes.live/v2/point/{lat}/{lon}/250)"
+
+#: Pontos que cobrem as cinco regioes (lat, lon).
+PONTOS_BRASIL = (
+    (-23.43, -46.47),  # Sudeste — GRU
+    (-15.87, -47.92),  # Centro-Oeste — BSB
+    (-8.13, -34.92),   # Nordeste — REC
+    (-3.04, -60.05),   # Norte — MAO
+    (-29.99, -51.17),  # Sul — POA
+)
+
+#: Depois de um timeout, o OpenSky fica em pausa por este tempo (segundos).
+PAUSA_OPENSKY = 600
+
+
+def _consultar_airplanes_live() -> dict:
+    vistos: dict[str, dict] = {}
+    agora_iso = datetime.now(timezone.utc).isoformat()
+
+    for i, (lat, lon) in enumerate(PONTOS_BRASIL):
+        if i:
+            time.sleep(1.1)  # a API pede no maximo ~1 requisicao por segundo
+        r = requests.get(API_AIRPLANES.format(lat=lat, lon=lon), timeout=8)
+        r.raise_for_status()
+        for a in r.json().get("ac") or []:
+            callsign = (a.get("flight") or "").strip().upper()
+            if not re.fullmatch(r"[A-Z]{3}\d{3,4}", callsign):
+                continue
+            alt = a.get("alt_baro")
+            if alt in (None, "ground"):
+                continue
+            hexid = a.get("hex")
+            if hexid in vistos:  # raios se sobrepoem
+                continue
+            gs = a.get("gs")  # nos
+            vistos[hexid] = {
+                "icao24": hexid,
+                "callsign": callsign,
+                "pais_origem": None,
+                "longitude": a.get("lon"),
+                "latitude": a.get("lat"),
+                "altitude_m": round(float(alt) * 0.3048),
+                "no_solo": False,
+                "velocidade_ms": round(gs * 0.5144) if gs is not None else None,
+                "velocidade_kmh": round(gs * 1.852) if gs is not None else None,
+                "direcao": round(a["track"]) if a.get("track") is not None else None,
+                "atualizado_em": agora_iso,
+            }
+
+    voos = list(vistos.values())
+    return {
+        "disponivel": True,
+        "fonte": "airplanes.live",
+        "consultado_em": agora_iso,
+        "autenticado": False,
+        "total": len(voos),
+        "voos": voos,
+    }
+
+
+def _consultar_com_fallback() -> dict:
+    """OpenSky primeiro; se falhar (ou estiver em pausa), airplanes.live."""
+    if time.time() >= _cache.get("opensky_pausado_ate", 0.0):
+        try:
+            return _consultar_opensky()
+        except Exception as err:
+            _cache["erro_consulta_opensky"] = str(err)[:200]
+            _cache["opensky_pausado_ate"] = time.time() + PAUSA_OPENSKY
+            current_app.logger.warning("OpenSky falhou, usando airplanes.live: %s", err)
+    return _consultar_airplanes_live()
+
+
 def _do_cache() -> dict:
     """Devolve o cache se estiver fresco; consulta de novo se venceu."""
     agora = time.time()
@@ -186,7 +269,7 @@ def _do_cache() -> dict:
         return dados
 
     try:
-        dados = _consultar_opensky()
+        dados = _consultar_com_fallback()
         _cache["dados"] = dados
         _cache["quando"] = agora
         dados["cache"] = False
@@ -273,6 +356,8 @@ def status():
         ),
         "ttl_segundos": TTL_CACHE,
         "erro_token": _cache.get("erro_token"),
+        "fonte_atual": (_cache.get("dados") or {}).get("fonte"),
+        "opensky_em_pausa": time.time() < _cache.get("opensky_pausado_ate", 0.0),
         "erro_consulta": (_cache.get("dados") or {}).get("erro"),
         "client_id_tamanho": len(os.getenv("OPENSKY_CLIENT_ID", "")),
         "client_id_tem_espaco_ou_aspas": any(
