@@ -186,7 +186,7 @@ def _consultar_opensky() -> dict:
 # os mesmos dados ADS-B sem autenticacao. A API consulta por ponto + raio
 # (max. 250 NM), entao o Brasil e coberto por cinco pontos.
 # ---------------------------------------------------------------------------
-API_AIRPLANES = "[api.airplanes.live](https://api.airplanes.live/v2/point/{lat}/{lon}/250)"
+API_AIRPLANES = "https://api.airplanes.live/v2/point/{lat}/{lon}/250"
 
 #: Pontos que cobrem as cinco regioes (lat, lon).
 PONTOS_BRASIL = (
@@ -202,14 +202,27 @@ PAUSA_OPENSKY = 600
 
 
 def _consultar_airplanes_live() -> dict:
+    """Consulta a airplanes.live em cinco pontos que cobrem o Brasil.
+
+    A API aceita ponto + raio (max. 250 NM) e nao exige autenticacao. Os raios
+    se sobrepoem, entao a aeronave vista em dois pontos entra uma vez so —
+    a deduplicacao e por `hex` (ICAO24).
+    """
     vistos: dict[str, dict] = {}
     agora_iso = datetime.now(timezone.utc).isoformat()
+    erros = []
 
     for i, (lat, lon) in enumerate(PONTOS_BRASIL):
         if i:
             time.sleep(1.1)  # a API pede no maximo ~1 requisicao por segundo
-        r = requests.get(API_AIRPLANES.format(lat=lat, lon=lon), timeout=8)
-        r.raise_for_status()
+        url = API_AIRPLANES.replace("{lat}", str(lat)).replace("{lon}", str(lon))
+        try:
+            r = requests.get(url, timeout=8)
+            r.raise_for_status()
+        except Exception as err:
+            erros.append(f"{lat},{lon}: {str(err)[:80]}")
+            continue
+
         for a in r.json().get("ac") or []:
             callsign = (a.get("flight") or "").strip().upper()
             if not re.fullmatch(r"[A-Z]{3}\d{3,4}", callsign):
@@ -218,7 +231,7 @@ def _consultar_airplanes_live() -> dict:
             if alt in (None, "ground"):
                 continue
             hexid = a.get("hex")
-            if hexid in vistos:  # raios se sobrepoem
+            if not hexid or hexid in vistos:
                 continue
             gs = a.get("gs")  # nos
             vistos[hexid] = {
@@ -236,7 +249,7 @@ def _consultar_airplanes_live() -> dict:
             }
 
     voos = list(vistos.values())
-    return {
+    resultado = {
         "disponivel": True,
         "fonte": "airplanes.live",
         "consultado_em": agora_iso,
@@ -244,6 +257,10 @@ def _consultar_airplanes_live() -> dict:
         "total": len(voos),
         "voos": voos,
     }
+    if not voos and erros:
+        resultado["disponivel"] = False
+        resultado["erro"] = " | ".join(erros)[:300]
+    return resultado
 
 
 def _consultar_com_fallback() -> dict:
