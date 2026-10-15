@@ -6,6 +6,7 @@ from blueprints import (
     cenarios,
     escalas,
     escalas_voos,
+    mapa,
     otimizacao,
     perfil,
     tripulantes,
@@ -22,6 +23,7 @@ TODOS = (
     tripulantes.bp,
     escalas_voos.bp,
     ao_vivo.bp,
+    mapa.bp,
 )
 
 __all__ = [
@@ -30,6 +32,7 @@ __all__ = [
     "auth",
     "cenarios",
     "escalas",
+    "mapa",
     "otimizacao",
     "perfil",
     "tripulantes",
