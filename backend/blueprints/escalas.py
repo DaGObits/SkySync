@@ -14,7 +14,7 @@ from blueprints.auth import login_obrigatorio
 from db import transacao
 from models import ValidacaoError, validar_lista_escalas
 
-bp = Blueprint("escalas", __name__, url_prefix="/api/escalas")
+bp = Blueprint("escalas", __name__, url_prefix="/api/historico")
 
 ESCALA_PADRAO = [
     {
