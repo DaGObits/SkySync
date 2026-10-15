@@ -12,9 +12,10 @@ DECISÕES DE PROJETO:
    usuário do painel consultasse direto, o limite estouraria em minutos. Com o
    cache, N usuários compartilham a mesma resposta.
 
-2. **Autenticação no backend.** As credenciais (`OPENSKY_CLIENT_ID` e
-   `OPENSKY_CLIENT_SECRET`) ficam no `.env` e nunca chegam ao navegador. O
-   token OAuth2 é renovado quando expira.
+2. **Sem autenticação.** O host de auth do OpenSky não responde a partir de
+   hospedagem em nuvem (`auth.opensky-network.org` dá timeout), mas o host de
+   dados responde 200 anonimamente. O limite anônimo (~100 consultas/dia por
+   IP) cobre a demonstração, e o cache reduz o consumo.
 
 3. **Falha não quebra o painel.** Se o OpenSky não responder, a rota devolve
    `disponivel: false` com o último dado válido em cache, e o front mostra o
@@ -51,63 +52,13 @@ TTL_CACHE = 300
 #: URL da API do OpenSky.
 API_OPENSKY = "https://opensky-network.org/api/states/all"
 
-#: URL do token OAuth2.
-API_TOKEN = ("https://auth.opensky-network.org/auth/realms/opensky-network/"
-             "protocol/openid-connect/token")
-
-#: Cache em memória: {"dados": ..., "quando": timestamp, "token": ..., "expira": ...}
-_cache: dict = {"dados": None, "quando": 0.0, "token": None, "expira": 0.0}
+#: Cache em memória. Só resultado BOM entra aqui.
+_cache: dict = {"dados": None, "quando": 0.0, "erro_consulta_opensky": None}
 
 
 # ---------------------------------------------------------------------------
 # Autenticação
 # ---------------------------------------------------------------------------
-def _credenciais() -> tuple[str, str] | None:
-    cid = os.getenv("OPENSKY_CLIENT_ID", "").strip()
-    secret = os.getenv("OPENSKY_CLIENT_SECRET", "").strip()
-    return (cid, secret) if cid and secret else None
-
-
-def _token() -> str | None:
-    """Token OAuth2, renovado quando expira. Sem credenciais, devolve None e a
-    consulta segue anônima (limite menor)."""
-    creds = _credenciais()
-    if creds is None:
-        return None
-
-    agora = time.time()
-    if _cache["token"] and agora < _cache["expira"]:
-        return _cache["token"]
-
-    cid, secret = creds
-    try:
-        resposta = requests.post(
-            API_TOKEN,
-            data={
-                "grant_type": "client_credentials",
-                "client_id": cid,
-                "client_secret": secret,
-            },
-            timeout=3,
-        )
-        resposta.raise_for_status()
-        dados = resposta.json()
-        _cache["token"] = dados["access_token"]
-        # Renova 30s antes de expirar, para não usar um token vencido.
-        _cache["expira"] = agora + int(dados.get("expires_in", 1800)) - 30
-        return _cache["token"]
-    except Exception as err:
-        detalhe = str(err)
-        resp = getattr(err, "response", None)
-        if resp is not None:
-            detalhe = f"HTTP {resp.status_code}: {resp.text[:200]}"
-        _cache["erro_token"] = detalhe
-        current_app.logger.warning("OpenSky: falha ao obter token — %s", detalhe)
-        _cache["token"] = None
-        # Nao insiste: o host de auth nao responde do Render (timeout).
-        # A consulta de dados segue anonima, e esse caminho funciona.
-        _cache["expira"] = time.time() + 600
-        return None
 
 
 # ---------------------------------------------------------------------------
@@ -120,13 +71,11 @@ def _consultar_opensky() -> dict:
       [icao24, callsign, origem, hora_pos, hora_contato, lon, lat, altitude,
        on_ground, velocidade, direcao, taxa_vertical, ...]
     """
-    token = _token()
-    headers = {"Authorization": f"Bearer {token}"} if token else {}
-
+    # Sem autenticação: o endpoint público do OpenSky responde 200 daqui.
+    # O limite anônimo (~100 consultas/dia por IP) cobre a demonstração.
     resposta = requests.get(
         API_OPENSKY,
         params=BRASIL,
-        headers=headers,
         timeout=5,
     )
     resposta.raise_for_status()
@@ -173,7 +122,7 @@ def _consultar_opensky() -> dict:
         "disponivel": True,
         "fonte": "OpenSky Network",
         "consultado_em": datetime.now(timezone.utc).isoformat(),
-        "autenticado": token is not None,  # False = consulta anonima, que funciona
+        "autenticado": False,  # consulta anonima por decisao de projeto
         "total": len(voos),
         "voos": voos,
     }
@@ -198,9 +147,6 @@ PONTOS_BRASIL = (
     (-3.04, -60.05),   # Norte — MAO
     (-29.99, -51.17),  # Sul — POA
 )
-
-#: Depois de um timeout, o OpenSky fica em pausa por este tempo (segundos).
-PAUSA_OPENSKY = 600
 
 
 def _consultar_airplanes_live() -> dict:
@@ -369,31 +315,15 @@ def voos_ao_vivo():
 @login_obrigatorio
 def status():
     """Estado do cache e das credenciais — para diagnosticar o painel."""
-    creds = _credenciais()
-    # Busca o token se ainda não houver um válido: sem isto, o /status respondia
-    # "token_valido": false logo após o boot mesmo com as credenciais corretas
-    # — o token só nascia na primeira consulta de voos, e o diagnóstico mentia.
-    token = _token()
     return jsonify({
-        "credenciais": "configuradas" if creds else "ausentes (consulta anônima)",
-        "token_valido": bool(token and _cache["token"] and time.time() < _cache["expira"]),
         "cache_tem_dados": _cache["dados"] is not None,
         "cache_idade_segundos": (
             round(time.time() - _cache["quando"]) if _cache["quando"] else None
         ),
         "ttl_segundos": TTL_CACHE,
-        "erro_token": _cache.get("erro_token"),
+        "erro_opensky": _cache.get("erro_consulta_opensky"),
         "fonte_atual": (_cache.get("dados") or {}).get("fonte"),
-        "opensky_em_pausa": time.time() < _cache.get("opensky_pausado_ate", 0.0),
         "erro_consulta": (_cache.get("dados") or {}).get("erro"),
-        "client_id_tamanho": len(os.getenv("OPENSKY_CLIENT_ID", "")),
-        "client_id_tem_espaco_ou_aspas": any(
-            c in os.getenv("OPENSKY_CLIENT_ID", "") for c in " \"'\n\r"
-        ),
-        "secret_tamanho": len(os.getenv("OPENSKY_CLIENT_SECRET", "")),
-        "secret_tem_espaco_ou_aspas": any(
-            c in os.getenv("OPENSKY_CLIENT_SECRET", "") for c in " \"'\n\r"
-        ),
     })
 
 
