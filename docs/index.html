@@ -1014,6 +1014,11 @@ const API_URL = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hos
   ? '/api'
   : 'https://skysync-api.onrender.com/api';
 
+// Um serviço indisponível não pode deixar a tela carregando indefinidamente.
+function fetchComPrazo(url, options = {}) {
+  return fetch(url, { ...options, signal: AbortSignal.timeout(20000) });
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   try {
     const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado') || 'null');
@@ -1030,23 +1035,26 @@ window.addEventListener('DOMContentLoaded', async () => {
       idioma: usuarioLogado.idioma || 'pt-BR'
     };
 
-    try {
-      const res = await fetch(`${API_URL}/perfil`, { credentials: 'include' });
+    async function carregarPerfil() {
+      try {
+        const res = await fetchComPrazo(`${API_URL}/perfil`, { credentials: 'include' });
 
-      if (res.status === 401) {
-        localStorage.removeItem('usuario_logado');
-        window.location.href = "login.html";
-        return;
-      }
+        if (res.status === 401) {
+          localStorage.removeItem('usuario_logado');
+          window.location.href = "login.html";
+          return;
+        }
 
-      if (res.ok) {
-        const perfilBanco = await res.json();
-        if (perfilBanco.nome) settings.name = perfilBanco.nome;
-        if (perfilBanco.cargo) settings.role = perfilBanco.cargo;
-        if (perfilBanco.base) settings.base = perfilBanco.base;
+        if (res.ok) {
+          const perfilBanco = await res.json();
+          if (perfilBanco.nome) settings.name = perfilBanco.nome;
+          if (perfilBanco.cargo) settings.role = perfilBanco.cargo;
+          if (perfilBanco.base) settings.base = perfilBanco.base;
+          applySettingsToDOM();
+        }
+      } catch (e) {
+        console.error("Erro ao buscar perfil remoto (utilizando dados locais):", e);
       }
-    } catch (e) {
-      console.error("Erro ao buscar perfil remoto (utilizando dados locais):", e);
     }
 
     const btnLogout = document.getElementById('btnLogout');
@@ -1055,7 +1063,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             // Encerra a sessão no SERVIDOR também. Antes, o logout só limpava o
             // localStorage e o cookie continuava válido — a sessão sobrevivia.
             try {
-                await fetch(`${API_URL}/auth/logout`, {
+                await fetchComPrazo(`${API_URL}/auth/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 });
@@ -1713,7 +1721,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         usuarioLogadoAtual.idioma = settings.idioma;
         localStorage.setItem('usuario_logado', JSON.stringify(usuarioLogadoAtual));
 
-        await fetch(`${API_URL}/perfil`, {
+        await fetchComPrazo(`${API_URL}/perfil`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -2156,7 +2164,7 @@ let feedItemsData = [];
 
     async function carregarAtividadeAoVivo() {
       try {
-        const res = await fetch(`${API_URL}/ao-vivo?limite=12`, { credentials: 'include' });
+        const res = await fetchComPrazo(`${API_URL}/ao-vivo?limite=12`, { credentials: 'include' });
         if (res.status === 401) { window.location.href = 'login.html'; return; }
         if (!res.ok) { renderFeed(); return; }
 
@@ -2228,7 +2236,7 @@ let dadosMapa = null;
 
 async function carregarMapaMalha() {
   try {
-    const res = await fetch(`${API_URL}/mapa/malha?largura=${MAPA_LARGURA}&altura=${MAPA_ALTURA}`, {
+    const res = await fetchComPrazo(`${API_URL}/mapa/malha?largura=${MAPA_LARGURA}&altura=${MAPA_ALTURA}`, {
       credentials: 'include'
     });
     if (res.status === 401) { window.location.href = 'login.html'; return; }
@@ -2401,7 +2409,7 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
 
     async function carregarResumoTripulantes() {
       try {
-        const res = await fetch(`${API_URL}/tripulantes/resumo`, { credentials: 'include' });
+        const res = await fetchComPrazo(`${API_URL}/tripulantes/resumo`, { credentials: 'include' });
         if (res.status === 401) { window.location.href = 'login.html'; return; }
         if (!res.ok) return;
         const d = await res.json();
@@ -2450,7 +2458,7 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
       if (estadoTripulantes.status) filtros.set('status', estadoTripulantes.status);
 
       try {
-        const res = await fetch(`${API_URL}/tripulantes?${filtros.toString()}`, { credentials: 'include' });
+        const res = await fetchComPrazo(`${API_URL}/tripulantes?${filtros.toString()}`, { credentials: 'include' });
         if (res.status === 401) { window.location.href = 'login.html'; return; }
         if (!res.ok) throw new Error('HTTP ' + res.status);
 
@@ -2532,7 +2540,7 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
       window.carregarEscalasDoBanco = async function (silencioso) {
         var aviso = document.getElementById('liveStatus');
         try {
-          var res = await fetch(API_URL + '/escalas', { credentials: 'include' });
+          var res = await fetchComPrazo(API_URL + '/escalas', { credentials: 'include' });
           if (res.status === 401) { window.location.href = 'login.html'; return; }
           if (!res.ok) { throw new Error('HTTP ' + res.status); }
 
@@ -2797,6 +2805,7 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
         if (btnDesfazer) btnDesfazer.disabled = true;
       });
     }
+    carregarPerfil();
   } catch (err) {
     console.error("Erro geral recuperado no SkySync:", err);
   }

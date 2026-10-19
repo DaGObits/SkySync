@@ -94,3 +94,51 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
     }
   });
 }
+
+for (const file of ['docs/index.html', 'backend/static/index.html']) {
+  test(`${file}: perfil pendente não bloqueia interface e API sem resposta exibe erro`, async () => {
+    const browser = await chromium.launch({
+      ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}),
+      args: ['--no-sandbox']
+    });
+    try {
+      const page = await browser.newPage();
+      let slowScales = false;
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      await page.addInitScript(() => {
+        localStorage.setItem('usuario_logado', JSON.stringify({ email: 'local@example.test', nome: 'Teste' }));
+        const timeout = AbortSignal.timeout.bind(AbortSignal);
+        AbortSignal.timeout = () => timeout(500);
+      });
+      await page.route('**/*', async route => {
+        const url = new URL(route.request().url());
+        if (url.href === 'http://localhost/') {
+          return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', file), 'utf8') });
+        }
+        // Leave these requests pending to reproduce an unresponsive API.
+        if (url.pathname === '/api/perfil') return;
+        if (url.pathname === '/api/escalas') {
+          if (slowScales) return;
+          return route.fulfill({ json: { data: '2026-10-19', total: 1, conformes: 0, escalas: [escala] } });
+        }
+        return route.fulfill({ json: {} });
+      });
+      await page.goto('http://localhost/');
+      await page.waitForFunction(() => document.querySelectorAll('#crewTable tr').length === 1);
+      assert.match(await page.locator('#utcClock').innerText(), /\d{2}:\d{2}/);
+      await page.evaluate(() => document.querySelector('.nav-btn[data-screen="escalas"]').click());
+      assert.equal(await page.locator('#screen-escalas').isVisible(), true);
+      assert.equal(await page.locator('#disruptionsGrid .alert-card').count(), 1);
+
+      slowScales = true;
+      await page.evaluate(() => window.carregarEscalasDoBanco(true));
+      assert.match(await page.locator('#liveStatus').innerText(), /Não foi possível carregar/);
+      // Retain the last successful response when a refresh times out.
+      assert.equal(await page.locator('#crewTable tr').count(), 1);
+      assert.deepEqual(errors, []);
+    } finally {
+      await browser.close();
+    }
+  });
+}
