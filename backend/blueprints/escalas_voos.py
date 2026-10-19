@@ -248,14 +248,18 @@ def listar_escalas():
 @bp.post("/escalas/otimizar")
 @login_obrigatorio
 def otimizar_e_gravar():
-    """Roda o CP-SAT sobre os voos e jornadas DO BANCO e grava o resultado.
+    """Roda CP-SAT com jornadas da data ou um cenário fictício em memória.
 
     Este e o endpoint que fecha o ciclo: antes dele, a otimizacao recebia tudo
     no corpo da requisicao e nada persistia. Aqui a entrada vem das tabelas
     `voos` e `jornadas`, e a saida vai para `escalas`.
 
     Corpo (opcional):
-        {"data": "...", "limite_voos": 30, "base": "GRU", "so_disponiveis": true}
+        {"data": "...", "limite_voos": 30, "base": "GRU", "gravar": false,
+         "simulacao_jornadas": {"seed": 42, "perfil": "leve"}}
+
+    Sem gravar=true, não altera jornadas nem escalas. Jornadas fictícias não
+    podem ser publicadas; servem apenas para experimentar o solver.
     """
     from models import Tripulante, Voo
 
@@ -263,7 +267,21 @@ def otimizar_e_gravar():
     if not isinstance(corpo, dict):
         return jsonify({"erro": "corpo deve ser um objeto JSON"}), 400
 
-    dia = str(corpo.get("data") or date.today())
+    from blueprints.jornadas_simulacao import validar_data, montar_cenario
+    try:
+        dia = validar_data(corpo.get('data'))
+    except ValueError as exc:
+        return jsonify({'erro': str(exc)}), 400
+    gravar = corpo.get('gravar', False)
+    if not isinstance(gravar, bool):
+        return jsonify({'erro': 'gravar deve ser true ou false'}), 400
+    simulacao = corpo.get('simulacao_jornadas')
+    if simulacao is not None and gravar:
+        return jsonify({'erro': 'Jornadas simuladas não podem publicar uma escala. Use gravar=false.'}), 400
+    try:
+        cenario = montar_cenario(simulacao, dia) if simulacao is not None else None
+    except ValueError as exc:
+        return jsonify({'erro': str(exc)}), 400
     base = str(corpo.get("base") or "GRU").strip().upper()
     so_disponiveis = bool(corpo.get("so_disponiveis", True))
 
@@ -289,7 +307,7 @@ def otimizar_e_gravar():
             }), 400
 
         condicao_disp = (
-            " AND j.descanso_ok = TRUE AND j.aclimatado = TRUE"
+            " AND j.descanso_ok = TRUE"
             " AND j.horas_acumuladas < j.limite_horas"
             if so_disponiveis else ""
         )
@@ -299,9 +317,9 @@ def otimizar_e_gravar():
                    j.horas_acumuladas, j.limite_horas, j.descanso_ok, j.aclimatado
             FROM jornadas j
             JOIN tripulantes t ON t.id = j.tripulante_id
-            WHERE 1 = 1{condicao_disp}
-            """
-        ).fetchall()
+            WHERE j.periodo = %s AND t.status IN ('Disponível', 'Reserva'){condicao_disp}
+            """, (dia,)
+        ).fetchall() if cenario is None else []
 
     voos = [
         Voo(
@@ -312,7 +330,7 @@ def otimizar_e_gravar():
         for l in linhas_voos
     ]
 
-    tripulantes = [
+    tripulantes = [Tripulante(**j) for j in cenario['jornadas']] if cenario is not None else [
         Tripulante(
             id=l["tripulante_id"], nome=l["nome"], cargo=l["cargo"], base=l["base"],
             horas_acumuladas=l["horas_acumuladas"], limite_horas=l["limite_horas"],
@@ -320,6 +338,10 @@ def otimizar_e_gravar():
         )
         for l in linhas_jornadas
     ]
+
+    if not tripulantes:
+        return jsonify({'erro': 'Nenhuma jornada disponível para a data escolhida.',
+                        'dica': 'Gere um cenário de jornadas simuladas para testar ou cadastre jornadas dessa data.'}), 400
 
     # A malha é carregada AQUI (temos app_context) e passada ao solver, que
     # por regra não importa Flask.
@@ -342,7 +364,8 @@ def otimizar_e_gravar():
             bases_por_regiao=regioes,
         )
     except OtimizacaoInviavel as err:
-        _registrar_execucao(base, "INFEASIBLE", None, len(tripulantes), len(voos))
+        if cenario is None:
+            _registrar_execucao(base, "INFEASIBLE", None, len(tripulantes), len(voos))
         return jsonify({
             "status": "INFEASIBLE",
             "base": base,
@@ -352,13 +375,21 @@ def otimizar_e_gravar():
     except RuntimeError as err:
         return jsonify({"status": "UNKNOWN", "mensagem": str(err)}), 500
 
-    execucao_id = _registrar_execucao(
-        base, solucao.status, solucao, len(tripulantes), len(voos)
-    )
-    gravadas, ignoradas = _gravar_escalas(solucao, dia, execucao_id)
+    execucao_id = None
+    gravadas, ignoradas = 0, 0
+    if gravar:
+        execucao_id = _registrar_execucao(base, solucao.status, solucao, len(tripulantes), len(voos))
+        try:
+            gravadas, ignoradas = _gravar_escalas(solucao, dia, execucao_id)
+        except RuntimeError as exc:
+            return jsonify({'status': 'CONFLITO', 'mensagem': str(exc)}), 409
 
     resposta = solucao.to_dict()
     resposta["data"] = dia
+    resposta['gravar'] = gravar
+    resposta['origem_jornadas'] = 'simulacao' if cenario is not None else 'banco'
+    if cenario is not None:
+        resposta['simulacao_jornadas'] = {'parametros': cenario['parametros'], 'resumo': cenario['resumo']}
     resposta["escalas_gravadas"] = gravadas
     resposta["escalas_ignoradas"] = ignoradas
     resposta["execucao_id"] = execucao_id
@@ -401,73 +432,50 @@ def _gravar_escalas(solucao, dia: str, execucao_id) -> tuple[int, int]:
     if solucao is None or not solucao.alocacoes:
         return 0, 0
 
-    gravadas = 0
-    ignoradas = 0
-
-    try:
-        with transacao() as conexao:
-            ids = tuple({a.tripulante_id for a in solucao.alocacoes})
-            marcadores = ",".join(["%s"] * len(ids))
-            atuais = conexao.execute(
-                f"""
-                SELECT tripulante_id, horas_acumuladas, limite_horas
-                FROM jornadas WHERE tripulante_id IN ({marcadores})
-                """,
-                ids,
-            ).fetchall()
-            jornada = {l["tripulante_id"]: l for l in atuais}
-
-            for a in solucao.alocacoes:
-                j = jornada.get(a.tripulante_id)
-                if j is None:
-                    ignoradas += 1
-                    continue
-
-                antes = j["horas_acumuladas"]
-                limite = j["limite_horas"]
-                depois = antes + a.duracao_horas
-                ocupacao = (depois / limite * 100) if limite else 0.0
-                conforme = depois <= limite
-
-                conexao.execute(
-                    """
-                    INSERT INTO escalas
-                        (tripulante_id, voo_id, data, cargo, origem, destino,
-                         duracao_horas, horas_antes, horas_depois, limite_aplicado,
-                         ocupacao_percentual, conforme, motivo, status, execucao_id)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                            %s, %s, %s, %s, %s)
-                    ON CONFLICT (tripulante_id, voo_id, data) DO NOTHING
-                    """,
-                    (
-                        a.tripulante_id, a.voo_id, dia, a.cargo,
-                        a.rota.split(" → ")[0] if " → " in a.rota else "",
-                        a.rota.split(" → ")[1] if " → " in a.rota else "",
-                        a.duracao_horas, antes, depois, limite,
-                        round(ocupacao, 1), conforme,
-                        "Dentro do limite RBAC 117" if conforme
-                        else "Excede o limite aplicado",
-                        "planejado", execucao_id,
-                    ),
-                )
-                gravadas += 1
-
-            # AQUI a jornada comeca a computar: cada alocacao acrescenta horas
-            # ao acumulado, e a proxima otimizacao ja le o valor atualizado.
-            for a in solucao.alocacoes:
-                conexao.execute(
-                    """
-                    UPDATE jornadas
-                       SET horas_voadas = horas_voadas + %s,
-                           horas_acumuladas = horas_acumuladas + %s,
-                           voos_no_periodo = voos_no_periodo + 1,
-                           atualizado_em = NOW()
-                     WHERE tripulante_id = %s
-                    """,
-                    (a.duracao_horas, a.duracao_horas, a.tripulante_id),
-                )
-    except Exception:
-        current_app.logger.exception("falha ao gravar escalas")
-        return gravadas, ignoradas
-
+    gravadas, ignoradas = 0, 0
+    with transacao() as conexao:
+        ids = tuple({a.tripulante_id for a in solucao.alocacoes})
+        marcadores = ','.join(['%s'] * len(ids))
+        bloqueio = '' if current_app.config.get('TESTING') else ' FOR UPDATE'
+        atuais = conexao.execute(
+            f'SELECT tripulante_id, horas_acumuladas, limite_horas FROM jornadas '
+            f'WHERE periodo = %s AND tripulante_id IN ({marcadores})' + bloqueio,
+            (dia,) + ids,
+        ).fetchall()
+        jornadas = {l['tripulante_id']: l for l in atuais}
+        for a in solucao.alocacoes:
+            j = jornadas.get(a.tripulante_id)
+            if j is None:
+                raise RuntimeError('Jornada da data não encontrada. Refaça a otimização.')
+            existe = conexao.execute('SELECT id FROM escalas WHERE tripulante_id=%s AND voo_id=%s AND data=%s',
+                                     (a.tripulante_id, a.voo_id, dia)).fetchone()
+            if existe:
+                ignoradas += 1
+                continue
+            antes, limite = j['horas_acumuladas'], j['limite_horas']
+            depois = antes + a.duracao_horas
+            if depois > limite + 1e-6:
+                raise RuntimeError('As jornadas mudaram e a alocação excederia o limite. Refaça a otimização.')
+            cursor = conexao.execute(
+                """INSERT INTO escalas
+                (tripulante_id, voo_id, data, cargo, origem, destino, duracao_horas,
+                 horas_antes, horas_depois, limite_aplicado, ocupacao_percentual,
+                 conforme, motivo, status, execucao_id)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON CONFLICT (tripulante_id, voo_id, data) DO NOTHING""",
+                (a.tripulante_id, a.voo_id, dia, a.cargo,
+                 a.rota.split(' → ')[0] if ' → ' in a.rota else '',
+                 a.rota.split(' → ')[1] if ' → ' in a.rota else '',
+                 a.duracao_horas, antes, depois, limite, round(depois / limite * 100, 1) if limite else 0,
+                 True, 'Dentro do limite RBAC 117', 'planejado', execucao_id),
+            )
+            if not cursor.rowcount:
+                ignoradas += 1
+                continue
+            conexao.execute("""UPDATE jornadas SET horas_voadas=horas_voadas+%s,
+                horas_acumuladas=horas_acumuladas+%s, voos_no_periodo=voos_no_periodo+1,
+                atualizado_em=NOW() WHERE tripulante_id=%s AND periodo=%s""",
+                (a.duracao_horas, a.duracao_horas, a.tripulante_id, dia))
+            j['horas_acumuladas'] = depois
+            gravadas += 1
     return gravadas, ignoradas

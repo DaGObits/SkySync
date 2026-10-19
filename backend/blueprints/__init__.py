@@ -8,6 +8,7 @@ from blueprints import (
     escalas,
     escalas_voos,
     mapa,
+    jornadas_simulacao,
     otimizacao,
     perfil,
     tripulantes,
@@ -18,6 +19,7 @@ from blueprints import (
 TODOS = (
     auth.bp,
     perfil.bp,
+    jornadas_simulacao.bp,
     disrupcoes.bp,
     escalas.bp,
     otimizacao.bp,
@@ -36,6 +38,7 @@ __all__ = [
     "disrupcoes",
     "escalas",
     "mapa",
+    "jornadas_simulacao",
     "otimizacao",
     "perfil",
     "tripulantes",

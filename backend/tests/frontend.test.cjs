@@ -316,3 +316,67 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
     } finally { await browser.close(); }
   });
 }
+
+for (const file of ['docs/index.html', 'backend/static/index.html']) {
+  test(`${file}: prévia de jornadas alimenta uma otimização fictícia sem permitir publicação`, async () => {
+    const browser = await chromium.launch({
+      ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}),
+      args: ['--no-sandbox']
+    });
+    try {
+      const page = await browser.newPage();
+      let parametros;
+      const pedidos = [];
+      const errors = [];
+      page.on('pageerror', e => errors.push(e.message));
+      await page.route('**/*', async route => {
+        const url = new URL(route.request().url());
+        if (url.href === 'http://localhost/') return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', file), 'utf8') });
+        if (url.pathname === '/api/jornadas/simular') {
+          parametros = route.request().postDataJSON();
+          return route.fulfill({ json: { simulado: true, parametros, resumo: { total: 1, sem_descanso: 0, nao_aclimatados: 0, no_limite: 0 }, jornadas: [{
+            id: 'T1', nome: 'Pessoa simulada', cargo: 'Comandante', base: 'GRU', horas_acumuladas: 4.5, limite_horas: 11, descanso_ok: true, aclimatado: true
+          }] } });
+        }
+        if (url.pathname === '/api/escalas/otimizar') {
+          const pedido = route.request().postDataJSON(); pedidos.push(pedido);
+          return route.fulfill({ json: { status: 'OPTIMAL', total_alocacoes: 1, conformidade: 100, wall_time_seconds: 0.1,
+            origem_jornadas: pedido.simulacao_jornadas ? 'simulacao' : 'banco',
+            simulacao_jornadas: { parametros }, alocacoes: [{ ...escala, duracao_horas: 1, horas_antes: 4.5 }]
+          } });
+        }
+        if (url.pathname === '/api/escalas') return route.fulfill({ json: { total: 0, data: '2026-10-19', escalas: [] } });
+        if (url.pathname === '/api/disrupcoes') return route.fulfill({ json: { total: 0, retornados: 0, disrupcoes: [] } });
+        return route.fulfill({ json: {} });
+      });
+      await page.goto('http://localhost/');
+      await page.locator('.nav-btn[data-screen="escalas"]').click();
+      await page.locator('#simuladorJornadas summary').click();
+      await page.locator('#simJornadaSeed').fill('123');
+      await page.locator('#simJornadaVoos').fill('2');
+      await page.locator('#simJornadaPerfil').selectOption('moderado');
+      await page.locator('#simJornadaData').fill('2026-10-19');
+      await page.locator('#btnGerarJornadas').click();
+      await page.waitForFunction(() => document.getElementById('usarJornadasSimuladas').checked);
+      assert.match(await page.locator('#jornadaSimRows').innerText(), /Pessoa simulada/);
+      assert.equal(await page.locator('#btnAplicar').isDisabled(), true);
+      await page.locator('#btnSimular').click();
+      await page.waitForFunction(() => document.getElementById('liveStatus').textContent.includes('JORNADAS FICTÍCIAS'));
+      assert.equal(pedidos.length, 1);
+      assert.equal(pedidos[0].gravar, false);
+      assert.equal(pedidos[0].limite_voos, 2);
+      assert.deepEqual(pedidos[0].simulacao_jornadas, { seed: 123, perfil: 'moderado' });
+      assert.equal(pedidos[0].data, '2026-10-19');
+      await page.locator('#usarJornadasSimuladas').uncheck();
+      assert.equal(await page.locator('#btnAplicar').isDisabled(), false);
+      await page.locator('#btnSimular').click();
+      await page.waitForFunction(() => document.getElementById('liveStatus').textContent.includes('OPTIMAL') && !document.getElementById('liveStatus').textContent.includes('JORNADAS FICTÍCIAS'));
+      assert.equal(pedidos.length, 2);
+      assert.equal(pedidos[1].simulacao_jornadas, undefined);
+      await page.locator('#simJornadaSeed').fill('124');
+      await page.locator('#simJornadaSeed').press('Tab');
+      assert.equal(await page.locator('#usarJornadasSimuladas').isDisabled(), true);
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+}
