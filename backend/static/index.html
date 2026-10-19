@@ -571,14 +571,14 @@
     </div>
 
     <div class="user-chip">
-      <div class="avatar" id="userAvatar" aria-hidden="true">MC</div>
+      <div class="avatar" id="userAvatar" aria-hidden="true">—</div>
       <div class="user-meta">
-        <div><span id="headerUserName">Marina Costa</span></div>
-        <div class="role"><span id="headerUserRole">Coordenadora Operacional</span></div>
+        <div><span id="headerUserName">Verificando sessão…</span></div>
+        <div class="role"><span id="headerUserRole"></span></div>
       </div>
     </div>
     
-    <button type="button" class="btn-logout" id="btnLogout" title="Terminar Sessão" data-i18n="btnLogout">Sair</button>
+    <button type="button" class="btn-logout" id="btnLogout" onclick="sairSkySync(this)" title="Terminar Sessão" data-i18n="btnLogout">Sair</button>
   </header>
 
   <nav class="sidebar" aria-label="Navegação principal">
@@ -820,6 +820,14 @@
       <h1 id="config-h" data-i18n="settingsTitle">Configurações</h1>
       <p class="lede" data-i18n="settingsSubtitle">Modifique as informações abaixo. As alterações são aplicadas instantaneamente em todo o painel.</p>
 
+      <div class="setting-card" style="margin-bottom:20px">
+        <h2 class="setting-card-title">Estado da aplicação</h2>
+        <p>Interface: <strong id="interfaceVersion">sessao-3</strong></p>
+        <p id="sessionStatus" role="status">Verificando sessão…</p>
+        <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
+        <p id="connectionStatus" role="status">Aguardando verificação.</p>
+      </div>
+
       <div class="settings-layout">
         <div class="setting-card">
           <h2 class="setting-card-title">
@@ -848,7 +856,7 @@
                 <option value="IGU — Foz do Iguaçu">Foz do Iguaçu (PR)</option>
               </select>
             </li>
-            <li><span data-i18n="labelEmail">E-mail</span><span id="staticEmail" class="setting-static-text">usuario@exemplo.com</span></li>
+            <li><span data-i18n="labelEmail">E-mail</span><span id="staticEmail" class="setting-static-text">—</span></li>
           </ul>
         </div>
 
@@ -1019,21 +1027,35 @@ function fetchComPrazo(url, options = {}) {
   return fetch(url, { ...options, signal: AbortSignal.timeout(20000) });
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+async function sairSkySync(button) {
+  window.skysyncSaindo = true;
+  button.disabled = true;
+  button.textContent = 'Saindo…';
+  // Impede que a sessão antiga seja restaurada automaticamente no login.
+  try { sessionStorage.setItem('skysync_logout_pending', '1'); } catch (e) {}
+  try { localStorage.removeItem('usuario_logado'); } catch (e) {}
+  document.getElementById('headerUserName').textContent = 'Saindo…';
   try {
-    const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado') || 'null');
-    if (!usuarioLogado || !usuarioLogado.email) {
-      window.location.href = "login.html";
+    const res = await fetch(`${API_URL}/auth/logout`, {
+      method: 'POST', credentials: 'include', signal: AbortSignal.timeout(5000)
+    });
+    if (res.ok) sessionStorage.removeItem('skysync_logout_pending');
+  } catch (e) {
+    console.error('Saída no servidor ainda não confirmada:', e);
+  } finally {
+    window.location.replace('login.html?logout=1');
+  }
+}
+
+async function iniciarPainel() {
+  try {
+    if (sessionStorage.getItem('skysync_logout_pending')) {
+      window.location.replace('login.html?logout=1');
       return;
     }
-
-    let settings = {
-      name: usuarioLogado.nome || 'Marina Costa',
-      role: usuarioLogado.cargo || 'Coordenadora Operacional',
-      base: usuarioLogado.base || 'GRU — Guarulhos',
-      email: usuarioLogado.email,
-      idioma: usuarioLogado.idioma || 'pt-BR'
-    };
+    // O cache não comprova a identidade: apenas a API confirma quem está logado.
+    let settings = { name: '', role: '', base: '', email: '', idioma: 'pt-BR' };
+    const statusSessao = document.getElementById('sessionStatus');
 
     async function carregarPerfil() {
       try {
@@ -1045,35 +1067,39 @@ window.addEventListener('DOMContentLoaded', async () => {
           return;
         }
 
-        if (res.ok) {
-          const perfilBanco = await res.json();
-          if (perfilBanco.nome) settings.name = perfilBanco.nome;
-          if (perfilBanco.cargo) settings.role = perfilBanco.cargo;
-          if (perfilBanco.base) settings.base = perfilBanco.base;
-          applySettingsToDOM();
-        }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const perfilBanco = await res.json();
+        if (window.skysyncSaindo) return;
+        if (!perfilBanco.email || !perfilBanco.nome) throw new Error('Perfil inválido');
+        settings.name = perfilBanco.nome;
+        settings.role = perfilBanco.cargo || '';
+        settings.base = perfilBanco.base || '';
+        settings.email = perfilBanco.email;
+        localStorage.setItem('usuario_logado', JSON.stringify(perfilBanco));
+        applySettingsToDOM();
+        if (inputName) { inputName.value = settings.name; inputName.disabled = false; }
+        if (inputRole) { inputRole.value = settings.role; inputRole.disabled = false; }
+        if (selBase) { selBase.value = settings.base; selBase.disabled = false; }
+        statusSessao.textContent = 'Sessão confirmada pela API.';
       } catch (e) {
-        console.error("Erro ao buscar perfil remoto (utilizando dados locais):", e);
+        document.getElementById('headerUserName').textContent = 'Sessão não confirmada';
+        statusSessao.textContent = 'Não foi possível confirmar a sessão: ' + e.message + '. Tente entrar novamente.';
+        console.error('Erro ao confirmar sessão:', e);
       }
     }
 
-    const btnLogout = document.getElementById('btnLogout');
-    if (btnLogout) {
-        btnLogout.addEventListener('click', async () => {
-            // Encerra a sessão no SERVIDOR também. Antes, o logout só limpava o
-            // localStorage e o cookie continuava válido — a sessão sobrevivia.
-            try {
-                await fetchComPrazo(`${API_URL}/auth/logout`, {
-                    method: 'POST',
-                    credentials: 'include'
-                });
-            } catch (e) {
-                console.error("Logout remoto falhou:", e);
-            }
-            localStorage.removeItem('usuario_logado');
-            window.location.href = "login.html";
-        });
-    }
+    document.getElementById('btnDiagnostico').addEventListener('click', async () => {
+      const status = document.getElementById('connectionStatus');
+      status.textContent = 'Consultando a API…';
+      try {
+        const res = await fetchComPrazo(`${API_URL}/health`);
+        const dados = await res.json();
+        status.textContent = 'HTTP ' + res.status + ' · API: ' + dados.status +
+          ' · Banco: ' + (dados.banco && dados.banco.ok ? 'respondendo' : 'indisponível');
+      } catch (e) {
+        status.textContent = 'Falha de conexão com a API: ' + e.message;
+      }
+    });
 
     const translations = {
       'pt-BR': {
@@ -1515,26 +1541,26 @@ window.addEventListener('DOMContentLoaded', async () => {
     const kpiBaseLabel = document.getElementById('kpiBaseLabel');
     const baseCodeDynamics = document.querySelectorAll('.base-code-dynamic');
 
-    if (inputName) inputName.value = settings.name;
-    if (inputRole) inputRole.value = settings.role;
-    if (selBase) selBase.value = settings.base;
+    if (inputName) { inputName.value = settings.name; inputName.disabled = true; }
+    if (inputRole) { inputRole.value = settings.role; inputRole.disabled = true; }
+    if (selBase) { selBase.value = settings.base; selBase.disabled = true; }
     if (staticEmail) staticEmail.textContent = settings.email;
     if (selIdioma) selIdioma.value = settings.idioma || 'pt-BR';
 
     function getInitials(fullName) {
       try {
-        const parts = (fullName || 'Marina Costa').trim().split(' ');
+        const parts = (fullName || '').trim().split(/\s+/);
         if (parts.length >= 2) {
           return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
         }
-        return fullName.substring(0, 2).toUpperCase();
-      } catch(e) { return 'MC'; }
+        return (fullName || '—').substring(0, 2).toUpperCase();
+      } catch(e) { return '—'; }
     }
 
     function getBaseCode(baseFull) {
       try {
-        return (baseFull || 'GRU').split('—')[0].trim();
-      } catch(e) { return 'GRU'; }
+        return (baseFull || '').split('—')[0].trim() || '—';
+      } catch(e) { return '—'; }
     }
 
     function translatePage(lang) {
@@ -1688,7 +1714,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     function applySettingsToDOM() {
       try {
-        if (headerUserName) headerUserName.textContent = settings.name;
+        if (headerUserName) headerUserName.textContent = settings.name || 'Verificando sessão…';
         if (headerUserRole) headerUserRole.textContent = settings.role;
         if (userAvatar) userAvatar.textContent = getInitials(settings.name);
         if (staticEmail) staticEmail.textContent = settings.email;
@@ -1706,40 +1732,37 @@ window.addEventListener('DOMContentLoaded', async () => {
     applySettingsToDOM();
 
     async function handleSettingChange() {
+      const novoPerfil = {
+        nome: inputName ? inputName.value : settings.name,
+        cargo: inputRole ? inputRole.value : settings.role,
+        base: selBase ? selBase.value : settings.base
+      };
+      statusSessao.textContent = 'Salvando perfil…';
       try {
-        if (inputName) settings.name = inputName.value;
-        if (inputRole) settings.role = inputRole.value;
-        if (selBase) settings.base = selBase.value;
-        if (selIdioma) settings.idioma = selIdioma.value;
-
-        applySettingsToDOM();
-
-        const usuarioLogadoAtual = JSON.parse(localStorage.getItem('usuario_logado') || '{}');
-        usuarioLogadoAtual.nome = settings.name;
-        usuarioLogadoAtual.cargo = settings.role;
-        usuarioLogadoAtual.base = settings.base;
-        usuarioLogadoAtual.idioma = settings.idioma;
-        localStorage.setItem('usuario_logado', JSON.stringify(usuarioLogadoAtual));
-
-        await fetchComPrazo(`${API_URL}/perfil`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            nome: settings.name,
-            cargo: settings.role,   // o backend aceita tanto `cargo` quanto `role`
-            base: settings.base
-          })
+        const res = await fetchComPrazo(`${API_URL}/perfil`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          credentials: 'include', body: JSON.stringify(novoPerfil)
         });
-
+        const dados = await res.json();
+        if (!res.ok || !dados.perfil) throw new Error(dados.erro || 'HTTP ' + res.status);
+        if (window.skysyncSaindo) return;
+        settings.name = dados.perfil.nome;
+        settings.role = dados.perfil.cargo || '';
+        settings.base = dados.perfil.base || '';
+        settings.email = dados.perfil.email;
+        if (selIdioma) settings.idioma = selIdioma.value;
+        localStorage.setItem('usuario_logado', JSON.stringify(dados.perfil));
+        applySettingsToDOM();
         tick();
-      } catch(e) {
-        console.error("Erro ao salvar alterações:", e);
+        statusSessao.textContent = 'Perfil salvo e confirmado pela API.';
+      } catch (e) {
+        statusSessao.textContent = 'Perfil não salvo: ' + e.message;
+        console.error('Erro ao salvar perfil:', e);
       }
     }
 
-    if (inputName) inputName.addEventListener('input', handleSettingChange);
-    if (inputRole) inputRole.addEventListener('input', handleSettingChange);
+    if (inputName) inputName.addEventListener('change', handleSettingChange);
+    if (inputRole) inputRole.addEventListener('change', handleSettingChange);
     if (selBase) selBase.addEventListener('change', handleSettingChange);
     if (selIdioma) selIdioma.addEventListener('change', handleSettingChange);
 
@@ -2809,7 +2832,12 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
   } catch (err) {
     console.error("Erro geral recuperado no SkySync:", err);
   }
-});
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', iniciarPainel, { once: true });
+} else {
+  iniciarPainel();
+}
 </script>
 </body>
 </html>

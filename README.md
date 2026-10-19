@@ -153,6 +153,23 @@ python app.py
 pytest -v
 ```
 
+### Identidade, saída e diagnóstico
+
+O painel confirma a identidade com `/api/perfil`; o conteúdo de `localStorage`
+não autentica o usuário nem define o nome exibido. A conta de demonstração
+`demo@skysync.aero` tem o nome “Marina Costa” no banco. Para usar outro perfil,
+cadastre sua conta ou edite o perfil após entrar. O painel só confirma a alteração
+quando a API a salva.
+
+Em **Configurações → Estado da aplicação**, confira a versão `sessao-3`, o
+estado da sessão e o resultado de **Verificar conexão**. Se essa versão não
+aparecer, a página servida ainda não contém esta correção. O diagnóstico não
+exibe senhas ou cookies.
+
+**Sair** solicita o encerramento da sessão no servidor e limpa a identidade
+local. Se a API falhar, o login informa que a saída remota não foi confirmada e
+não restaura automaticamente o usuário antigo.
+
 ### Testar alterações do fork sem publicar
 
 O site e a API de produção usam a branch `lucas` do repositório

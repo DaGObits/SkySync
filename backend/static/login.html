@@ -451,9 +451,9 @@
         const API_URL = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
   ? '/api'
   : 'https://skysync-api.onrender.com/api';
-        credentials: 'include'
 
         window.onload = function () {
+            if (!window.google || !google.accounts) return;
             google.accounts.id.initialize({
                 client_id: '655615956670-fql0d86maloglmorf8dndipmk92fnfqe.apps.googleusercontent.com',
                 callback: lidarComCredencialGoogle
@@ -485,17 +485,41 @@
         });
 
 
+        function fetchComPrazo(url, options = {}) {
+            return fetch(url, { ...options, signal: AbortSignal.timeout(10000) });
+        }
+
         (async function verificarSessao() {
+            const saidaSolicitada = new URLSearchParams(location.search).has('logout') ||
+                sessionStorage.getItem('skysync_logout_pending');
+            if (saidaSolicitada) {
+                localStorage.removeItem('usuario_logado');
+                const msg = document.getElementById('login-msg');
+                try {
+                    const resposta = await fetchComPrazo(`${API_URL}/auth/logout`, {
+                        method: 'POST', credentials: 'include'
+                    });
+                    if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
+                    sessionStorage.removeItem('skysync_logout_pending');
+                    msg.textContent = 'Sessão encerrada. Entre com sua conta.';
+                } catch (e) {
+                    sessionStorage.setItem('skysync_logout_pending', '1');
+                    msg.textContent = 'Você saiu deste painel. A saída no servidor não foi confirmada; verifique a conexão antes de fechar o navegador.';
+                }
+                return;
+            }
             try {
-                const resposta = await fetch(`${API_URL}/auth/sessao`, { credentials: 'include' });
+                const resposta = await fetchComPrazo(`${API_URL}/auth/sessao`, { credentials: 'include' });
                 if (!resposta.ok) return;
                 const dados = await resposta.json();
                 if (dados.autenticado && dados.usuario) {
                     localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
                     window.location.href = "index.html";
+                } else {
+                    localStorage.removeItem('usuario_logado');
                 }
             } catch (e) {
-                // Servidor fora do ar: fica na tela de login, sem inventar sessão.
+                // A API precisa confirmar a sessão; o cache não autentica ninguém.
             }
         })();
 
@@ -531,7 +555,7 @@
             if (btn) { btn.disabled = true; btn.innerText = "Entrando..."; }
 
             try {
-                const resposta = await fetch(`${API_URL}/auth/login`, {
+                const resposta = await fetchComPrazo(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -540,6 +564,7 @@
                 const dados = await resposta.json();
 
                 if (resposta.ok) {
+                    sessionStorage.removeItem('skysync_logout_pending');
                     localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
                     window.location.href = "index.html";
                     return;
@@ -583,7 +608,7 @@
             }
 
             try {
-                const resposta = await fetch(`${API_URL}/auth/registrar`, {
+                const resposta = await fetchComPrazo(`${API_URL}/auth/registrar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
