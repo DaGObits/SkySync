@@ -448,7 +448,9 @@
 
     <script>
         // API apontando para o Render
-        const API_URL = "https://skysync-api.onrender.com/api";
+        const API_URL = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+  ? '/api'
+  : 'https://skysync-api.onrender.com/api';
         credentials: 'include'
 
         window.onload = function () {

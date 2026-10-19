@@ -153,6 +153,38 @@ python app.py
 pytest -v
 ```
 
+### Testar alterações do fork sem publicar
+
+O site e a API de produção usam a branch `lucas` do repositório
+`DaGObits/SkySync`. Prepare a correção a partir dessa branch e abra o pull request
+com destino a `DaGObits/SkySync:lucas`.
+
+Para testar, siga a configuração local acima com um PostgreSQL de desenvolvimento
+e execute `python app.py` em `backend`. Abra `http://127.0.0.1:5000/login.html`:
+login e painel usam `/api` no servidor local. No GitHub Pages, continuam usando a
+API do Render. O teste local não requer publicar o fork nem acessar o banco de
+produção.
+
+As escalas consultadas pela API são as do dia atual. Sem uma escala gravada para
+essa data, o painel informa que não há escala publicada; use “Aplicar escala” no
+ambiente local para persistir uma. “Simular” apenas mostra uma prévia.
+
+Os testes de navegador cobrem carregamento, troca de abas, simulação, publicação,
+resposta vazia e erro da API nas duas cópias do front-end. As respostas da API são
+simuladas nesses testes, sem chamadas ao Render:
+
+```bash
+# A partir da raiz do repositório; dependências de teste fora do checkout.
+npm install --prefix /tmp/skysync-browser playwright
+/tmp/skysync-browser/node_modules/.bin/playwright install chromium
+NODE_PATH=/tmp/skysync-browser/node_modules node --test backend/tests/frontend.test.cjs
+# Se já houver Chromium instalado, defina CHROMIUM_PATH com o caminho do executável.
+```
+
+Após aceitar o pull request, publique a branch `lucas` no GitHub Pages. O Render
+precisa de novo deploy quando houver alterações no backend; esta correção altera
+somente o front-end e seus testes/documentação.
+
 ---
 
 ## API

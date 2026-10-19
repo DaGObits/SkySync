@@ -1010,7 +1010,9 @@
 </div>
 
 <script>
-const API_URL = "https://skysync-api.onrender.com/api";
+const API_URL = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+  ? '/api'
+  : 'https://skysync-api.onrender.com/api';
 
 window.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -1572,73 +1574,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // ---------------------------------------------------------------------
-    // LEITURA DO BANCO — aditivo.
-    //
-    // Roda DEPOIS de carregarDadosLocais(). Se a API responder com escalas,
-    // elas substituem os itens locais. Se falhar, nada muda: a tela continua
-    // exatamente como estava.
-    //
-    // Todo o bloco esta em try/catch: uma falha aqui nao derruba a pagina.
-    // ---------------------------------------------------------------------
-    function buscarEscalasDoBanco() {
-      try {
-        fetch(API_URL + '/escalas', { credentials: 'include' })
-          .then(function (res) {
-            if (!res.ok) return null;
-            return res.json();
-          })
-          .then(function (dados) {
-            if (!dados || !dados.escalas || !dados.escalas.length) return;
-
-            var linhas = dados.escalas.map(function (e) {
-              var min = Math.round((Number(e.limite_aplicado) || 0) * 60);
-              var teto = String(Math.floor(min / 60)).padStart(2, '0') + 'h' +
-                         String(min % 60).padStart(2, '0');
-              return {
-                tripulante: e.tripulante,
-                cargo: e.cargo,
-                voo: e.voo,
-                horas: e.horas,
-                limitRbac: teto,
-                bloqueado: !e.conforme,
-                risco: !e.conforme ? 'alto' : (e.ocupacao_percentual >= 85 ? 'medio' : 'baixo'),
-                badgeKey: !e.conforme ? 'highFatigueRisk' : 'normalOperation',
-                rota: e.rota,
-                solucao: e.motivo,
-                desc: 'Ocupacao de ' + e.ocupacao_percentual + '% do teto.'
-              };
-            });
-
-            dadosOperacionais = linhas;
-            gerarEscalasDinamicas();
-
-            // A tabela recebe os dados do banco SEMPRE — inclusive quando
-            // vierem vazios. Sem isso ela continuava exibindo os 9 itens
-            // fixos do HTML, que e o que dava a impressao de "dados aleatorios".
-            var backupTabela = dadosOperacionais;
-            dadosOperacionais = escalasDoBanco;
-            try { gerarEscalasDinamicas(); }
-            finally { if (escalasDoBanco.length) dadosOperacionais = backupTabela; }
-
-            var cap = document.getElementById('historyCaptionText');
-            if (cap) {
-              cap.textContent = dados.total + ' alocacao(oes) do banco em ' + dados.data +
-                                ' (' + dados.conformes + ' conformes)';
-            }
-            showStatus(dados.total + ' alocacao(oes) carregada(s) do banco.', 'ok');
-          })
-          .catch(function (e) { console.error('Banco indisponivel, mantendo dados locais:', e); });
-      } catch (e) {
-        console.error('buscarEscalasDoBanco falhou:', e);
-      }
-    }
-
     carregarDadosLocais();
 
-    // Tenta o banco imediatamente depois dos dados locais.
-    buscarEscalasDoBanco();
-function registrarNovoHistorico(novoConjunto) {
+    // O estado publicado alimenta a tabela, as disrupções e os indicadores.
+    function atualizarEscalasPublicadas(linhas) {
+      window.escalasDoBanco = linhas;
+      dadosOperacionais = linhas;
+      historicoEscalas = linhas.length ? [linhas] : [];
+      indiceHistoricoAtual = 0;
+      gerarDisruptionsDinamicas();
+      gerarEscalasDinamicas();
+    }
+
+    function registrarNovoHistorico(novoConjunto) {
       // Historico em memoria apenas; o registro real esta em `escalas`.
       historicoEscalas.push(JSON.parse(JSON.stringify(novoConjunto)));
       if (historicoEscalas.length > 30) historicoEscalas.shift();
@@ -2071,9 +2019,13 @@ function registrarNovoHistorico(novoConjunto) {
           var d = r.dados;
           var linhas = (d.alocacoes || []).map(alocacaoParaLinha);
 
-          var backup = dadosOperacionais;
-          dadosOperacionais = linhas;
-          try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
+          if (gravar) {
+            atualizarEscalasPublicadas(linhas);
+          } else {
+            var backup = dadosOperacionais;
+            dadosOperacionais = linhas;
+            try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
+          }
 
           var mudancas = compararEscalas(escalaAntes, linhas);
 
@@ -2586,27 +2538,19 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
 
           var dados = await res.json();
           var linhas = (dados.escalas || []).map(window.escalaParaLinha);
-          window.escalasDoBanco = linhas;
+          atualizarEscalasPublicadas(linhas);
+          var cap = document.getElementById('historyCaptionText');
+          if (cap) cap.textContent = linhas.length
+            ? dados.total + ' alocação(ões) do banco em ' + dados.data
+            : 'Nenhuma escala publicada para ' + dados.data;
 
           if (!linhas.length) {
-            // Limpa a tabela: sem isto os 9 itens do localStorage ficam na
-            // tela como se fossem dados do banco.
-            try {
-              var tb = document.getElementById('crewTable');
-              if (tb) tb.innerHTML = '';
-              var cap = document.getElementById('historyCaptionText');
-              if (cap) cap.textContent = 'Nenhuma escala publicada';
-            } catch (e) {}
-            if (aviso && !silencioso) {
+            if (aviso) {
               aviso.style.color = 'var(--text-600-solid)';
-              aviso.textContent = 'Nenhuma escala publicada ainda. Use "Aplicar escala" para gravar uma.';
+              aviso.textContent = 'Nenhuma escala publicada para ' + dados.data + '. Use "Aplicar escala" para gravar uma.';
             }
             return;
           }
-
-          var backup = dadosOperacionais;
-          dadosOperacionais = linhas;
-          try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
 
           if (aviso && !silencioso) {
             aviso.style.color = 'var(--green)';
@@ -2615,15 +2559,17 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
           }
         } catch (err) {
           console.error('Falha ao carregar escalas do banco:', err);
-          if (aviso && !silencioso) {
+          if (aviso) {
             aviso.style.color = 'var(--red)';
-            aviso.textContent = 'Nao foi possivel carregar as escalas do banco.';
+            aviso.textContent = 'Não foi possível carregar as escalas. Verifique a conexão com a API e tente novamente.';
           }
         }
       };
     } catch (e) {
       console.error('Modulo de escalas nao carregou:', e);
     }
+
+    window.carregarEscalasDoBanco(true);
 
     const screens = document.querySelectorAll('.screen');
     const navButtons = document.querySelectorAll('.nav-btn[data-screen]');
