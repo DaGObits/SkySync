@@ -284,3 +284,35 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
     } finally { await browser.close(); }
   });
 }
+
+for (const file of ['docs/index.html', 'backend/static/index.html']) {
+  test(`${file}: mostra configuração pendente e cobertura parcial da importação`, async () => {
+    const browser = await chromium.launch({
+      ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}),
+      args: ['--no-sandbox']
+    });
+    try {
+      const page = await browser.newPage();
+      let configurada = false;
+      await page.route('**/*', async route => {
+        const url = new URL(route.request().url());
+        if (url.href === 'http://localhost/') return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', file), 'utf8') });
+        if (url.pathname === '/api/disrupcoes/importacao/status') return route.fulfill({ json: {
+          configurada, aeroporto: 'GRU', ultimo_sucesso: '2026-10-19T12:00:00+00:00', parcial: true,
+          agendador_ativo: true, ultimo_erro: 'Cota do plano Aviationstack atingida.'
+        } });
+        if (url.pathname === '/api/disrupcoes') return route.fulfill({ json: { total: 1, retornados: 1, disrupcoes: [{
+          id: 1, voo: 'LA1234', descricao: 'Cancelamento informado pela Aviationstack.', risco: 'alto', fonte: 'aviationstack'
+        }] } });
+        return route.fulfill({ json: {} });
+      });
+      await page.goto('http://localhost/');
+      await page.waitForFunction(() => document.getElementById('importacaoStatus').textContent.includes('aguardando a chave'));
+      assert.match(await page.locator('#disruptionsGrid').innerText(), /Fonte: Aviationstack/);
+      configurada = true;
+      await page.evaluate(() => window.carregarDisrupcoes());
+      assert.match(await page.locator('#importacaoStatus').innerText(), /Cobertura parcial/);
+      assert.match(await page.locator('#importacaoStatus').innerText(), /Cota do plano/);
+    } finally { await browser.close(); }
+  });
+}

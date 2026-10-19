@@ -13,6 +13,7 @@ def _serializar(linha):
     dado = dict(linha)
     dado['bloqueado'] = bool(dado['bloqueado'])
     dado['criado_em'] = str(dado['criado_em'])
+    dado['fonte'] = dado.get('fonte') or 'manual'
     return dado
 
 
@@ -28,8 +29,9 @@ def listar():
         return jsonify({'erro': 'limite deve ser um número'}), 400
     where, params = ('WHERE risco = %s', [risco]) if risco else ('', [])
     with transacao() as conn:
+        colunas = ', '.join('d.' + campo for campo in CAMPOS.split(', '))
         linhas = conn.execute(
-            f'SELECT {CAMPOS} FROM disrupcoes {where} ORDER BY criado_em DESC, id DESC LIMIT %s',
+            f'SELECT {colunas}, i.fonte, i.observado_em FROM disrupcoes d LEFT JOIN importacao_voos_eventos i ON i.disrupcao_id = d.id {where} ORDER BY d.criado_em DESC, d.id DESC LIMIT %s',
             tuple(params + [limite]),
         ).fetchall()
         total = conn.execute(f'SELECT COUNT(*) AS n FROM disrupcoes {where}', tuple(params)).fetchone()['n']
@@ -64,3 +66,10 @@ def registrar():
             (campos['voo'].upper(), campos['descricao'], campos['risco'], campos['rota'], campos['base'].upper()),
         ).fetchone()
     return jsonify({'disrupcao': _serializar(linha)}), 201
+
+
+@bp.get('/importacao/status')
+@login_obrigatorio
+def importacao_status():
+    from importador_voos import status_importacao
+    return jsonify(status_importacao())

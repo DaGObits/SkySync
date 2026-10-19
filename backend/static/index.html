@@ -671,6 +671,7 @@
       </div>
 
       <button type="button" class="btn-secondary" id="btnAtualizarDisrupcoes">Atualizar ocorrências</button>
+      <p id="importacaoStatus" role="status">Verificando importação automática…</p>
       <p id="disruptionsStatus" role="status">Carregando ocorrências…</p>
       <details style="margin:16px 0">
         <summary>Registrar ocorrência operacional</summary>
@@ -836,7 +837,7 @@
 
       <div class="setting-card" style="margin-bottom:20px">
         <h2 class="setting-card-title">Estado da aplicação</h2>
-        <p>Interface: <strong id="interfaceVersion">disrupcoes-4</strong></p>
+        <p>Interface: <strong id="interfaceVersion">importacao-5</strong></p>
         <p id="sessionStatus" role="status">Verificando sessão…</p>
         <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
         <p id="connectionStatus" role="status">Aguardando verificação.</p>
@@ -1691,7 +1692,7 @@ async function iniciarPainel() {
         const descricao = document.createElement('p');
         descricao.textContent = d.descricao;
         const meta = document.createElement('p');
-        meta.textContent = [d.rota, d.horario].filter(Boolean).join(' · ');
+        meta.textContent = [d.rota, d.horario, d.fonte === 'aviationstack' ? 'Fonte: Aviationstack' : 'Registro manual'].filter(Boolean).join(' · ');
         article.append(titulo, risco, descricao, meta);
         // Dados da ocorrência são texto, nunca HTML executável.
         article.tabIndex = 0;
@@ -1713,6 +1714,24 @@ async function iniciarPainel() {
       document.getElementById('kpiHighFatigueHint').textContent = disrupcoesCarregadas ? altas + ' ocorrência(s) de risco alto' : 'Aguardando ocorrências';
     }
 
+    async function carregarStatusImportacao() {
+      const status = document.getElementById('importacaoStatus');
+      try {
+        const res = await fetchComPrazo(`${API_URL}/disrupcoes/importacao/status`, { credentials: 'include' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const dados = await res.json();
+        if (!dados.configurada) {
+          status.textContent = 'Importação automática aguardando a chave AVIATIONSTACK_API_KEY no Render.';
+          return;
+        }
+        const sucesso = dados.ultimo_sucesso ? new Date(dados.ultimo_sucesso).toLocaleString() : 'nenhuma consulta concluída';
+        status.textContent = 'Aviationstack · Saídas de ' + dados.aeroporto + ' · Última consulta: ' + sucesso +
+          (dados.agendador_ativo === false ? ' · Agendador não iniciado: confira o Start Command do Render.' : '') +
+          (dados.ultimo_erro ? ' · ' + dados.ultimo_erro : '') +
+          (dados.parcial ? ' · Cobertura parcial: a consulta retornou somente a primeira página de voos.' : '');
+      } catch (e) { status.textContent = 'Importação automática indisponível: ' + e.message; }
+    }
+
     window.carregarDisrupcoes = async function () {
       const status = document.getElementById('disruptionsStatus');
       status.textContent = 'Consultando ocorrências…';
@@ -1726,6 +1745,7 @@ async function iniciarPainel() {
         disrupcoesCarregadas = true;
         gerarDisruptionsDinamicas();
         status.textContent = dados.retornados + ' de ' + dados.total + ' ocorrência(s) registrada(s).';
+        await carregarStatusImportacao();
       } catch (e) {
         status.textContent = 'Não foi possível carregar as disrupções: ' + e.message;
       }
@@ -2885,6 +2905,7 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
     }
     carregarPerfil();
     window.carregarDisrupcoes();
+    setInterval(() => { if (!document.hidden) window.carregarDisrupcoes(); }, 60000);
   } catch (err) {
     console.error("Erro geral recuperado no SkySync:", err);
   }

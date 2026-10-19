@@ -36,6 +36,8 @@ CAMINHO_BANCO = Path(os.getenv("SKYSYNC_TEST_DB", str(RAIZ / ".teste_skysync.db"
 #: Tabelas limpas antes de cada teste. A ordem respeita as chaves estrangeiras.
 #: `aeroportos` NÃO está aqui: é dado de referência, e o `dados.malha` lê dela.
 TABELAS = [
+    "importacao_voos_eventos",
+    "importacao_voos_estado",
     "execucoes_otimizacao",
     "historico_escalas",
     "disrupcoes",
