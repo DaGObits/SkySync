@@ -179,7 +179,7 @@ não autentica o usuário nem define o nome exibido. A conta de demonstração
 cadastre sua conta ou edite o perfil após entrar. O painel só confirma a alteração
 quando a API a salva.
 
-Em **Configurações → Estado da aplicação**, confira a versão `disrupcoes-4`, o
+Em **Configurações → Estado da aplicação**, confira a versão `importacao-5`, o
 estado da sessão e o resultado de **Verificar conexão**. Se essa versão não
 aparecer, a página servida ainda não contém esta correção. O diagnóstico não
 exibe senhas ou cookies.
@@ -366,3 +366,67 @@ Projeto de Trabalho de Conclusão de Curso — Centro Universitário CEUNI FAMET
 ## Licença
 
 Projeto acadêmico. Os dados de tripulação são sintéticos e não representam pessoas reais.
+
+
+## Importação automática: Aviationstack
+
+O backend consulta `https://api.aviationstack.com/v1/flights` para saídas de um
+aeroporto. Registra cancelamentos (`flight_status=cancelled`) e atrasos de partida
+(`departure.delay`) a partir de 15 minutos. Cancelamentos e atrasos de 60 minutos
+ou mais recebem risco alto; atrasos menores recebem risco médio. A descrição
+informa fornecedor e data do voo, sem inventar causas de meteorologia/manutenção
+nem diagnosticar fadiga.
+
+Ative no Render, em **Environment**, com as seguintes variáveis:
+
+| Variável | Padrão | Efeito |
+|---|---|---|
+| `AVIATIONSTACK_API_KEY` | ausente | Chave da conta; somente no backend. |
+| `AVIATIONSTACK_AIRPORT` | `GRU` | Um aeroporto de partida por instalação. |
+| `AVIATIONSTACK_INTERVAL_SECONDS` | `43200` | Intervalo de 12 horas; mínimo 300 segundos. |
+| `AVIATIONSTACK_DAILY_REQUEST_LIMIT` | `2` | Cota diária UTC, incluindo falhas. |
+| `AVIATIONSTACK_MIN_DELAY_MINUTES` | `15` | Atraso mínimo para gerar uma ocorrência. |
+
+Nunca coloque a chave no GitHub, no front-end ou no chat. Confira no plano
+Aviationstack a cobertura do aeroporto, o acesso HTTPS e a cota disponível.
+**A integração ainda precisa ser validada com uma chave e respostas reais da
+sua conta.** Não é feita nenhuma consulta externa enquanto a chave estiver ausente.
+
+Cada consulta lê a primeira página, de até 100 voos. Se houver mais páginas, a
+interface informa **cobertura parcial**; isso não representa todos os voos do
+aeroporto. O padrão permite no máximo 62 chamadas por mês de 31 dias. Consultar a
+cada hora exigiria intervalo 3600, limite diário 24 e até 744 chamadas por mês;
+confira o plano e o uso da chave por outros sistemas antes de alterar esses valores.
+Falhas aguardam o próximo horário, sem repetição imediata de tentativas.
+
+Use este **Start Command** no Render (Root Directory: `backend`):
+
+```bash
+gunicorn --config gunicorn.conf.py app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1
+```
+
+O agendador inicia com o worker e aplica a migração aditiva
+`migrations/aviationstack.sql`. Ela cria tabelas de controle sem alterar registros
+manuais. Horário e cota persistem no PostgreSQL entre reinícios; uma reserva no
+banco impede chamadas duplicadas entre workers. O mesmo voo (fornecedor, código,
+data e aeroporto de partida) atualiza o cartão existente quando o atraso muda ou
+evolui para cancelamento. As ocorrências são histórico informado pelo fornecedor;
+a ausência de um voo numa página seguinte não apaga esse histórico.
+
+**No Render gratuito, o agendador para enquanto o serviço estiver suspenso.**
+Após despertar, consulta se houver horário e cota disponíveis. Execução contínua
+requer um serviço sempre ativo ou um agendador externo autorizado. Para cron ou
+uma consulta avulsa no servidor, usando a mesma configuração e o mesmo banco:
+
+```bash
+cd backend
+python importar_disrupcoes.py
+```
+
+O comando respeita o horário e a cota; não força consulta adicional. Em desenvolvimento
+com `python app.py`, esse agendador não inicia: use o comando avulso ou Gunicorn.
+
+A aba Disrupções mostra fonte, última consulta bem-sucedida, configuração pendente,
+falha/cota e cobertura parcial. A atualização da tela a cada minuto consulta apenas
+nosso backend, sem gastar chamadas adicionais no fornecedor.
+`GET /api/disrupcoes/importacao/status` exige sessão e nunca retorna a chave.
