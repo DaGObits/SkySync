@@ -153,6 +153,39 @@ python app.py
 pytest -v
 ```
 
+### Simular jornadas para otimizar
+
+Em **Escalas → Gerar jornadas fictícias para testar a otimização**, escolha data,
+seed, carga leve/moderada/crítica e quantidade de voos. Clique em **Gerar prévia**:
+a tela mostra o resumo e até 20 linhas; o cenário completo usa todos os tripulantes
+cadastrados como disponíveis ou em reserva. Limites são os configurados na jornada
+da data; se não houver jornada, usa o limite padrão configurado no sistema.
+
+Com **Usar este cenário** marcado, clique em **Simular replanejamento** para rodar
+CP-SAT com os voos programados do banco e as horas/descanso/aclimatação fictícios.
+A mesma seed, perfil, tripulação e limites reproduzem a entrada. O nível crítico
+pode produzir inviabilidade: o diagnóstico é um resultado válido, não há garantia
+de uma escala possível para qualquer cenário. Esses perfis são experimentais,
+não medições de horas trabalhadas nem laudos de fadiga.
+
+As jornadas fictícias ficam em memória; nem a prévia nem sua otimização alteram
+`jornadas`, `escalas` ou as ocorrências reais vindas da Aviationstack. A publicação
+fica desativada nesse modo e o backend também rejeita tentativas de publicar um
+cenário fictício. Desmarque a opção para voltar a usar jornadas do banco.
+
+- `POST /api/jornadas/simular`: recebe `seed`, `perfil` e `data`; devolve parâmetros,
+  jornadas fictícias e resumo, sem persistir.
+- `POST /api/escalas/otimizar`: aceita `simulacao_jornadas: {seed, perfil}` com
+  `data`, `limite_voos` e `gravar: false`; devolve `origem_jornadas: simulacao`.
+- Sem cenário fictício, a otimização considera somente jornadas da data solicitada
+  e tripulantes disponíveis/em reserva. Sem jornada dessa data, informa a ausência.
+- `gravar` é booleano e tem padrão `false`. Somente `true`, com jornadas do banco,
+  publica e soma as horas na data escolhida. Repetir uma alocação já gravada não
+  soma suas horas novamente; falhas na publicação desfazem a transação inteira.
+
+Este recurso exige novo deploy do Render e publicação do Pages após o merge,
+sem nova chave de API e sem migração adicional.
+
 ### Disrupções operacionais
 
 A aba **Disrupções** consulta `GET /api/disrupcoes`, que lê a tabela existente
@@ -179,7 +212,7 @@ não autentica o usuário nem define o nome exibido. A conta de demonstração
 cadastre sua conta ou edite o perfil após entrar. O painel só confirma a alteração
 quando a API a salva.
 
-Em **Configurações → Estado da aplicação**, confira a versão `importacao-5`, o
+Em **Configurações → Estado da aplicação**, confira a versão `jornadas-6`, o
 estado da sessão e o resultado de **Verificar conexão**. Se essa versão não
 aparecer, a página servida ainda não contém esta correção. O diagnóstico não
 exibe senhas ou cookies.

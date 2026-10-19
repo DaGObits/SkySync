@@ -721,6 +721,27 @@
       </div>
 
       <h2 class="section-sub" id="acoes-h" data-i18n="simulationActionsTitle">Simulação e ações</h2>
+      <details id="simuladorJornadas" style="margin:16px 0">
+        <summary>Gerar jornadas fictícias para testar a otimização</summary>
+        <p>O cenário varia horas acumuladas, descanso e aclimatação dos tripulantes cadastrados.
+          Ele fica em memória e não altera jornadas, escalas publicadas ou disrupções reais.</p>
+        <form id="formSimularJornadas" style="display:grid;gap:12px;max-width:600px">
+          <label>Data <input class="setting-input" id="simJornadaData" type="date" required></label>
+          <label>Seed (mesmo valor reproduz o cenário) <input class="setting-input" id="simJornadaSeed" type="number" min="0" max="2147483647" value="42" required></label>
+          <label>Carga operacional <select class="setting-select" id="simJornadaPerfil">
+            <option value="leve">Leve</option><option value="moderado">Moderada</option><option value="critico">Crítica</option>
+          </select></label>
+          <label>Quantidade de voos no teste <input class="setting-input" id="simJornadaVoos" type="number" min="1" max="200" value="15" required></label>
+          <button class="btn btn-primary" type="submit" id="btnGerarJornadas">Gerar prévia</button>
+        </form>
+        <p id="jornadaSimStatus" role="status">Nenhum cenário fictício gerado.</p>
+        <label><input type="checkbox" id="usarJornadasSimuladas" disabled> Usar este cenário no botão Simular replanejamento</label>
+        <p id="jornadaModoStatus" role="status">A otimização usa as jornadas do banco.</p>
+        <div class="table-wrap" id="jornadaSimPreview" hidden>
+          <table><thead><tr><th>Tripulante</th><th>Cargo</th><th>Base</th><th>Horas simuladas</th><th>Limite configurado</th><th>Descanso</th><th>Aclimatado</th></tr></thead>
+            <tbody id="jornadaSimRows"></tbody></table>
+        </div>
+      </details>
       <div class="actions">
         <button class="btn btn-ghost" id="btnSimular" type="button">Simular replanejamento (sem publicar)</button>
         <button class="btn btn-success" id="btnAplicar" type="button" data-i18n="btnApply">Aplicar escala automática</button>
@@ -837,7 +858,7 @@
 
       <div class="setting-card" style="margin-bottom:20px">
         <h2 class="setting-card-title">Estado da aplicação</h2>
-        <p>Interface: <strong id="interfaceVersion">importacao-5</strong></p>
+        <p>Interface: <strong id="interfaceVersion">jornadas-6</strong></p>
         <p id="sessionStatus" role="status">Verificando sessão…</p>
         <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
         <p id="connectionStatus" role="status">Aguardando verificação.</p>
@@ -2075,7 +2096,70 @@ async function iniciarPainel() {
       };
     }
 
+    let cenarioJornadas = null;
+    const usarJornadas = document.getElementById('usarJornadasSimuladas');
+    const dataJornada = document.getElementById('simJornadaData');
+    dataJornada.value = new Date().toISOString().slice(0, 10);
+
+    function modoJornadasSimuladas() { return Boolean(usarJornadas.checked && cenarioJornadas); }
+    function atualizarModoJornadas() {
+      const ativo = modoJornadasSimuladas();
+      document.getElementById('btnAplicar').disabled = ativo;
+      document.getElementById('jornadaModoStatus').textContent = ativo
+        ? 'Modo fictício: use Simular replanejamento. A publicação está desativada para este cenário.'
+        : 'A otimização usa as jornadas do banco.';
+    }
+    usarJornadas.addEventListener('change', atualizarModoJornadas);
+    document.getElementById('formSimularJornadas').addEventListener('change', () => {
+      cenarioJornadas = null;
+      usarJornadas.checked = false;
+      usarJornadas.disabled = true;
+      document.getElementById('jornadaSimPreview').hidden = true;
+      document.getElementById('jornadaSimStatus').textContent = 'Gere a prévia novamente após alterar os parâmetros.';
+      atualizarModoJornadas();
+    });
+    document.getElementById('formSimularJornadas').addEventListener('submit', async e => {
+      e.preventDefault();
+      const status = document.getElementById('jornadaSimStatus');
+      const button = document.getElementById('btnGerarJornadas');
+      button.disabled = true;
+      status.textContent = 'Gerando jornadas fictícias…';
+      try {
+        const res = await fetchComPrazo(`${API_URL}/jornadas/simular`, {
+          method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seed: Number(document.getElementById('simJornadaSeed').value),
+            perfil: document.getElementById('simJornadaPerfil').value, data: dataJornada.value })
+        });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        const dados = await res.json();
+        if (!res.ok) throw new Error(dados.erro || 'HTTP ' + res.status);
+        cenarioJornadas = dados;
+        const rows = document.getElementById('jornadaSimRows');
+        rows.replaceChildren();
+        dados.jornadas.slice(0, 20).forEach(j => {
+          const row = document.createElement('tr');
+          [j.nome, j.cargo, j.base, horasFormatadas(j.horas_acumuladas), horasFormatadas(j.limite_horas),
+            j.descanso_ok ? 'Cumprido' : 'Insuficiente', j.aclimatado ? 'Sim' : 'Não'].forEach(texto => {
+            const td = document.createElement('td'); td.textContent = texto; row.appendChild(td);
+          });
+          rows.appendChild(row);
+        });
+        const r = dados.resumo;
+        status.textContent = r.total + ' jornadas fictícias · ' + r.sem_descanso + ' sem descanso · ' +
+          r.nao_aclimatados + ' não aclimatados · ' + r.no_limite + ' no limite ou acima. Prévia de até 20 tripulantes.';
+        document.getElementById('jornadaSimPreview').hidden = false;
+        usarJornadas.disabled = false;
+        usarJornadas.checked = true;
+        atualizarModoJornadas();
+      } catch (err) { status.textContent = 'Não foi possível gerar jornadas: ' + err.message; }
+      finally { button.disabled = false; }
+    });
+
     function executarMotor(gravar) {
+      if (gravar && modoJornadasSimuladas()) {
+        document.getElementById('liveStatus').textContent = 'Cenários fictícios não podem ser publicados.';
+        return;
+      }
       var aviso = document.getElementById('liveStatus');
       var btnS = document.getElementById('btnSimular');
       var btnA = document.getElementById('btnAplicar');
@@ -2097,7 +2181,12 @@ async function iniciarPainel() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ limite_voos: 15, gravar: gravar === true })
+        body: JSON.stringify({ limite_voos: modoJornadasSimuladas() ? Number(document.getElementById('simJornadaVoos').value) : 15, gravar: gravar === true,
+          ...(modoJornadasSimuladas() ? {
+            data: cenarioJornadas.parametros.data,
+            simulacao_jornadas: { seed: cenarioJornadas.parametros.seed, perfil: cenarioJornadas.parametros.perfil }
+          } : {})
+        })
       })
         .then(function (res) {
           return res.json().then(function (dados) { return { status: res.status, dados: dados }; });
@@ -2109,7 +2198,7 @@ async function iniciarPainel() {
             var causas = (r.dados.diagnostico && r.dados.diagnostico.causas) || [];
             if (aviso) {
               aviso.style.color = 'var(--red)';
-              aviso.textContent = 'Inviavel: ' + causas.join(' ');
+              aviso.textContent = (r.dados.status === 'CONFLITO' ? 'Publicação não concluída: ' : 'Inviável: ') + (causas.length ? causas.join(' ') : r.dados.mensagem || 'Revise o cenário.');
             }
             return;
           }
@@ -2117,7 +2206,7 @@ async function iniciarPainel() {
           if (r.status !== 200) {
             if (aviso) {
               aviso.style.color = 'var(--red)';
-              aviso.textContent = r.dados.mensagem || 'O motor nao convergiu.';
+              aviso.textContent = (r.dados.mensagem || r.dados.erro || 'O motor não convergiu.') + (r.dados.dica ? ' ' + r.dados.dica : '');
             }
             return;
           }
@@ -2140,7 +2229,7 @@ async function iniciarPainel() {
 
           if (aviso) {
             aviso.style.color = gravar ? 'var(--green)' : 'var(--text-600-solid)';
-            aviso.textContent = (gravar ? 'Escala publicada: ' : 'Simulacao (nao publicada): ') + resumo;
+            aviso.textContent = (gravar ? 'Escala publicada: ' : 'Simulacao (nao publicada): ') + resumo + (d.origem_jornadas === 'simulacao' ? ' · JORNADAS FICTÍCIAS · seed ' + d.simulacao_jornadas.parametros.seed + ' · ' + d.simulacao_jornadas.parametros.perfil : '');
           }
 
           var eng = document.getElementById('engineLabel');
@@ -2157,7 +2246,7 @@ async function iniciarPainel() {
         })
         .finally(function () {
           if (btnS) { btnS.disabled = false; btnS.innerText = rotuloS; }
-          if (btnA) { btnA.disabled = false; btnA.innerText = rotuloA; }
+          if (btnA) { btnA.disabled = modoJornadasSimuladas(); btnA.innerText = rotuloA; }
         });
     }
 
@@ -2874,10 +2963,6 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
       });
     }
 
-    var btnSimularNovo = document.getElementById('btnSimular');
-    if (btnSimularNovo) {
-      btnSimularNovo.addEventListener('click', function () { rodarMotor(false); });
-    }
 
     if (btnAplicar) {
       btnAplicar.addEventListener('click', function () {
