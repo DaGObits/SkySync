@@ -603,9 +603,9 @@
 
       <div class="kpi-grid">
         <button type="button" class="kpi-card" data-screen="disrupcoes">
-          <span class="kpi-label" data-i18n="kpiActiveDisruptions">Disrupções ativas (histórico)</span>
+          <span class="kpi-label" data-i18n="kpiActiveDisruptions">Ocorrências com risco alto/médio</span>
           <span class="kpi-value" id="kpiActiveCount"><span class="kpi-loading" aria-label="Carregando"></span></span>
-          <span class="kpi-hint" id="kpiHighFatigueHint" data-i18n="kpiHighFatigue">com risco alto de fadiga</span>
+          <span class="kpi-hint" id="kpiHighFatigueHint" data-i18n="kpiHighFatigue">ocorrência(s) de risco alto</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
           <span class="kpi-label" data-i18n="kpiImpactedCount">Tripulantes impactados</span>
@@ -661,7 +661,7 @@
     <!-- ABA DE DISRUPÇÕES -->
     <section class="screen" id="screen-disrupcoes" aria-labelledby="disrupcoes-h" tabindex="-1" hidden>
       <h1 id="disrupcoes-h"><span data-i18n="disruptionsTitle">Disrupções</span> <span class="count-pill" id="alertCount">—</span></h1>
-      <p class="lede" data-i18n="disruptionsSubtitle">Ocorrências operacionais acumuladas de todos os voos já registrados na malha e histórico.</p>
+      <p class="lede" data-i18n="disruptionsSubtitle">Ocorrências operacionais registradas no banco, independentes das escalas publicadas.</p>
       
       <div class="disruptions-toolbar">
         <button type="button" class="filter-btn active" data-filter="all" data-i18n="filterAll">Todas</button>
@@ -669,6 +669,20 @@
         <button type="button" class="filter-btn" data-filter="medio" data-i18n="filterMedium">Risco Médio</button>
         <button type="button" class="filter-btn" data-filter="baixo" data-i18n="filterNormal">Normal</button>
       </div>
+
+      <button type="button" class="btn-secondary" id="btnAtualizarDisrupcoes">Atualizar ocorrências</button>
+      <p id="disruptionsStatus" role="status">Carregando ocorrências…</p>
+      <details style="margin:16px 0">
+        <summary>Registrar ocorrência operacional</summary>
+        <form id="formDisrupcao" style="display:grid;gap:12px;margin:16px 0;max-width:600px">
+          <label>Voo <input class="setting-input" id="disrupcaoVoo" required maxlength="30" placeholder="Código do voo"></label>
+          <label>Descrição <textarea class="setting-input" id="disrupcaoDescricao" required minlength="5" maxlength="2000"></textarea></label>
+          <label>Risco <select class="setting-select" id="disrupcaoRisco"><option value="medio">Médio</option><option value="alto">Alto</option><option value="baixo">Baixo</option></select></label>
+          <label>Rota (opcional) <input class="setting-input" id="disrupcaoRota" maxlength="100"></label>
+          <button class="btn-primary" id="btnRegistrarDisrupcao" type="submit">Salvar ocorrência</button>
+          <p id="disrupcaoRegistroStatus" role="status"></p>
+        </form>
+      </details>
 
       <div class="alert-grid" id="disruptionsGrid">
         <!-- Preenchido dinamicamente com histórico completo -->
@@ -822,7 +836,7 @@
 
       <div class="setting-card" style="margin-bottom:20px">
         <h2 class="setting-card-title">Estado da aplicação</h2>
-        <p>Interface: <strong id="interfaceVersion">sessao-3</strong></p>
+        <p>Interface: <strong id="interfaceVersion">disrupcoes-4</strong></p>
         <p id="sessionStatus" role="status">Verificando sessão…</p>
         <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
         <p id="connectionStatus" role="status">Aguardando verificação.</p>
@@ -1145,8 +1159,8 @@ async function iniciarPainel() {
         menuSettings: 'Configurações',
         panelTitle: 'Painel de replanejamento — Base',
         panelSubtitle: 'Acompanhamento em tempo real de disrupções, jornadas e conformidade com a Lei do Aeronauta e a RBAC 117.',
-        kpiActiveDisruptions: 'Disrupções ativas (histórico)',
-        kpiHighFatigue: 'com risco alto de fadiga',
+        kpiActiveDisruptions: 'Ocorrências com risco alto/médio',
+        kpiHighFatigue: 'ocorrência(s) de risco alto',
         kpiImpactedCount: 'Tripulantes impactados',
         kpiBlockedRbac: 'bloqueados pela RBAC 117',
         kpiCrewCompliance: 'Conformidade da tripulação',
@@ -1159,7 +1173,7 @@ async function iniciarPainel() {
         compliantLegend: 'Conformes',
         rbacComplianceTitle: 'Conformidade RBAC 117',
         disruptionsTitle: 'Disrupções',
-        disruptionsSubtitle: 'Ocorrências operacionais acumuladas de todos os voos já registrados na malha e histórico.',
+        disruptionsSubtitle: 'Ocorrências operacionais registradas no banco, independentes das escalas publicadas.',
         filterAll: 'Todas',
         filterHigh: 'Risco Alto',
         filterMedium: 'Risco Médio',
@@ -1282,8 +1296,8 @@ async function iniciarPainel() {
         menuSettings: 'Settings',
         panelTitle: 'Rescheduling Dashboard — Base',
         panelSubtitle: 'Real-time tracking of disruptions, crew duties, and compliance with aviation regulations.',
-        kpiActiveDisruptions: 'Active disruptions (history)',
-        kpiHighFatigue: 'with high fatigue risk',
+        kpiActiveDisruptions: 'High/medium risk occurrences',
+        kpiHighFatigue: 'high risk occurrence(s)',
         kpiImpactedCount: 'Impacted crew members',
         kpiBlockedRbac: 'blocked by regulations',
         kpiCrewCompliance: 'Crew compliance',
@@ -1296,7 +1310,7 @@ async function iniciarPainel() {
         compliantLegend: 'Compliant',
         rbacComplianceTitle: 'Regulatory Compliance',
         disruptionsTitle: 'Disruptions',
-        disruptionsSubtitle: 'Accumulated operational events from all flights recorded in the network and history.',
+        disruptionsSubtitle: 'Operational occurrences recorded in the database, independent of published schedules.',
         filterAll: 'All',
         filterHigh: 'High Risk',
         filterMedium: 'Medium Risk',
@@ -1419,8 +1433,8 @@ async function iniciarPainel() {
         menuSettings: 'Configuración',
         panelTitle: 'Panel de reprogramación — Base',
         panelSubtitle: 'Seguimiento en tiempo real de disrupciones, jornadas y cumplimiento normativo.',
-        kpiActiveDisruptions: 'Disrupciones activas (histórico)',
-        kpiHighFatigue: 'con alto riesgo de fatiga',
+        kpiActiveDisruptions: 'Incidencias de riesgo alto/medio',
+        kpiHighFatigue: 'incidencia(s) de riesgo alto',
         kpiImpactedCount: 'Tripulantes afectados',
         kpiBlockedRbac: 'bloqueados por regulaciones',
         kpiCrewCompliance: 'Cumplimiento de tripulación',
@@ -1433,7 +1447,7 @@ async function iniciarPainel() {
         compliantLegend: 'Conformes',
         rbacComplianceTitle: 'Cumplimiento Normativo',
         disruptionsTitle: 'Disrupciones',
-        disruptionsSubtitle: 'Incidencias operativas acumuladas de todos los vuelos registrados en la red y el histórico.',
+        disruptionsSubtitle: 'Incidencias operativas registradas en la base de datos, independientes de las escalas publicadas.',
         filterAll: 'Todas',
         filterHigh: 'Riesgo Alto',
         filterMedium: 'Riesgo Medio',
@@ -1594,6 +1608,8 @@ async function iniciarPainel() {
     let indiceHistoricoAtual = 0;
     let dadosOperacionais = [];
     let filtroAtual = 'all';
+    let disrupcoesDoBanco = [];
+    let disrupcoesCarregadas = false;
 
     function carregarDadosLocais() {
       try {
@@ -1655,53 +1671,92 @@ async function iniciarPainel() {
     function gerarDisruptionsDinamicas() {
       const grid = document.getElementById('disruptionsGrid');
       if (!grid) return;
-      grid.innerHTML = '';
-
-      const todosVoos = obterTodosVoosHistorico();
-
-      const filtradas = todosVoos.filter(d => {
-        if (filtroAtual === 'all') return true;
-        return d.risco === filtroAtual;
-      });
-
-      if (filtradas.length === 0) {
-        grid.innerHTML = '<p style="color:var(--text-400); grid-column: 1/-1; text-align: center; padding: 30px;">Nenhuma disrupção encontrada nesta categoria.</p>';
+      grid.replaceChildren();
+      const filtradas = disrupcoesDoBanco.filter(d => filtroAtual === 'all' || d.risco === filtroAtual);
+      if (!filtradas.length) {
+        const mensagem = document.createElement('p');
+        mensagem.textContent = !disrupcoesCarregadas ? 'Aguardando consulta de ocorrências.' :
+          disrupcoesDoBanco.length ? 'Nenhuma ocorrência nesta categoria.' :
+          'Nenhuma ocorrência registrada. Use o formulário para registrar uma disrupção operacional.';
+        grid.appendChild(mensagem);
       }
-
       filtradas.forEach(d => {
         const article = document.createElement('article');
-        article.className = `alert-card risk-${d.risco}`;
-        article.innerHTML = `
-          <div>
-            <div class="flight-row"><span class="flight-id">${d.voo}</span><span class="risk-badge ${d.risco}">${getBadgeText(d.badgeKey)}</span></div>
-            <p>${d.desc}</p>
-          </div>
-          <div class="alert-card-footer">
-            <div class="meta"><span>${d.rota}</span><span>${d.horario}</span></div>
-          </div>
-        `;
-
-        article.addEventListener('click', () => {
-          openModal(`Detalhes Sincronizados — Voo ${d.voo}`, `${d.desc}\n\nTripulante: ${d.tripulante} (${d.cargo})\nRota: ${d.rota} | Horário: ${d.horario}\nJornada Acumulada: ${d.horas} (Limite RBAC: ${d.limitRbac})`);
+        article.className = 'alert-card risk-' + d.risco;
+        const titulo = document.createElement('strong');
+        titulo.textContent = d.voo;
+        const risco = document.createElement('span');
+        risco.className = 'risk-badge ' + d.risco;
+        risco.textContent = { alto: 'Risco alto', medio: 'Risco médio', baixo: 'Risco baixo' }[d.risco];
+        const descricao = document.createElement('p');
+        descricao.textContent = d.descricao;
+        const meta = document.createElement('p');
+        meta.textContent = [d.rota, d.horario].filter(Boolean).join(' · ');
+        article.append(titulo, risco, descricao, meta);
+        // Dados da ocorrência são texto, nunca HTML executável.
+        article.tabIndex = 0;
+        article.setAttribute('role', 'button');
+        const abrir = () => openModal('Ocorrência — ' + d.voo,
+          d.descricao + (d.rota ? '\nRota: ' + d.rota : '') +
+          (d.tripulante ? '\nTripulante: ' + d.tripulante : '') +
+          (d.solucao ? '\nSolução: ' + d.solucao : ''));
+        article.addEventListener('click', abrir);
+        article.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); }
         });
-
         grid.appendChild(article);
       });
-
-      const ativasCount = todosVoos.filter(d => d.risco !== 'baixo').length;
-      const alertCount = document.getElementById('alertCount');
-      const kpiActiveCount = document.getElementById('kpiActiveCount');
-      const kpiHighFatigueHint = document.getElementById('kpiHighFatigueHint');
-      const lang = settings.idioma || 'pt-BR';
-      const dict = translations[lang] || translations['pt-BR'];
-
-      if (alertCount) alertCount.textContent = `${ativasCount} ativos`;
-      if (kpiActiveCount) kpiActiveCount.textContent = ativasCount;
-      if (kpiHighFatigueHint) {
-        const highFatigueCount = todosVoos.filter(d => d.risco === 'alto').length;
-        kpiHighFatigueHint.textContent = `${highFatigueCount} ${dict.kpiHighFatigue}`;
-      }
+      const ativas = disrupcoesDoBanco.filter(d => d.risco !== 'baixo').length;
+      document.getElementById('alertCount').textContent = disrupcoesCarregadas ? ativas + ' com risco alto/médio' : '—';
+      document.getElementById('kpiActiveCount').textContent = disrupcoesCarregadas ? ativas : '—';
+      const altas = disrupcoesDoBanco.filter(d => d.risco === 'alto').length;
+      document.getElementById('kpiHighFatigueHint').textContent = disrupcoesCarregadas ? altas + ' ocorrência(s) de risco alto' : 'Aguardando ocorrências';
     }
+
+    window.carregarDisrupcoes = async function () {
+      const status = document.getElementById('disruptionsStatus');
+      status.textContent = 'Consultando ocorrências…';
+      try {
+        const res = await fetchComPrazo(`${API_URL}/disrupcoes`, { credentials: 'include' });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        if (!res.ok) throw new Error(res.status === 404 ? 'API de disrupções indisponível. Publique a versão atual do backend no Render.' : 'HTTP ' + res.status);
+        const dados = await res.json();
+        if (!Array.isArray(dados.disrupcoes)) throw new Error('Resposta de ocorrências inválida');
+        disrupcoesDoBanco = dados.disrupcoes;
+        disrupcoesCarregadas = true;
+        gerarDisruptionsDinamicas();
+        status.textContent = dados.retornados + ' de ' + dados.total + ' ocorrência(s) registrada(s).';
+      } catch (e) {
+        status.textContent = 'Não foi possível carregar as disrupções: ' + e.message;
+      }
+    };
+    document.getElementById('btnAtualizarDisrupcoes').addEventListener('click', window.carregarDisrupcoes);
+    document.getElementById('formDisrupcao').addEventListener('submit', async e => {
+      e.preventDefault();
+      const status = document.getElementById('disrupcaoRegistroStatus');
+      const button = document.getElementById('btnRegistrarDisrupcao');
+      button.disabled = true;
+      status.textContent = 'Salvando ocorrência…';
+      try {
+        const res = await fetchComPrazo(`${API_URL}/disrupcoes`, {
+          method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            voo: document.getElementById('disrupcaoVoo').value,
+            descricao: document.getElementById('disrupcaoDescricao').value,
+            risco: document.getElementById('disrupcaoRisco').value,
+            rota: document.getElementById('disrupcaoRota').value
+          })
+        });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        const dados = await res.json();
+        if (!res.ok) throw new Error(dados.campos ? Object.values(dados.campos).join(' ') : dados.erro || 'HTTP ' + res.status);
+        e.target.reset();
+        status.textContent = 'Ocorrência salva no banco.';
+        await window.carregarDisrupcoes();
+      } catch (err) {
+        status.textContent = 'Ocorrência não confirmada: ' + err.message + '. Atualize a lista antes de tentar novamente.';
+      } finally { button.disabled = false; }
+    });
 
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2626,7 +2681,7 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
         });
         
         if (name === 'disrupcoes') {
-          gerarDisruptionsDinamicas();
+          window.carregarDisrupcoes();
         }
 
         const target = document.getElementById('screen-' + name);
@@ -2829,6 +2884,7 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
       });
     }
     carregarPerfil();
+    window.carregarDisrupcoes();
   } catch (err) {
     console.error("Erro geral recuperado no SkySync:", err);
   }

@@ -153,6 +153,24 @@ python app.py
 pytest -v
 ```
 
+### Disrupções operacionais
+
+A aba **Disrupções** consulta `GET /api/disrupcoes`, que lê a tabela existente
+`disrupcoes`. Ela não depende de haver escalas publicadas nem fabrica ocorrências
+a partir de voos ao vivo. Os dados do OpenSky não identificam, por si só, causas
+como meteorologia ou manutenção.
+
+Usuários autenticados podem registrar voo, descrição, risco e rota pelo formulário
+**Registrar ocorrência operacional** (`POST /api/disrupcoes`). A ocorrência
+persiste no banco e continua disponível após recarregar. Os filtros distinguem
+risco alto, médio e baixo; a contagem destaca risco alto/médio entre os registros
+carregados. A lista informa quantos registros foram retornados, até 200 por padrão
+(1.000 pelo parâmetro `limite` da API). Não há encerramento de ocorrências nesta versão.
+
+Uma lista vazia significa que nenhuma ocorrência foi registrada; falhas de rede
+ou do backend aparecem como erro com opção de atualizar. Esta versão exige novo
+deploy do Render após o merge e usa o esquema já existente, sem migração adicional.
+
 ### Identidade, saída e diagnóstico
 
 O painel confirma a identidade com `/api/perfil`; o conteúdo de `localStorage`
@@ -161,7 +179,7 @@ não autentica o usuário nem define o nome exibido. A conta de demonstração
 cadastre sua conta ou edite o perfil após entrar. O painel só confirma a alteração
 quando a API a salva.
 
-Em **Configurações → Estado da aplicação**, confira a versão `sessao-3`, o
+Em **Configurações → Estado da aplicação**, confira a versão `disrupcoes-4`, o
 estado da sessão e o resultado de **Verificar conexão**. Se essa versão não
 aparecer, a página servida ainda não contém esta correção. O diagnóstico não
 exibe senhas ou cookies.
@@ -198,9 +216,8 @@ NODE_PATH=/tmp/skysync-browser/node_modules node --test backend/tests/frontend.t
 # Se já houver Chromium instalado, defina CHROMIUM_PATH com o caminho do executável.
 ```
 
-Após aceitar o pull request, publique a branch `lucas` no GitHub Pages. O Render
-precisa de novo deploy quando houver alterações no backend; esta correção altera
-somente o front-end e seus testes/documentação.
+Após aceitar o pull request, publique a branch `lucas` no GitHub Pages e faça
+novo deploy do serviço no Render para disponibilizar `/api/disrupcoes`.
 
 ---
 

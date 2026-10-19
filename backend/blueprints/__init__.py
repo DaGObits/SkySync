@@ -4,6 +4,7 @@ from blueprints import (
     ao_vivo,
     auth,
     cenarios,
+    disrupcoes,
     escalas,
     escalas_voos,
     mapa,
@@ -17,6 +18,7 @@ from blueprints import (
 TODOS = (
     auth.bp,
     perfil.bp,
+    disrupcoes.bp,
     escalas.bp,
     otimizacao.bp,
     cenarios.bp,
@@ -31,6 +33,7 @@ __all__ = [
     "ao_vivo",
     "auth",
     "cenarios",
+    "disrupcoes",
     "escalas",
     "mapa",
     "otimizacao",
