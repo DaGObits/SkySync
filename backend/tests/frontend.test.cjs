@@ -13,7 +13,7 @@ const escala = {
 };
 
 for (const file of ['docs/index.html', 'backend/static/index.html']) {
-  test(`${file}: banco atualiza escalas e disrupções, inclusive resposta vazia`, async () => {
+  test(`${file}: escalas e ocorrências carregam de fontes independentes`, async () => {
     const browser = await chromium.launch({
       ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}),
       args: ['--no-sandbox']
@@ -23,6 +23,7 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
       const errors = [];
       const requests = [];
       let escalas = [escala];
+      let ocorrencias = [{ id: 1, voo: "TEST-001", descricao: "Manutenção operacional", risco: "alto", rota: "GRU → MAO" }];
       let status = 200;
       page.on('pageerror', error => errors.push(error.message));
       await page.addInitScript(() => {
@@ -35,6 +36,7 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
           return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', file), 'utf8') });
         }
         if (url.pathname === '/api/perfil') return route.fulfill({ json: { nome: 'Teste', email: 'local@example.test', cargo: '', base: 'GRU' } });
+        if (url.pathname === '/api/disrupcoes') return route.fulfill({ json: { total: ocorrencias.length, retornados: ocorrencias.length, disrupcoes: ocorrencias } });
         if (url.pathname === '/api/escalas/otimizar') {
           const publicada = { ...escala, voo: 'TEST-002', conforme: true, ocupacao_percentual: 9 };
           if (route.request().postDataJSON().gravar) escalas = [publicada];
@@ -73,14 +75,17 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
       await page.evaluate(() => document.getElementById('btnAplicar').click());
       await page.waitForFunction(() => document.getElementById('liveStatus').textContent.includes('Escala publicada:'));
       assert.match(await page.locator('#crewTable').innerText(), /TEST-002/);
-      assert.match(await page.locator('#disruptionsGrid').innerText(), /TEST-002/);
-      assert.equal(await page.locator('#kpiActiveCount').innerText(), '0');
+      assert.match(await page.locator('#disruptionsGrid').innerText(), /TEST-001/);
+      assert.equal(await page.locator('#kpiActiveCount').innerText(), '1');
       await page.evaluate(() => window.carregarEscalasDoBanco(true));
       assert.match(await page.locator('#crewTable').innerText(), /TEST-002/);
 
       escalas = [];
       await page.evaluate(() => window.carregarEscalasDoBanco(true));
       assert.equal(await page.locator('#crewTable tr').count(), 0);
+      assert.equal(await page.locator('#disruptionsGrid .alert-card').count(), 1);
+      ocorrencias = [];
+      await page.evaluate(() => window.carregarDisrupcoes());
       assert.equal(await page.locator('#disruptionsGrid .alert-card').count(), 0);
       assert.equal(await page.locator('#kpiActiveCount').innerText(), '0');
       assert.match(await page.locator('#historyCaptionText').innerText(), /Nenhuma escala publicada/);
@@ -116,6 +121,7 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
         if (url.href === 'http://localhost/') {
           return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', file), 'utf8') });
         }
+        if (url.pathname === '/api/disrupcoes') return route.fulfill({ json: { total: 1, retornados: 1, disrupcoes: [{ id: 1, voo: 'TEST-001', descricao: 'Atraso operacional', risco: 'alto' }] } });
         // Leave these requests pending to reproduce an unresponsive API.
         if (url.pathname === '/api/perfil') return;
         if (url.pathname === '/api/escalas') {
@@ -219,5 +225,62 @@ for (const folder of ['docs', 'backend/static']) {
     } finally {
       await browser.close();
     }
+  });
+}
+
+for (const file of ['docs/index.html', 'backend/static/index.html']) {
+  test(`${file}: registra e filtra disrupção sem escala, preserva texto e distingue falha`, async () => {
+    const browser = await chromium.launch({
+      ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}),
+      args: ['--no-sandbox']
+    });
+    try {
+      const page = await browser.newPage();
+      let ocorrencias = [];
+      let status = 200;
+      await page.route('**/*', async route => {
+        const url = new URL(route.request().url());
+        if (url.href === 'http://localhost/') return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', file), 'utf8') });
+        if (url.pathname === '/api/perfil') return route.fulfill({ json: { nome: 'Operador', email: 'local@example.test' } });
+        if (url.pathname === '/api/escalas') return route.fulfill({ json: { total: 0, data: '2026-10-19', escalas: [] } });
+        if (url.pathname === '/api/disrupcoes') {
+          if (route.request().method() === 'POST') {
+            const dado = { ...route.request().postDataJSON(), id: 1 };
+            ocorrencias.push(dado);
+            return route.fulfill({ status: 201, json: { disrupcao: dado } });
+          }
+          return route.fulfill({ status, json: { total: ocorrencias.length, retornados: ocorrencias.length, disrupcoes: ocorrencias } });
+        }
+        return route.fulfill({ json: {} });
+      });
+      await page.goto('http://localhost/');
+      await page.waitForFunction(() => document.getElementById('disruptionsStatus').textContent.includes('0 de 0'));
+      assert.match(await page.locator('#disruptionsGrid').innerText(), /Nenhuma ocorrência registrada/);
+      await page.locator('.nav-btn[data-screen="disrupcoes"]').click();
+      await page.locator('#screen-disrupcoes summary').click();
+      await page.locator('#disrupcaoVoo').fill('TEST-900');
+      const descricao = '<img src=x onerror="window.injetado=true"> Manutenção';
+      await page.locator('#disrupcaoDescricao').fill(descricao);
+      await page.locator('#disrupcaoRisco').selectOption('alto');
+      await page.locator('#btnRegistrarDisrupcao').click();
+      await page.waitForFunction(() => document.querySelectorAll('#disruptionsGrid .alert-card').length === 1);
+      assert.equal(await page.locator('#crewTable tr').count(), 0);
+      assert.match(await page.locator('#disruptionsGrid').innerText(), /TEST-900/);
+      assert.equal(await page.locator('#disruptionsGrid img').count(), 0);
+      assert.equal(await page.evaluate(() => Boolean(window.injetado)), false);
+      assert.equal(await page.locator('#kpiActiveCount').innerText(), '1');
+      await page.locator('.filter-btn[data-filter="baixo"]').click();
+      assert.equal(await page.locator('#disruptionsGrid .alert-card').count(), 0);
+      assert.match(await page.locator('#disruptionsGrid').innerText(), /Nenhuma ocorrência nesta categoria/);
+      await page.locator('.filter-btn[data-filter="all"]').click();
+      status = 404;
+      await page.locator('#btnAtualizarDisrupcoes').click();
+      await page.waitForFunction(() => document.getElementById('disruptionsStatus').textContent.includes('Publique'));
+      // A failed refresh must preserve the last successfully loaded events.
+      assert.equal(await page.locator('#disruptionsGrid .alert-card').count(), 1);
+      status = 200;
+      await page.reload();
+      await page.waitForFunction(() => document.querySelectorAll('#disruptionsGrid .alert-card').length === 1);
+    } finally { await browser.close(); }
   });
 }
