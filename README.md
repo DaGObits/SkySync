@@ -208,27 +208,36 @@ merge, sem nova chave. Endpoints autenticados: `GET /api/operacao`,
 Os endpoints antigos de cenários continuam disponíveis para compatibilidade,
 mas os seus formulários e botões foram removidos da interface.
 
-### Radar de voos ao vivo
+### Mapa da operação simulada
 
-O painel inicial incorpora o widget público do Flightradar24, centralizado no
-Brasil. O navegador carrega o radar diretamente do provedor; a tela não consulta
-`/api/ao-vivo` nem depende da conexão entre Render e OpenSky. Os controles e os
-detalhes dos voos são fornecidos pelo próprio widget, conforme sua disponibilidade.
-O link **Abrir em nova aba** permanece visível para navegadores que bloqueiem o
-conteúdo incorporado. A página não pode detectar nem confirmar o carregamento
-das posições dentro de um iframe de outro domínio.
+O painel inicial mostra os voos da **mesma operação persistida** que acumula as
+horas dos tripulantes e dispara os remanejamentos. O mapa recebe o snapshot no
+`GET /api/operacao` já consultado a cada cinco segundos. Iniciar, continuar e
+pausar em **Escalas** também atualiza o mapa. O botão **Controlar operação** abre
+essa aba; não há outro relógio ou simulação paralela.
 
-O endereço do widget foi validado pelo usuário em sua rede. Os testes locais
-verificam a incorporação, o link alternativo, o layout no celular e a ausência de
-consultas ao OpenSky, usando respostas controladas para o conteúdo externo.
-O acesso real e a permissão de incorporação dependem do Flightradar24 e do navegador.
+A posição de cada avião é aproximada por interpolação entre as coordenadas reais
+dos aeroportos cadastrados, conforme os minutos transcorridos desde a decolagem
+simulada e a duração efetiva do voo (incluindo seu atraso simulado). O avião só
+aparece após a decolagem, sai do mapa ao pousar e fica parado quando a operação
+está pausada. O clique ou Enter no avião mostra rota, progresso, tempo restante,
+atraso e os tripulantes efetivamente alocados com suas horas e limites atuais.
+A seleção **Voo em andamento** também permite escolher aviões sobrepostos no mapa.
+As transições visuais duram um segundo entre snapshots; não adiantam o relógio.
 
-O radar é uma visualização externa independente: não cria disrupções, não informa
-tripulantes a bordo e não alimenta o otimizador. Os endpoints antigos `/api/ao-vivo`
-e `/api/ao-vivo/status` continuam disponíveis para compatibilidade, mas não são
-usados pela tela inicial. Não é necessária chave, alteração do backend nem migração.
-Após o merge, aguardar o deploy do Pages e atualizar o navegador; Configurações
-mostra a versão `radar-2`. A cópia servida pelo backend também foi atualizada.
+Aeroportos com voos aguardando tripulação ficam amarelos. Voos sem coordenadas
+válidas são contabilizados em um aviso, sem receber posições inventadas. Os
+controles de zoom, arrasto e **Brasil** alteram apenas a visualização. Falhas na
+consulta preservam as últimas posições com aviso; os GETs não avançam a operação.
+
+O mapa é SVG local, sem iframe, API de rastreamento ou tiles externos. Não precisa
+de conta, chave ou mudança de plano. Não representa tráfego real; a Aviationstack
+continua independente e usada para as disrupções reais. Os endpoints antigos
+`/api/ao-vivo` continuam disponíveis para compatibilidade, sem uso pelo painel.
+
+Após o merge, publicar **Render e Pages**, sem migração de banco. A versão exibida
+em Configurações é `simulacao-mapa-1`. Estados de simulação já existentes são
+compatíveis, inclusive voos de dias seguintes e decolagens fora do horário previsto.
 
 ### Disrupções operacionais
 
