@@ -13,18 +13,15 @@ async function abrir(file, responder = async () => false) {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.addInitScript(() => {
+    if (window.top !== window) return; // A sessão de teste pertence apenas ao SkySync.
     localStorage.setItem('usuario_logado', JSON.stringify({ nome: 'Marina em cache', email: 'old@example.test' }));
     const timeout = AbortSignal.timeout.bind(AbortSignal);
     AbortSignal.timeout = () => timeout(500);
   });
   await page.route('**/*', async route => {
     const url = new URL(route.request().url());
-    if (url.origin !== 'http://localhost') return route.abort();
     if (await responder(route, url)) return;
-    if (url.pathname.startsWith('/assets/leaflet/')) {
-      const asset = resolve(__dirname, '../..', dirname(file), '.' + url.pathname);
-      return route.fulfill({ contentType: url.pathname.endsWith('.js') ? 'application/javascript' : 'text/css', body: readFileSync(asset) });
-    }
+    if (url.origin !== 'http://localhost') return route.abort();
     if (['/', '/index.html', '/login.html'].includes(url.pathname)) {
       const arquivo = url.pathname === '/login.html' ? dirname(file) + '/login.html' : file;
       return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', arquivo), 'utf8') });
@@ -50,61 +47,48 @@ function estado(rodando = true) {
 }
 
 for (const file of ['docs/index.html', 'backend/static/index.html']) {
-  test(`${file}: radar real tem aviões, busca, detalhes e preserva posições na falha`, async () => {
-    let falha = false;
-    const voos = [
-      { icao24: 'abc123', callsign: 'TAM1234', latitude: -23.43, longitude: -46.47, altitude_m: 10000, velocidade_kmh: 850, direcao: 90, atualizado_em: '2026-10-20T12:00:00Z' },
-      { icao24: 'def456', callsign: 'GLO5678', latitude: -3.04, longitude: -60.05, altitude_m: 0, velocidade_kmh: 0, direcao: 0 },
-      { icao24: 'sempos', callsign: 'TAM9999', latitude: null, longitude: null },
-      { icao24: 'solo', callsign: 'GLO0000', latitude: -15, longitude: -47, no_solo: true }
-    ];
+  test(`${file}: radar incorporado, link alternativo e nenhuma consulta às fontes pelo Render`, async () => {
+    let consultasFonte = 0;
     const { page, browser, errors } = await abrir(file, async (r, u) => {
-      if (u.pathname !== '/api/ao-vivo') return false;
-      assert.equal(u.searchParams.get('limite'), '500');
-      await r.fulfill({ status: falha ? 503 : 200, json: { disponivel: true, fonte: 'OpenSky Network', consultado_em: '2026-10-20T12:00:00Z', voos } }); return true;
+      if (u.pathname.startsWith('/api/ao-vivo')) consultasFonte++;
+      if (u.hostname !== 'www.flightradar24.com') return false;
+      assert.equal(u.pathname, '/simple_index.php');
+      assert.equal(u.searchParams.get('lat'), '-14');
+      assert.equal(u.searchParams.get('lon'), '-52');
+      assert.equal(u.searchParams.get('z'), '4');
+      await r.fulfill({ contentType: 'text/html', body: '<html><body><p>Radar externo de teste</p></body></html>' }); return true;
     });
     try {
-      await page.waitForFunction(() => document.getElementById('radarMapa').dataset.voos === '2');
-      assert.equal(await page.locator('#mapaMalha').count(), 0);
-      assert.match(await page.locator('#radarStatus').textContent(), /OpenSky.*12:00:00 UTC/);
-      await page.locator('.radar-aviao[aria-label="Ver voo TAM1234"]').click();
-      assert.match(await page.locator('.radar-popup').textContent(), /TAM1234.*10.000 m.*850 km\/h/s);
-      await page.locator('#radarBusca').fill('glo');
-      assert.equal(await page.locator('.radar-aviao').count(), 1);
-      await page.locator('.radar-aviao').click();
-      assert.match(await page.locator('.radar-popup').textContent(), /0 m.*0 km\/h/s);
-      await page.locator('#radarBusca').fill('');
-      falha = true;
-      await page.evaluate(() => window.carregarRadar());
-      assert.match(await page.locator('#radarStatus').textContent(), /Mantendo as últimas posições/);
-      assert.equal(await page.locator('.radar-aviao').count(), 2);
-      falha = false; voos.splice(0, 1);
-      await page.evaluate(() => window.carregarRadar());
-      assert.equal(await page.locator('.radar-aviao').count(), 1);
+      await page.frameLocator('#radarFrame').getByText('Radar externo de teste').waitFor();
+      const iframe = page.locator('#radarFrame');
+      assert.match(await iframe.getAttribute('title'), /Flightradar24/);
+      const link = page.locator('#radarAbrir');
+      assert.equal(await link.getAttribute('href'), await iframe.getAttribute('src'));
+      assert.equal(await link.getAttribute('target'), '_blank');
+      assert.match(await link.getAttribute('rel'), /noopener/);
+      assert.equal(await page.locator('#mapaMalha, #radarMapa, #radarBusca, .radar-aviao').count(), 0);
+      await page.clock.install();
+      await page.clock.fastForward(65000);
+      assert.equal(consultasFonte, 0);
       await page.locator('.nav-btn[data-screen="tripulantes"]').click();
       await page.locator('.nav-btn[data-screen="painel"]').click();
-      assert.equal(await page.locator('#radarMapa').isVisible(), true);
+      assert.equal(await iframe.isVisible(), true);
       await page.setViewportSize({ width: 390, height: 844 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+      const bounds = await iframe.boundingBox();
+      assert.ok(bounds.width <= 390 && bounds.height >= 380);
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   });
 
-  test(`${file}: radar vazio e fonte indisponível não mostram voos inventados`, async () => {
-    let dados = { disponivel: false, atualizando: true, voos: [] };
-    const { page, browser, errors } = await abrir(file, async (r, u) => {
-      if (u.pathname !== '/api/ao-vivo') return false;
-      await r.fulfill({ json: dados }); return true;
-    });
+  test(`${file}: link alternativo permanece acessível quando radar externo é bloqueado`, async () => {
+    const { page, browser, errors } = await abrir(file);
     try {
-      await page.waitForFunction(() => document.getElementById('radarStatus').textContent.includes('Atualizando posições'));
-      assert.equal(await page.locator('.radar-aviao').count(), 0);
-      dados = { disponivel: false, atualizando: false, voos: [] };
-      await page.evaluate(() => window.carregarRadar());
-      assert.match(await page.locator('#radarStatus').textContent(), /Fonte de voos indisponível/);
-      dados = { disponivel: true, voos: [] };
-      await page.evaluate(() => window.carregarRadar());
-      assert.match(await page.locator('#radarStatus').textContent(), /Nenhum voo/);
+      assert.equal(await page.locator('#radarAbrir').isVisible(), true);
+      assert.match(await page.locator('#radarFonte').textContent(), /Se o radar não aparecer/);
+      assert.equal(await page.locator('#radarStatus').count(), 0);
+      await page.locator('.nav-btn[data-screen="escalas"]').click();
+      assert.equal(await page.locator('#screen-escalas').isVisible(), true);
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   });

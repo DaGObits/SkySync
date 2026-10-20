@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SkySync — Painel de Escalas</title>
-<link rel="stylesheet" href="assets/leaflet/leaflet.css">
-<script src="assets/leaflet/leaflet.js" defer></script>
 
 <style type="text/css">@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:400;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:500;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:600;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:700;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/greek-ext/wght/normal.woff2);unicode-range:U+1F00-1FFF;font-display:swap;}@font-face {font-family:'Inter';font-style:normal;font-weight:800;src:url(/cf-fonts/v/inter/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'Roboto Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/roboto-mono/5.2.9/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}</style>
 
@@ -412,16 +410,10 @@
   .radar-card { grid-column: 1 / -1; min-width: 0; }
   .radar-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
   .radar-toolbar .monitor-h { margin: 0; }
-  .radar-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .radar-controls button { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text-900); cursor: pointer; }
-  .radar-controls input { width: 170px; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text-900); }
+  .radar-link { display: inline-flex; align-items: center; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; color: var(--text-900); text-decoration: none; font-size: .85rem; }
+  .radar-link:hover { background: var(--surface-alt); }
   .radar-note { font-size: .82rem; color: var(--text-600-solid); margin: 10px 0; }
-  #radarMapa { height: clamp(350px, 60vh, 620px); width: 100%; border: 1px solid var(--border); border-radius: 10px; z-index: 0; background: #dce6ec; }
-  .radar-aviao { background: none; border: 0; }
-  .radar-aviao svg { width: 28px; height: 28px; fill: #ffcf33; stroke: #202d3b; stroke-width: 1.2; filter: drop-shadow(0 1px 2px #0006); }
-  .radar-aviao:focus { outline: 3px solid var(--focus); border-radius: 50%; }
-  .radar-popup { color: #101825; font: 13px/1.6 system-ui, sans-serif; }
-  .radar-popup strong { font-size: 16px; }
+  #radarFrame { display: block; height: clamp(380px, 65vh, 680px); width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-alt); }
   .radar-stats { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   @media (max-width: 650px) { .radar-stats { grid-template-columns: 1fr; } }
 
@@ -635,14 +627,13 @@
         <div class="monitor-card radar-card">
           <div class="radar-toolbar">
             <h2 class="section-sub monitor-h">Radar de voos ao vivo</h2>
-            <div class="radar-controls">
-              <input id="radarBusca" type="search" placeholder="Buscar voo: TAM1234" aria-label="Buscar voo pelo identificador">
-              <button type="button" class="btn-secondary" id="radarBrasil">Ver Brasil</button>
-            </div>
+            <a class="radar-link" id="radarAbrir" href="https://www.flightradar24.com/simple_index.php?lat=-14&amp;lon=-52&amp;z=4" target="_blank" rel="noopener noreferrer">Abrir em nova aba ↗</a>
           </div>
-          <p class="radar-note" id="radarStatus" role="status">Consultando posições das aeronaves…</p>
-          <div id="radarMapa" role="region" aria-label="Radar interativo de voos. Use os botões para ampliar e clique em um avião para ver os detalhes."></div>
-          <p class="radar-note" id="radarFonte">Posições reais via ADS-B · atualização conforme a fonte, com cache de 5 minutos. Cobertura parcial; dados sujeitos a atraso.</p>
+          <p class="radar-note">Voos ao vivo sobre o Brasil · Flightradar24</p>
+          <iframe id="radarFrame" title="Radar de voos ao vivo — Flightradar24"
+            src="https://www.flightradar24.com/simple_index.php?lat=-14&amp;lon=-52&amp;z=4"
+            allow="fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          <p class="radar-note" id="radarFonte">Cobertura e atualização conforme o Flightradar24. Se o radar não aparecer aqui, use “Abrir em nova aba”.</p>
         </div>
 
         <div class="monitor-card radar-stats">
@@ -804,7 +795,7 @@
 
       <div class="setting-card" style="margin-bottom:20px">
         <h2 class="setting-card-title">Estado da aplicação</h2>
-        <p>Interface: <strong id="interfaceVersion">radar-1</strong></p>
+        <p>Interface: <strong id="interfaceVersion">radar-2</strong></p>
         <p id="sessionStatus" role="status">Verificando sessão…</p>
         <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
         <p id="connectionStatus" role="status">Aguardando verificação.</p>
@@ -2153,120 +2144,6 @@ async function iniciarPainel() {
     }
 
 
-    // Radar: posições observadas, sem inventar movimento entre consultas.
-    let radar = null;
-    let radarVoos = [];
-    let radarConsultando = false;
-    let radarTimer = null;
-    const radarMarcadores = new Map();
-    const limitesBrasil = [[-34, -74], [6, -33]];
-    function iniciarRadar() {
-      if (radar) return true;
-      if (!window.L) {
-        document.getElementById('radarStatus').textContent = 'Não foi possível carregar o mapa. Atualize a página para tentar novamente.';
-        return false;
-      }
-      radar = L.map('radarMapa', { scrollWheelZoom: false }).fitBounds(limitesBrasil);
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
-      }).on('tileerror', () => {
-        document.getElementById('radarFonte').textContent = 'O fundo do mapa está indisponível. Posições via ADS-B; cobertura parcial e cache de 5 minutos.';
-      }).addTo(radar);
-      L.control.scale({ imperial: false }).addTo(radar);
-      return true;
-    }
-    function desenharRadar() {
-      if (!iniciarRadar()) return;
-      const busca = document.getElementById('radarBusca').value.trim().toUpperCase();
-      const visiveis = new Set();
-      radarVoos.forEach(v => {
-        if (!v.icao24 || typeof v.latitude !== 'number' || typeof v.longitude !== 'number' ||
-            !Number.isFinite(v.latitude) || !Number.isFinite(v.longitude) ||
-            Math.abs(v.latitude) > 90 || Math.abs(v.longitude) > 180 || v.no_solo ||
-            (busca && !String(v.callsign || '').toUpperCase().includes(busca))) return;
-        const id = String(v.icao24);
-        visiveis.add(id);
-        const rumo = Number.isFinite(v.direcao) ? v.direcao : 0;
-        const icone = L.divIcon({ className: 'radar-aviao', iconSize: [28, 28], iconAnchor: [14, 14],
-          html: '<svg viewBox="0 0 32 32" aria-hidden="true" style="transform:rotate(' + rumo + 'deg)"><path d="M16 2l2 12 11 7v3l-11-4v7l4 3H10l4-3v-7L3 24v-3l11-7z"/></svg>' });
-        let marker = radarMarcadores.get(id);
-        if (!marker) {
-          marker = L.marker([v.latitude, v.longitude], { icon: icone, keyboard: true, autoPanOnFocus: false }).addTo(radar);
-          marker.bindTooltip(() => {
-            const el = document.createElement('span'); el.textContent = v.callsign || id; return el;
-          });
-          radarMarcadores.set(id, marker);
-        } else { marker.setLatLng([v.latitude, v.longitude]); marker.setIcon(icone); }
-        // Evita que o foco do mouse role o contêiner antes de abrir os detalhes.
-        marker.getElement().onmousedown = event => { event.preventDefault(); event.stopPropagation(); };
-        marker.getElement().setAttribute('aria-label', 'Ver voo ' + (v.callsign || id));
-        const popup = document.createElement('div'); popup.className = 'radar-popup';
-        const title = document.createElement('strong'); title.textContent = v.callsign || id; popup.appendChild(title);
-        const hora = v.atualizado_em ? new Date(v.atualizado_em) : null;
-        const detalhes = [
-          'ICAO: ' + id,
-          'Altitude: ' + (Number.isFinite(v.altitude_m) ? Math.round(v.altitude_m).toLocaleString('pt-BR') + ' m' : 'não informada'),
-          'Velocidade: ' + (Number.isFinite(v.velocidade_kmh) ? Math.round(v.velocidade_kmh) + ' km/h' : 'não informada'),
-          'Rumo: ' + (Number.isFinite(v.direcao) ? rumo + '°' : 'não informado'),
-          'Posição recebida: ' + (hora && Number.isFinite(hora.getTime()) ? hora.toLocaleTimeString('pt-BR', { timeZone: 'UTC' }) + ' UTC' : 'horário não informado')
-        ];
-        detalhes.forEach(texto => { const el = document.createElement('div'); el.textContent = texto; popup.appendChild(el); });
-        if (marker.getPopup()) marker.setPopupContent(popup); else marker.bindPopup(popup);
-      });
-      for (const [id, marker] of radarMarcadores) {
-        if (!visiveis.has(id)) { radar.removeLayer(marker); radarMarcadores.delete(id); }
-      }
-      document.getElementById('radarMapa').dataset.voos = String(visiveis.size);
-    }
-    function agendarRadar(espera) {
-      radarTimer = setTimeout(() => {
-        if (!document.hidden) window.carregarRadar();
-        else agendarRadar(60000);
-      }, espera);
-    }
-    window.carregarRadar = async function () {
-      if (radarConsultando || !iniciarRadar()) return;
-      clearTimeout(radarTimer);
-      radarConsultando = true;
-      let espera = 60000;
-      try {
-        const res = await fetch(`${API_URL}/ao-vivo?limite=500`, {
-          credentials: 'include', cache: 'no-store', signal: AbortSignal.timeout(60000)
-        });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const dados = await res.json();
-        if (dados.disponivel || (dados.voos || []).length) {
-          radarVoos = dados.voos || [];
-          desenharRadar();
-        }
-        const horario = new Date(dados.consultado_em);
-        const quando = Number.isFinite(horario.getTime())
-          ? ' · consulta às ' + horario.toLocaleTimeString('pt-BR', { timeZone: 'UTC' }) + ' UTC' : '';
-        document.getElementById('radarStatus').textContent = dados.atualizando
-          ? 'Atualizando posições na fonte…' + (radarVoos.length ? ' Exibindo a última consulta' + quando + '.' : '')
-          : !dados.disponivel
-            ? 'Fonte de voos indisponível. ' + (radarVoos.length ? 'Exibindo posições anteriores' + quando + '.' : 'Tentaremos novamente automaticamente.')
-            : radarVoos.length
-              ? radarMarcadores.size + ' aeronave(s) no radar · ' + (dados.fonte || 'ADS-B') + quando + (dados.parcial ? ' · cobertura parcial' : '')
-              : 'Nenhum voo com posição disponível nesta consulta. A cobertura depende da fonte.';
-        if (dados.atualizando) espera = 5000;
-      } catch (e) {
-        document.getElementById('radarStatus').textContent = 'Não foi possível atualizar os voos. ' +
-          (radarVoos.length ? 'Mantendo as últimas posições recebidas. ' : '') + 'Tentaremos novamente automaticamente.';
-      } finally {
-        radarConsultando = false;
-        agendarRadar(espera);
-      }
-    };
-    document.getElementById('radarBusca').addEventListener('input', desenharRadar);
-    document.getElementById('radarBrasil').addEventListener('click', () => {
-      if (radar) radar.fitBounds(limitesBrasil);
-    });
-    window.redimensionarRadar = () => { if (radar) radar.invalidateSize(); };
-    window.carregarRadar();
-
-
     function tick() {
       try {
         const now = new Date();
@@ -2515,7 +2392,6 @@ async function iniciarPainel() {
           window.carregarDisrupcoes();
         }
 
-        if (name === 'painel') requestAnimationFrame(() => window.redimensionarRadar());
         const target = document.getElementById('screen-' + name);
         if (target) target.focus();
       } catch(e) {}

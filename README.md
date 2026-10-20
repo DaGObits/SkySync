@@ -210,27 +210,25 @@ mas os seus formulários e botões foram removidos da interface.
 
 ### Radar de voos ao vivo
 
-O painel inicial mostra um mapa interativo com posições reais via ADS-B, no lugar
-do desenho da malha cadastrada. É possível ampliar, arrastar, buscar o identificador
-do voo e clicar no avião para ver altitude, velocidade, rumo e horário da posição.
-O radar é independente da operação simulada; não cria disrupções nem identifica
-tripulantes a bordo.
+O painel inicial incorpora o widget público do Flightradar24, centralizado no
+Brasil. O navegador carrega o radar diretamente do provedor; a tela não consulta
+`/api/ao-vivo` nem depende da conexão entre Render e OpenSky. Os controles e os
+detalhes dos voos são fornecidos pelo próprio widget, conforme sua disponibilidade.
+O link **Abrir em nova aba** permanece visível para navegadores que bloqueiem o
+conteúdo incorporado. A página não pode detectar nem confirmar o carregamento
+das posições dentro de um iframe de outro domínio.
 
-`GET /api/ao-vivo?limite=500` consulta OpenSky e, na falha, airplanes.live em cinco
-pontos do Brasil (cobertura parcial). O servidor atualiza o cache de cinco minutos
-em uma thread por worker, iniciada sob demanda, sem bloquear o worker HTTP.
-Durante a primeira consulta o radar avisa que está atualizando e consulta o cache
-a cada cinco segundos; depois consulta a cada minuto, sem requisições simultâneas.
-Falhas externas mantêm a última observação e mostram aviso, com nova tentativa
-após pelo menos um minuto. Sem posições válidas, nenhum avião é inventado.
-Não há movimento interpolado entre observações nem garantia de cobertura completa.
-Os limites das fontes públicas podem interromper as atualizações.
+O endereço do widget foi validado pelo usuário em sua rede. Os testes locais
+verificam a incorporação, o link alternativo, o layout no celular e a ausência de
+consultas ao OpenSky, usando respostas controladas para o conteúdo externo.
+O acesso real e a permissão de incorporação dependem do Flightradar24 e do navegador.
 
-Leaflet 1.9.4 e sua licença BSD estão em `assets/leaflet` nas duas versões da página.
-O navegador carrega os tiles de `tile.openstreetmap.org`, com atribuição visível.
-Se os tiles falharem, um aviso informa que o fundo está indisponível.
-Após o merge, publicar Pages e Render; não há nova chave ou migração de banco.
-A versão da interface em Configurações é `radar-1`.
+O radar é uma visualização externa independente: não cria disrupções, não informa
+tripulantes a bordo e não alimenta o otimizador. Os endpoints antigos `/api/ao-vivo`
+e `/api/ao-vivo/status` continuam disponíveis para compatibilidade, mas não são
+usados pela tela inicial. Não é necessária chave, alteração do backend nem migração.
+Após o merge, aguardar o deploy do Pages e atualizar o navegador; Configurações
+mostra a versão `radar-2`. A cópia servida pelo backend também foi atualizada.
 
 ### Disrupções operacionais
 
