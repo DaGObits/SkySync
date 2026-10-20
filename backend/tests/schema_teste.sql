@@ -174,3 +174,9 @@ CREATE TABLE IF NOT EXISTS importacao_voos_eventos (
     fonte TEXT NOT NULL DEFAULT 'aviationstack',
     observado_em TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS operacao_simulada (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    estado TEXT NOT NULL,
+    atualizado_em TEXT NOT NULL
+);

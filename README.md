@@ -153,38 +153,60 @@ python app.py
 pytest -v
 ```
 
-### Simular jornadas para otimizar
+### Operação simulada e remanejamentos automáticos
 
-Em **Escalas → Gerar jornadas fictícias para testar a otimização**, escolha data,
-seed, carga leve/moderada/crítica e quantidade de voos. Clique em **Gerar prévia**:
-a tela mostra o resumo e até 20 linhas; o cenário completo usa todos os tripulantes
-cadastrados como disponíveis ou em reserva. Limites são os configurados na jornada
-da data; se não houver jornada, usa o limite padrão configurado no sistema.
+Em **Escalas**, clique em **Iniciar operação simulada**. Esse é o único controle:
+depois ele alterna entre **Pausar operação** e **Continuar operação**, preservando
+o progresso. Não é necessário escolher seed, perfil, data ou publicar cenários.
 
-Com **Usar este cenário** marcado, clique em **Simular replanejamento** para rodar
-CP-SAT com os voos programados do banco e as horas/descanso/aclimatação fictícios.
-A mesma seed, perfil, tripulação e limites reproduzem a entrada. O nível crítico
-pode produzir inviabilidade: o diagnóstico é um resultado válido, não há garantia
-de uma escala possível para qualquer cenário. Esses perfis são experimentais,
-não medições de horas trabalhadas nem laudos de fadiga.
+Todos os tripulantes disponíveis/em reserva do cadastro entram no acompanhamento.
+A posição inicial é a base cadastrada, pois o sistema não recebe localização real
+de pessoas. Depois disso, a posição só muda após o pouso simulado. As horas iniciais
+e os limites vêm da jornada cadastrada para a data de Manaus; sem jornada, começa
+com zero horas e o limite padrão configurado. Pessoas ociosas não acumulam horas
+artificialmente: só quem está voando acumula minutos de voo.
 
-As jornadas fictícias ficam em memória; nem a prévia nem sua otimização alteram
-`jornadas`, `escalas` ou as ocorrências reais vindas da Aviationstack. A publicação
-fica desativada nesse modo e o backend também rejeita tentativas de publicar um
-cenário fictício. Desmarque a opção para voltar a usar jornadas do banco.
+A malha usa origem, destino, horário e duração dos voos programados cadastrados.
+O plano inicial considera deslocamentos futuros, jornada e intervalos; 20% dos
+voos podem receber um atraso fictício de 30 a 90 minutos para exercitar mudanças
+na operação. Esses atrasos pertencem à simulação e não são publicados como eventos
+reais da Aviationstack.
 
-- `POST /api/jornadas/simular`: recebe `seed`, `perfil` e `data`; devolve parâmetros,
-  jornadas fictícias e resumo, sem persistir.
-- `POST /api/escalas/otimizar`: aceita `simulacao_jornadas: {seed, perfil}` com
-  `data`, `limite_voos` e `gravar: false`; devolve `origem_jornadas: simulacao`.
-- Sem cenário fictício, a otimização considera somente jornadas da data solicitada
-  e tripulantes disponíveis/em reserva. Sem jornada dessa data, informa a ausência.
-- `gravar` é booleano e tem padrão `false`. Somente `true`, com jornadas do banco,
-  publica e soma as horas na data escolhida. Repetir uma alocação já gravada não
-  soma suas horas novamente; falhas na publicação desfazem a transação inteira.
+Durante a execução, o sistema:
 
-Este recurso exige novo deploy do Render e publicação do Pages após o merge,
-sem nova chave de API e sem migração adicional.
+- atualiza horas e posição dos tripulantes, em memória e na tabela isolada de estado;
+- preserva as designações ainda viáveis;
+- usa CP-SAT para completar a composição quando alguém ficou impedido;
+- só seleciona substitutos livres no aeroporto de partida, com cargo, descanso,
+  aclimatação e jornada compatíveis; não transfere ninguém instantaneamente;
+- deixa o voo aguardando quando não há equipe completa e tenta novamente após
+  a evolução da operação;
+- sincroniza novos cadastros e bloqueia futuras designações de pessoas marcadas
+  indisponíveis, sem mudar a posição de quem já está na simulação.
+
+A tabela mostra apenas mudanças: **voo, quem saiu, quem entrou, local e motivo**.
+Na aba **Tripulantes**, consulte local atual, jornada simulada e situação de cada
+pessoa. A tela atualiza a cada cinco segundos. O histórico visível retém as 200
+últimas trocas, com um contador total acumulado.
+
+O relógio avança 60 vezes mais rápido: um segundo equivale a um minuto. A malha se
+repete nos dias seguintes, mantendo as posições e jornadas; repouso cumprido
+reinicia a jornada. O protótipo usa 30 minutos de intervalo em solo e 12 horas de
+repouso, com repouso preventivo após atingir 85% do limite. Esses critérios são
+simplificações da demonstração, não uma implementação completa da regulamentação.
+
+O estado é global e compartilhado pelos usuários na tabela `operacao_simulada`.
+Jornadas, escalas, voos e ocorrências reais permanecem separados. Pausar e retomar
+não apaga o progresso. As atualizações são serializadas no PostgreSQL para evitar
+avanço duplicado entre workers. Enquanto o Render estiver suspenso, a operação
+fica congelada; o reinício não tenta executar horas retroativas de uma só vez.
+
+A migração aditiva `migrations/operacao.sql` e o agendador são carregados pelo mesmo
+`gunicorn.conf.py` usado no Render. É necessário publicar backend e Pages após o
+merge, sem nova chave. Endpoints autenticados: `GET /api/operacao`,
+`POST /api/operacao/iniciar` e `POST /api/operacao/pausar`.
+Os endpoints antigos de cenários continuam disponíveis para compatibilidade,
+mas os seus formulários e botões foram removidos da interface.
 
 ### Disrupções operacionais
 
@@ -212,7 +234,7 @@ não autentica o usuário nem define o nome exibido. A conta de demonstração
 cadastre sua conta ou edite o perfil após entrar. O painel só confirma a alteração
 quando a API a salva.
 
-Em **Configurações → Estado da aplicação**, confira a versão `jornadas-6`, o
+Em **Configurações → Estado da aplicação**, confira a versão `operacao-7`, o
 estado da sessão e o resultado de **Verificar conexão**. Se essa versão não
 aparecer, a página servida ainda não contém esta correção. O diagnóstico não
 exibe senhas ou cookies.
@@ -237,8 +259,8 @@ As escalas consultadas pela API são as do dia atual. Sem uma escala gravada par
 essa data, o painel informa que não há escala publicada; use “Aplicar escala” no
 ambiente local para persistir uma. “Simular” apenas mostra uma prévia.
 
-Os testes de navegador cobrem carregamento, troca de abas, simulação, publicação,
-resposta vazia e erro da API nas duas cópias do front-end. As respostas da API são
+Os testes de navegador cobrem início/pausa e persistência da operação, remanejamentos,
+localização/jornada, identidade e saída, disrupções e erros da API nas duas cópias do front-end. As respostas da API são
 simuladas nesses testes, sem chamadas ao Render:
 
 ```bash
