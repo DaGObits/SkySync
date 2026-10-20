@@ -21,6 +21,10 @@ async function abrir(file, responder = async () => false) {
     const url = new URL(route.request().url());
     if (url.origin !== 'http://localhost') return route.abort();
     if (await responder(route, url)) return;
+    if (url.pathname.startsWith('/assets/leaflet/')) {
+      const asset = resolve(__dirname, '../..', dirname(file), '.' + url.pathname);
+      return route.fulfill({ contentType: url.pathname.endsWith('.js') ? 'application/javascript' : 'text/css', body: readFileSync(asset) });
+    }
     if (['/', '/index.html', '/login.html'].includes(url.pathname)) {
       const arquivo = url.pathname === '/login.html' ? dirname(file) + '/login.html' : file;
       return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', arquivo), 'utf8') });
@@ -46,6 +50,65 @@ function estado(rodando = true) {
 }
 
 for (const file of ['docs/index.html', 'backend/static/index.html']) {
+  test(`${file}: radar real tem aviões, busca, detalhes e preserva posições na falha`, async () => {
+    let falha = false;
+    const voos = [
+      { icao24: 'abc123', callsign: 'TAM1234', latitude: -23.43, longitude: -46.47, altitude_m: 10000, velocidade_kmh: 850, direcao: 90, atualizado_em: '2026-10-20T12:00:00Z' },
+      { icao24: 'def456', callsign: 'GLO5678', latitude: -3.04, longitude: -60.05, altitude_m: 0, velocidade_kmh: 0, direcao: 0 },
+      { icao24: 'sempos', callsign: 'TAM9999', latitude: null, longitude: null },
+      { icao24: 'solo', callsign: 'GLO0000', latitude: -15, longitude: -47, no_solo: true }
+    ];
+    const { page, browser, errors } = await abrir(file, async (r, u) => {
+      if (u.pathname !== '/api/ao-vivo') return false;
+      assert.equal(u.searchParams.get('limite'), '500');
+      await r.fulfill({ status: falha ? 503 : 200, json: { disponivel: true, fonte: 'OpenSky Network', consultado_em: '2026-10-20T12:00:00Z', voos } }); return true;
+    });
+    try {
+      await page.waitForFunction(() => document.getElementById('radarMapa').dataset.voos === '2');
+      assert.equal(await page.locator('#mapaMalha').count(), 0);
+      assert.match(await page.locator('#radarStatus').textContent(), /OpenSky.*12:00:00 UTC/);
+      await page.locator('.radar-aviao[aria-label="Ver voo TAM1234"]').click();
+      assert.match(await page.locator('.radar-popup').textContent(), /TAM1234.*10.000 m.*850 km\/h/s);
+      await page.locator('#radarBusca').fill('glo');
+      assert.equal(await page.locator('.radar-aviao').count(), 1);
+      await page.locator('.radar-aviao').click();
+      assert.match(await page.locator('.radar-popup').textContent(), /0 m.*0 km\/h/s);
+      await page.locator('#radarBusca').fill('');
+      falha = true;
+      await page.evaluate(() => window.carregarRadar());
+      assert.match(await page.locator('#radarStatus').textContent(), /Mantendo as últimas posições/);
+      assert.equal(await page.locator('.radar-aviao').count(), 2);
+      falha = false; voos.splice(0, 1);
+      await page.evaluate(() => window.carregarRadar());
+      assert.equal(await page.locator('.radar-aviao').count(), 1);
+      await page.locator('.nav-btn[data-screen="tripulantes"]').click();
+      await page.locator('.nav-btn[data-screen="painel"]').click();
+      assert.equal(await page.locator('#radarMapa').isVisible(), true);
+      await page.setViewportSize({ width: 390, height: 844 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+
+  test(`${file}: radar vazio e fonte indisponível não mostram voos inventados`, async () => {
+    let dados = { disponivel: false, atualizando: true, voos: [] };
+    const { page, browser, errors } = await abrir(file, async (r, u) => {
+      if (u.pathname !== '/api/ao-vivo') return false;
+      await r.fulfill({ json: dados }); return true;
+    });
+    try {
+      await page.waitForFunction(() => document.getElementById('radarStatus').textContent.includes('Atualizando posições'));
+      assert.equal(await page.locator('.radar-aviao').count(), 0);
+      dados = { disponivel: false, atualizando: false, voos: [] };
+      await page.evaluate(() => window.carregarRadar());
+      assert.match(await page.locator('#radarStatus').textContent(), /Fonte de voos indisponível/);
+      dados = { disponivel: true, voos: [] };
+      await page.evaluate(() => window.carregarRadar());
+      assert.match(await page.locator('#radarStatus').textContent(), /Nenhum voo/);
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+
   test(`${file}: um controle, progresso persistido e somente remanejamentos na tabela`, async () => {
     let op = { iniciada: false, rodando: false, mudancas: [] };
     let inicios = 0;
