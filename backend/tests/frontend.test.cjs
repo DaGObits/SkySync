@@ -33,7 +33,6 @@ async function abrir(file, responder = async () => false) {
       '/api/perfil': { nome: 'Usuário real', email: 'real@example.test', cargo: 'Operador', base: 'GRU' },
       '/api/operacao': { iniciada: false, rodando: false, mudancas: [] },
       '/api/disrupcoes': { total: 0, retornados: 0, disrupcoes: [] },
-      '/api/disrupcoes/importacao/status': { configurada: false },
       '/api/tripulantes': { total: 0, retornados: 0, tripulantes: [] },
       '/api/tripulantes/resumo': { total: 0, por_cargo: {}, por_base: {}, por_status: {} },
       '/api/health': { status: 'ok', banco: { ok: true } }
@@ -58,7 +57,7 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
     let op = { ...estado(), mapa: { contorno: [[100,100],[800,100],[700,800]], aeroportos: [voo.origem, voo.destino], voos: [voo], sem_coordenadas: 0 } };
     const externas = [];
     const { page, browser, errors } = await abrir(file, async (r, u) => {
-      if (/flightradar|opensky|adsb|airplanes|openstreetmap/.test(u.hostname) || u.pathname.startsWith('/api/ao-vivo')) externas.push(u.href);
+      if (u.origin !== 'http://localhost' && !u.pathname.includes('/cf-fonts/')) externas.push(u.href);
       if (u.pathname !== '/api/operacao') return false;
       await r.fulfill({ json: op }); return true;
     });
@@ -191,45 +190,34 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
     } finally { await browser.close(); }
   });
 
-  test(`${file}: disrupções continuam independentes, com registro, filtro e texto seguro`, async () => {
-    const ocorrencias = [];
+  test(`${file}: disrupções da simulação mostram estado, resultado, contagem e texto seguro`, async () => {
     let falha = false;
-    const { page, browser } = await abrir(file, async (r, u) => {
+    const ocorrencias = [{ id: 'E1', voo: 'TEST-900', risco: 'alto', ativo: true, fonte: 'simulacao', status: 'Em andamento',
+      descricao: '<img src=x onerror="window.injetado=true"> Sem comandante apto', rota: 'GRU → MAO', horario: '2026-10-19 · 10h00', solucao: 'Aguardando reserva em GRU' }];
+    const { page, browser, errors } = await abrir(file, async (r, u) => {
       if (u.pathname !== '/api/disrupcoes') return false;
-      if (r.request().method() === 'POST') { ocorrencias.push({ ...r.request().postDataJSON(), id: 1 }); await r.fulfill({ status: 201, json: { disrupcao: ocorrencias[0] } }); }
-      else await r.fulfill({ status: falha ? 404 : 200, json: { total: ocorrencias.length, retornados: ocorrencias.length, disrupcoes: ocorrencias } });
-      return true;
+      assert.equal(r.request().method(), 'GET');
+      await r.fulfill({ status: falha ? 503 : 200, json: { total: 10, retornados: ocorrencias.length, ativas: ocorrencias[0].ativo ? 6 : 0, altas: ocorrencias[0].ativo ? 4 : 0, disrupcoes: ocorrencias } }); return true;
     });
     try {
       await page.locator('.nav-btn[data-screen="disrupcoes"]').click();
-      await page.locator('#screen-disrupcoes summary').click();
-      await page.locator('#disrupcaoVoo').fill('TEST-900');
-      await page.locator('#disrupcaoDescricao').fill('<img src=x onerror="window.injetado=true"> Manutenção');
-      await page.locator('#disrupcaoRisco').selectOption('alto');
-      await page.locator('#btnRegistrarDisrupcao').click();
       await page.waitForFunction(() => document.querySelectorAll('#disruptionsGrid .alert-card').length === 1);
+      assert.equal(await page.locator('#formDisrupcao, #importacaoStatus').count(), 0);
       assert.equal(await page.locator('#disruptionsGrid img').count(), 0);
-      assert.equal(await page.locator('#kpiActiveCount').innerText(), '1');
-      await page.locator('.filter-btn[data-filter="baixo"]').click();
+      assert.equal(await page.locator('#kpiActiveCount').innerText(), '6'); // Inclui eventos além da página carregada.
+      assert.match(await page.locator('#disruptionsGrid').textContent(), /Em andamento.*Simulação.*Aguardando reserva/s);
+      await page.locator('.filter-btn[data-filter="encerradas"]').click();
       assert.match(await page.locator('#disruptionsGrid').innerText(), /Nenhuma ocorrência nesta categoria/);
       await page.locator('.filter-btn[data-filter="all"]').click();
+      ocorrencias[0].ativo = false; ocorrencias[0].status = 'Resolvida'; ocorrencias[0].solucao = 'Tripulação alocada; voo decolou';
+      await page.evaluate(() => window.carregarOperacao());
+      await page.waitForFunction(() => document.getElementById('disruptionsGrid').textContent.includes('Resolvida'));
+      assert.equal(await page.locator('#kpiActiveCount').innerText(), '0');
+      assert.match(await page.locator('#disruptionsGrid').textContent(), /voo decolou/);
       falha = true; await page.evaluate(() => window.carregarDisrupcoes());
-      assert.match(await page.locator('#disruptionsStatus').innerText(), /Publique/);
+      assert.match(await page.locator('#disruptionsStatus').innerText(), /Não foi possível/);
       assert.equal(await page.locator('#disruptionsGrid .alert-card').count(), 1);
-    } finally { await browser.close(); }
-  });
-
-  test(`${file}: mantém diagnóstico de cobertura e fonte externa`, async () => {
-    let configurada = false;
-    const { page, browser } = await abrir(file, async (r, u) => {
-      if (u.pathname !== '/api/disrupcoes/importacao/status') return false;
-      await r.fulfill({ json: { configurada, aeroporto: 'GRU', ultimo_sucesso: '2026-10-19T12:00:00+00:00', parcial: true, agendador_ativo: true, ultimo_erro: 'Cota do plano atingida.' } }); return true;
-    });
-    try {
-      await page.waitForFunction(() => document.getElementById('importacaoStatus').textContent.includes('aguardando a chave'));
-      configurada = true; await page.evaluate(() => window.carregarDisrupcoes());
-      assert.match(await page.locator('#importacaoStatus').innerText(), /Cobertura parcial/);
-      assert.match(await page.locator('#importacaoStatus').innerText(), /Cota do plano/);
+      assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   });
 

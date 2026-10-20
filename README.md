@@ -2,7 +2,7 @@
 
 **Sistema de replanejamento de escalas de tripulação com otimização por programação com restrições.**
 
-O SkySync automatiza o replanejamento de escalas em situações de disrupção operacional (atrasos, restrições meteorológicas, manutenção não programada), respeitando os limites de jornada e repouso da **Lei do Aeronauta (Lei nº 13.475/2017)** e do **RBAC 117** da ANAC.
+O SkySync simula a operação de voos, acumula as horas das tripulações e replaneja as escalas quando necessário. Mapa, jornadas e disrupções usam a mesma operação persistida; o otimizador aplica as restrições de jornada, repouso e composição implementadas pelo projeto, com referência à **Lei nº 13.475/2017** e ao **RBAC 117** da ANAC.
 
 O motor de otimização usa **CP-SAT** (Google OR-Tools) para resolver o problema de alocação como um modelo de programação com restrições: em vez de aplicar regras em `if/else`, as exigências regulatórias viram restrições matemáticas que o solver não pode violar.
 
@@ -63,7 +63,9 @@ O modelo resolve a alocação tripulante × voo sob cinco restrições regulató
 | `voos` | Malha com origem/destino reais, duração por distância geográfica |
 | `jornadas` | Acumulado de cada tripulante — insumo das restrições da RBAC |
 | `escalas` | Resultado da alocação, com a análise de conformidade |
-| `aeroportos` | 36 aeroportos brasileiros (os vértices da malha) |
+| `aeroportos` | 97 aeroportos brasileiros (os vértices da malha) |
+| `operacao_simulada` | Relógio, voos, posições e horas da simulação |
+| `disrupcoes_simuladas` | Ocorrências e desfechos da operação simulada |
 | `cenarios` | Cenários gerados, reprodutíveis por seed |
 | `execucoes_otimizacao` | Trilha de auditoria de cada rodada do solver |
 | `usuarios` | Autenticação, senha com hash |
@@ -169,8 +171,7 @@ artificialmente: só quem está voando acumula minutos de voo.
 A malha usa origem, destino, horário e duração dos voos programados cadastrados.
 O plano inicial considera deslocamentos futuros, jornada e intervalos; 20% dos
 voos podem receber um atraso fictício de 30 a 90 minutos para exercitar mudanças
-na operação. Esses atrasos pertencem à simulação e não são publicados como eventos
-reais da Aviationstack.
+na operação. Esses atrasos são registrados na aba Disrupções como eventos simulados.
 
 Durante a execução, o sistema:
 
@@ -196,7 +197,7 @@ repouso, com repouso preventivo após atingir 85% do limite. Esses critérios s�
 simplificações da demonstração, não uma implementação completa da regulamentação.
 
 O estado é global e compartilhado pelos usuários na tabela `operacao_simulada`.
-Jornadas, escalas, voos e ocorrências reais permanecem separados. Pausar e retomar
+Os cadastros e históricos operacionais permanecem separados da simulação. Pausar e retomar
 não apaga o progresso. As atualizações são serializadas no PostgreSQL para evitar
 avanço duplicado entre workers. Enquanto o Render estiver suspenso, a operação
 fica congelada; o reinício não tenta executar horas retroativas de uma só vez.
@@ -237,31 +238,45 @@ inclui Fernando de Noronha. Fonte, licença e instruções de regeneração est�
 sem enviar seus 11 mil pontos em cada consulta da simulação.
 
 O mapa é SVG local, sem iframe, API de rastreamento ou tiles externos. Não precisa
-de conta, chave ou mudança de plano. Não representa tráfego real; a Aviationstack
-continua independente e usada para as disrupções reais. Os endpoints antigos
-`/api/ao-vivo` continuam disponíveis para compatibilidade, sem uso pelo painel.
+de conta, chave ou mudança de plano. Não representa tráfego real. Todas as ocorrências exibidas vêm da mesma simulação.
 
 Após o merge, publicar **Render e Pages**, sem migração de banco. A versão exibida
-em Configurações é `simulacao-mapa-2`. Estados de simulação já existentes são
+em Configurações é `simulacao-integrada-1`. Estados de simulação já existentes são
 compatíveis, inclusive voos de dias seguintes e decolagens fora do horário previsto.
 
 ### Disrupções operacionais
 
-A aba **Disrupções** consulta `GET /api/disrupcoes`, que lê a tabela existente
-`disrupcoes`. Ela não depende de haver escalas publicadas nem fabrica ocorrências
-a partir de voos ao vivo. Os dados do OpenSky não identificam, por si só, causas
-como meteorologia ou manutenção.
+A aba **Disrupções** mostra apenas os eventos da operação simulada atual:
+atrasos de partida ou duração, voos aguardando tripulação, remanejamentos efetuados
+e voos que encerraram o ciclo sem atendimento. Cada evento informa motivo, risco,
+horário do relógio simulado, estado e resultado. Cinco substituições num voo geram
+um evento de remanejamento com as cinco trocas detalhadas, em vez de cinco alertas.
 
-Usuários autenticados podem registrar voo, descrição, risco e rota pelo formulário
-**Registrar ocorrência operacional** (`POST /api/disrupcoes`). A ocorrência
-persiste no banco e continua disponível após recarregar. Os filtros distinguem
-risco alto, médio e baixo; a contagem destaca risco alto/médio entre os registros
-carregados. A lista informa quantos registros foram retornados, até 200 por padrão
-(1.000 pelo parâmetro `limite` da API). Não há encerramento de ocorrências nesta versão.
+O mesmo evento é atualizado enquanto a situação evolui: falta de tripulação é
+resolvida ao decolar; atraso é resolvido ao pousar; voo não atendido encerra a
+pendência ao finalizar o ciclo. Risco é a gravidade da ocorrência e não muda para
+baixo ao resolver. Os indicadores contam somente eventos ainda em andamento,
+independentemente do limite de cartões carregados. Consultar ou pausar não cria
+eventos. Ocorrências repetidas nos minutos de espera não geram duplicatas.
 
-Uma lista vazia significa que nenhuma ocorrência foi registrada; falhas de rede
-ou do backend aparecem como erro com opção de atualizar. Esta versão exige novo
-deploy do Render após o merge e usa o esquema já existente, sem migração adicional.
+O histórico é salvo em `disrupcoes_simuladas` na mesma transação que o avanço das
+jornadas, com identidade por operação, ciclo, voo e tipo. O estado JSON mantém
+somente os eventos do ciclo atual; o histórico persistido não é truncado ao virar
+o dia. `GET /api/disrupcoes` exige sessão e permite `risco` e `limite` (200 por
+padrão, máximo 1.000). A interface se atualiza junto da operação, sem formulário
+manual. Não são geradas causas de clima/manutenção que o simulador não representa.
+
+As integrações externas, seus agendadores, comandos, dependências, variáveis de
+exemplo e rotas foram removidos. Tabelas antigas já existentes ficam preservadas,
+sem consulta pela aplicação; não é feita exclusão de dados históricos. As variáveis
+das antigas integrações no Render podem ser excluídas, pois não são mais usadas.
+A API interna autenticada do SkySync continua sendo necessária.
+
+A migração aditiva `migrations/disrupcoes_simuladas.sql` roda pelo agendador ao
+iniciar Gunicorn; ela também está nos esquemas de instalações novas. Operações
+salvas anteriormente continuam compatíveis e registram eventos nos próximos
+passos, sem reconstrução de ocorrências anteriores à atualização.
+Publicar **Render e Pages** após o merge. A interface mostra `simulacao-integrada-1`.
 
 ### Identidade, saída e diagnóstico
 
@@ -271,7 +286,7 @@ não autentica o usuário nem define o nome exibido. A conta de demonstração
 cadastre sua conta ou edite o perfil após entrar. O painel só confirma a alteração
 quando a API a salva.
 
-Em **Configurações → Estado da aplicação**, confira a versão `operacao-7`, o
+Em **Configurações → Estado da aplicação**, confira a versão `simulacao-integrada-1`, o
 estado da sessão e o resultado de **Verificar conexão**. Se essa versão não
 aparecer, a página servida ainda não contém esta correção. O diagnóstico não
 exibe senhas ou cookies.
@@ -292,9 +307,16 @@ login e painel usam `/api` no servidor local. No GitHub Pages, continuam usando 
 API do Render. O teste local não requer publicar o fork nem acessar o banco de
 produção.
 
-As escalas consultadas pela API são as do dia atual. Sem uma escala gravada para
-essa data, o painel informa que não há escala publicada; use “Aplicar escala” no
-ambiente local para persistir uma. “Simular” apenas mostra uma prévia.
+Para exercitar o avanço automático das jornadas, inicie o backend com o agendador:
+
+```bash
+cd backend
+gunicorn --config gunicorn.conf.py app:app --bind 127.0.0.1:5000 --timeout 120 --workers 1
+```
+
+Em **Escalas**, use **Iniciar operação simulada**. O mapa e as Disrupções acompanham
+essa operação. `python app.py` atende as rotas para desenvolvimento, mas não inicia
+o agendador de simulação.
 
 Os testes de navegador cobrem início/pausa e persistência da operação, remanejamentos,
 localização/jornada, identidade e saída, disrupções e erros da API nas duas cópias do front-end. As respostas da API são
@@ -330,6 +352,10 @@ Senha nunca é guardada em texto. O login devolve a **mesma** mensagem para e-ma
 
 | Método | Rota | Descrição |
 |---|---|---|
+| `GET` | `/api/disrupcoes` | Ocorrências da simulação atual, com estados e contagens |
+| `GET` | `/api/operacao` | Resumo e mapa da operação simulada |
+| `POST` | `/api/operacao/iniciar` | Inicia ou retoma a operação |
+| `POST` | `/api/operacao/pausar` | Pausa preservando o progresso |
 | `GET` | `/api/tripulantes` | Base de tripulação, com filtros de base/cargo/status |
 | `GET` | `/api/tripulantes/resumo` | Contagem por cargo, base e status |
 | `GET` | `/api/voos` | Malha de voos |
@@ -458,67 +484,3 @@ Projeto de Trabalho de Conclusão de Curso — Centro Universitário CEUNI FAMET
 ## Licença
 
 Projeto acadêmico. Os dados de tripulação são sintéticos e não representam pessoas reais.
-
-
-## Importação automática: Aviationstack
-
-O backend consulta `https://api.aviationstack.com/v1/flights` para saídas de um
-aeroporto. Registra cancelamentos (`flight_status=cancelled`) e atrasos de partida
-(`departure.delay`) a partir de 15 minutos. Cancelamentos e atrasos de 60 minutos
-ou mais recebem risco alto; atrasos menores recebem risco médio. A descrição
-informa fornecedor e data do voo, sem inventar causas de meteorologia/manutenção
-nem diagnosticar fadiga.
-
-Ative no Render, em **Environment**, com as seguintes variáveis:
-
-| Variável | Padrão | Efeito |
-|---|---|---|
-| `AVIATIONSTACK_API_KEY` | ausente | Chave da conta; somente no backend. |
-| `AVIATIONSTACK_AIRPORT` | `GRU` | Um aeroporto de partida por instalação. |
-| `AVIATIONSTACK_INTERVAL_SECONDS` | `43200` | Intervalo de 12 horas; mínimo 300 segundos. |
-| `AVIATIONSTACK_DAILY_REQUEST_LIMIT` | `2` | Cota diária UTC, incluindo falhas. |
-| `AVIATIONSTACK_MIN_DELAY_MINUTES` | `15` | Atraso mínimo para gerar uma ocorrência. |
-
-Nunca coloque a chave no GitHub, no front-end ou no chat. Confira no plano
-Aviationstack a cobertura do aeroporto, o acesso HTTPS e a cota disponível.
-**A integração ainda precisa ser validada com uma chave e respostas reais da
-sua conta.** Não é feita nenhuma consulta externa enquanto a chave estiver ausente.
-
-Cada consulta lê a primeira página, de até 100 voos. Se houver mais páginas, a
-interface informa **cobertura parcial**; isso não representa todos os voos do
-aeroporto. O padrão permite no máximo 62 chamadas por mês de 31 dias. Consultar a
-cada hora exigiria intervalo 3600, limite diário 24 e até 744 chamadas por mês;
-confira o plano e o uso da chave por outros sistemas antes de alterar esses valores.
-Falhas aguardam o próximo horário, sem repetição imediata de tentativas.
-
-Use este **Start Command** no Render (Root Directory: `backend`):
-
-```bash
-gunicorn --config gunicorn.conf.py app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1
-```
-
-O agendador inicia com o worker e aplica a migração aditiva
-`migrations/aviationstack.sql`. Ela cria tabelas de controle sem alterar registros
-manuais. Horário e cota persistem no PostgreSQL entre reinícios; uma reserva no
-banco impede chamadas duplicadas entre workers. O mesmo voo (fornecedor, código,
-data e aeroporto de partida) atualiza o cartão existente quando o atraso muda ou
-evolui para cancelamento. As ocorrências são histórico informado pelo fornecedor;
-a ausência de um voo numa página seguinte não apaga esse histórico.
-
-**No Render gratuito, o agendador para enquanto o serviço estiver suspenso.**
-Após despertar, consulta se houver horário e cota disponíveis. Execução contínua
-requer um serviço sempre ativo ou um agendador externo autorizado. Para cron ou
-uma consulta avulsa no servidor, usando a mesma configuração e o mesmo banco:
-
-```bash
-cd backend
-python importar_disrupcoes.py
-```
-
-O comando respeita o horário e a cota; não força consulta adicional. Em desenvolvimento
-com `python app.py`, esse agendador não inicia: use o comando avulso ou Gunicorn.
-
-A aba Disrupções mostra fonte, última consulta bem-sucedida, configuração pendente,
-falha/cota e cobertura parcial. A atualização da tela a cada minuto consulta apenas
-nosso backend, sem gastar chamadas adicionais no fornecedor.
-`GET /api/disrupcoes/importacao/status` exige sessão e nunca retorna a chave.

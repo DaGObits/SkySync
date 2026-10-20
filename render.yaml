@@ -46,15 +46,3 @@ services:
         value: "20"
       - key: SKYSYNC_HOUR_LIMIT
         value: "11.0"
-
-      # Aviationstack: chave preenchida com segurança no painel do Render.
-      - key: AVIATIONSTACK_API_KEY
-        sync: false
-      - key: AVIATIONSTACK_AIRPORT
-        value: GRU
-      - key: AVIATIONSTACK_INTERVAL_SECONDS
-        value: "43200"
-      - key: AVIATIONSTACK_DAILY_REQUEST_LIMIT
-        value: "2"
-      - key: AVIATIONSTACK_MIN_DELAY_MINUTES
-        value: "15"

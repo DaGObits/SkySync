@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 # Carrega o .env AQUI, e nao em cada script: o `app.py` ja fazia isso, mas os
 # scripts de diagnostico e de carga importavam `db` direto e ficavam sem as
-# credenciais — foi assim que o teste do OpenSky devolveu NAO_AUTENTICADO.
+# credenciais — o ambiente precisa ser carregado também fora do servidor.
 # Uma chamada, um lugar, todos os caminhos de entrada cobertos.
 try:
     from dotenv import load_dotenv
