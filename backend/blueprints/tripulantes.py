@@ -74,6 +74,16 @@ def listar():
             tuple(parametros[:-1]),
         ).fetchone()["n"]
 
+    from operacao import ler_estado, situacao, hhmm
+    operacao = ler_estado()
+    posicoes = operacao['tripulantes'] if operacao else {}
+    def dados_operacionais(tid, base):
+        p = posicoes.get(tid)
+        if not p:
+            return {'local_atual': base, 'jornada_simulada': '—', 'situacao_atual': 'Sem operação simulada'}
+        status, local = situacao(p, operacao)
+        return {'local_atual': local, 'jornada_simulada': hhmm(p['horas']) + ' / ' + hhmm(p['limite']), 'situacao_atual': status}
+
     return jsonify(
         {
             "total": total,
@@ -88,6 +98,7 @@ def listar():
                     "cargo": l["cargo"],
                     "base": l["base"],
                     "status": l["status"],
+                    **dados_operacionais(l['id'], l['base']),
                 }
                 for l in linhas
             ],

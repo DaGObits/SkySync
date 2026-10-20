@@ -2,9 +2,16 @@
 def post_worker_init(worker):
     from importador_voos import iniciar
     worker.importador_parar = iniciar(worker.wsgi)
+    from operacao import iniciar_agendador
+    worker.operacao_controles = iniciar_agendador(worker.wsgi)
 
 
 def worker_exit(server, worker):
     parar = getattr(worker, 'importador_parar', None)
     if parar:
         parar.set()
+
+    controles = getattr(worker, 'operacao_controles', None)
+    if controles:
+        controles[0].set()
+        controles[1].set()

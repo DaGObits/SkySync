@@ -608,17 +608,17 @@
           <span class="kpi-hint" id="kpiHighFatigueHint" data-i18n="kpiHighFatigue">ocorrência(s) de risco alto</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
-          <span class="kpi-label" data-i18n="kpiImpactedCount">Tripulantes impactados</span>
+          <span class="kpi-label" data-i18n="kpiImpactedCount">Trocas realizadas</span>
           <span class="kpi-value" id="kpiImpactedCount"><span class="kpi-loading" aria-label="Carregando"></span></span>
-          <span class="kpi-hint" id="kpiBlockedRbacHint" data-i18n="kpiBlockedRbac">bloqueados pela RBAC 117</span>
+          <span class="kpi-hint" id="kpiBlockedRbacHint" data-i18n="kpiBlockedRbac">em repouso ou com restrição</span>
         </button>
         <button type="button" class="kpi-card" data-screen="escalas">
-          <span class="kpi-label" data-i18n="kpiCrewCompliance">Conformidade da tripulação</span>
+          <span class="kpi-label" data-i18n="kpiCrewCompliance">Tripulantes em voo</span>
           <span class="kpi-value" id="kpiComplianceVal"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint" id="kpiComplianceHint">tripulantes conformes</span>
         </button>
         <div class="kpi-card kpi-static">
-          <span class="kpi-label" data-i18n="kpiMonitoredFlights">Voos monitorados hoje</span>
+          <span class="kpi-label" data-i18n="kpiMonitoredFlights">Tripulantes acompanhados</span>
           <span class="kpi-value" id="kpiMonitoredTotal"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint"><span data-i18n="baseWord">Base</span> <span id="kpiBaseLabel">GRU</span> · <span data-i18n="currentShift">turno atual</span></span>
         </div>
@@ -635,7 +635,7 @@
 
         <div class="monitor-card">
           <div class="interactive-widget" id="widgetFatigue" title="Clique para ver detalhes do risco de fadiga acumulado">
-            <h2 class="section-sub monitor-h" data-i18n="fatigueRiskTitle">Risco de fadiga da tripulação (acumulado)</h2>
+            <h2 class="section-sub monitor-h" data-i18n="fatigueRiskTitle">Restrições na operação simulada</h2>
             <div class="fatigue-widget">
               <div class="fatigue-donut" id="fatigueDonut" role="img" aria-label="Tripulantes com jornada bloqueada pela RBAC 117 e conformes no histórico">
                 <span class="fatigue-center"><span id="blockedCountNum">—</span><small>/<span id="totalCrewNum">—</span></small></span>
@@ -648,8 +648,8 @@
           </div>
           
           <div class="interactive-widget" id="widgetCompliance" title="Clique para ver o relatório de conformidade RBAC 117" style="margin-top: 6px;">
-            <h2 class="section-sub monitor-h" data-i18n="rbacComplianceTitle">Conformidade RBAC 117</h2>
-            <div class="progress-row" role="img" aria-label="Conformidade da tripulação com a RBAC 117">
+            <h2 class="section-sub monitor-h" data-i18n="rbacComplianceTitle">Horas dentro do limite configurado</h2>
+            <div class="progress-row" role="img" aria-label="Tripulantes em voo com a RBAC 117">
               <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
               <span class="progress-value" id="progressValText">—</span>
             </div>
@@ -691,85 +691,19 @@
     </section>
 
     <section class="screen" id="screen-escalas" aria-labelledby="escalas-h" tabindex="-1" hidden>
-      <h1 id="escalas-h" data-i18n="schedulesTitle">Escalas cruzadas afetadas</h1>
-      <p class="lede" data-i18n="schedulesSubtitle">Jornada acumulada e conformidade dos tripulantes envolvidos nas disrupções ativas e rotas regulares.</p>
-      
-      <div class="table-wrap">
-        <div class="table-toolbar">
-          <span id="historyCaptionText"><span id="totalCrewCountText"><span class="kpi-loading" aria-label="Carregando"></span></span> <span data-i18n="crewMembersWord">tripulantes</span> — <span data-i18n="versionWord">Versão</span> <span id="historyIndexLabel"><span class="kpi-loading" aria-label="Carregando"></span></span> <span data-i18n="ofWord">de</span> <span id="historyTotalLabel"><span class="kpi-loading" aria-label="Carregando"></span></span> (<span data-i18n="atWord">às</span> <span id="tableTime">--:--</span> UTC)</span>
-          <div class="history-controls">
-            <button type="button" class="btn-history-nav" id="btnPrevHistory" title="Versão anterior da escala" data-i18n="btnPrev">◀ Anterior</button>
-            <button type="button" class="btn-history-nav" id="btnNextHistory" title="Próxima versão da escala" data-i18n="btnNext">Próxima ▶</button>
-            <button type="button" class="btn-refresh-table" id="btnRefreshTable" title="Gerar novas escalas" data-i18n="btnRefresh">🔄 Atualizar Escalas</button>
-          </div>
-        </div>
-        <table id="mainCrewTable" aria-label="Tripulantes afetados pelas disrupções, jornadas acumuladas e nova rota sugerida">
-          <thead>
-            <tr>
-              <th scope="col" data-i18n="thCrew">Tripulante</th>
-              <th scope="col" data-i18n="thFlight">Voo</th>
-              <th scope="col" data-i18n="thAccumulatedDuty">Jornada acumulada</th>
-              <th scope="col" data-i18n="thRbacLimit">Limite RBAC 117</th>
-              <th scope="col" data-i18n="thCompliance">Conformidade</th>
-              <th scope="col" data-i18n="thAiRoute">Rota sugerida pela IA</th>
-            </tr>
-          </thead>
-          <tbody id="crewTable">
-            <!-- Gerado dinamicamente sincronizado -->
-          </tbody>
-        </table>
-      </div>
-
-      <h2 class="section-sub" id="acoes-h" data-i18n="simulationActionsTitle">Simulação e ações</h2>
-      <details id="simuladorJornadas" style="margin:16px 0">
-        <summary>Gerar jornadas fictícias para testar a otimização</summary>
-        <p>O cenário varia horas acumuladas, descanso e aclimatação dos tripulantes cadastrados.
-          Ele fica em memória e não altera jornadas, escalas publicadas ou disrupções reais.</p>
-        <form id="formSimularJornadas" style="display:grid;gap:12px;max-width:600px">
-          <label>Data <input class="setting-input" id="simJornadaData" type="date" required></label>
-          <label>Seed (mesmo valor reproduz o cenário) <input class="setting-input" id="simJornadaSeed" type="number" min="0" max="2147483647" value="42" required></label>
-          <label>Carga operacional <select class="setting-select" id="simJornadaPerfil">
-            <option value="leve">Leve</option><option value="moderado">Moderada</option><option value="critico">Crítica</option>
-          </select></label>
-          <label>Quantidade de voos no teste <input class="setting-input" id="simJornadaVoos" type="number" min="1" max="200" value="15" required></label>
-          <button class="btn btn-primary" type="submit" id="btnGerarJornadas">Gerar prévia</button>
-        </form>
-        <p id="jornadaSimStatus" role="status">Nenhum cenário fictício gerado.</p>
-        <label><input type="checkbox" id="usarJornadasSimuladas" disabled> Usar este cenário no botão Simular replanejamento</label>
-        <p id="jornadaModoStatus" role="status">A otimização usa as jornadas do banco.</p>
-        <div class="table-wrap" id="jornadaSimPreview" hidden>
-          <table><thead><tr><th>Tripulante</th><th>Cargo</th><th>Base</th><th>Horas simuladas</th><th>Limite configurado</th><th>Descanso</th><th>Aclimatado</th></tr></thead>
-            <tbody id="jornadaSimRows"></tbody></table>
-        </div>
-      </details>
-      <div class="actions">
-        <button class="btn btn-ghost" id="btnSimular" type="button">Simular replanejamento (sem publicar)</button>
-        <button class="btn btn-success" id="btnAplicar" type="button" data-i18n="btnApply">Aplicar escala automática</button>
-        <button class="btn btn-primary" id="btnDesfazer" type="button" disabled data-i18n="btnUndo">Desfazer</button>
-        <span class="actions-note" data-i18n="actionsNote">A escala é calculada pelo motor CP-SAT sobre a malha de voos e as jornadas do banco, e publicada com a análise de conformidade.</span>
-      </div>
-      <div id="liveStatus" role="status" aria-live="polite"></div>
-
-      <div id="painelMudancas" class="table-wrap" hidden>
-        <div class="table-toolbar">
-          <span data-i18n="changesTitle">Mudanças em relação à escala anterior</span>
-          <div class="history-controls">
-            <button type="button" class="btn-history-nav" id="btnFecharMudancas">Fechar</button>
-          </div>
-        </div>
-        <div id="resumoMudancas" style="padding: 12px 14px; font-size: .9rem;"></div>
-        <table>
-          <thead>
-            <tr>
-              <th scope="col" data-i18n="thCrew">Tripulante</th>
-              <th scope="col" data-i18n="thFlight">Voo anterior</th>
-              <th scope="col" data-i18n="thFlight">Voo novo</th>
-              <th scope="col">Situação</th>
-            </tr>
-          </thead>
-          <tbody id="corpoMudancas"></tbody>
-        </table>
-      </div>
+      <h1 id="escalas-h">Remanejamentos da operação</h1>
+      <p class="lede">Os tripulantes cumprem os voos cadastrados, acumulam horas e mudam de localização ao pousar.
+        Quando a escala precisar de uma troca, o sistema procura um substituto apto no aeroporto de partida.</p>
+      <button class="btn btn-primary" type="button" id="btnOperacao">Iniciar operação simulada</button>
+      <p id="operacaoStatus" role="status">Consultando operação…</p>
+      <p id="operacaoResumo"></p>
+      <p>Simulação acelerada: 1 segundo equivale a 1 minuto. Acompanhe posição e jornada na aba Tripulantes.</p>
+      <p id="operacaoPendencias" role="status"></p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Quando</th><th>Voo</th><th>Saiu</th><th>Entrou</th><th>Local do substituto</th><th>Motivo</th></tr></thead>
+        <tbody id="remanejamentosRows"></tbody>
+      </table></div>
+      <p id="remanejamentosVazio">Nenhum remanejamento necessário até agora.</p>
     </section>
 
     
@@ -839,7 +773,7 @@
               <th scope="col" data-i18n="thCrewName">Nome</th>
               <th scope="col" data-i18n="thCrewRole">Cargo</th>
               <th scope="col" data-i18n="thCrewBase">Base</th>
-              <th scope="col" data-i18n="thCrewStatus">Status</th>
+              <th scope="col">Cadastro</th><th scope="col">Local atual</th><th scope="col">Jornada simulada / limite</th><th scope="col">Situação atual</th>
             </tr>
           </thead>
           <tbody id="crewBaseBody">
@@ -858,7 +792,7 @@
 
       <div class="setting-card" style="margin-bottom:20px">
         <h2 class="setting-card-title">Estado da aplicação</h2>
-        <p>Interface: <strong id="interfaceVersion">jornadas-6</strong></p>
+        <p>Interface: <strong id="interfaceVersion">operacao-7</strong></p>
         <p id="sessionStatus" role="status">Verificando sessão…</p>
         <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
         <p id="connectionStatus" role="status">Aguardando verificação.</p>
@@ -1183,17 +1117,17 @@ async function iniciarPainel() {
         panelSubtitle: 'Acompanhamento em tempo real de disrupções, jornadas e conformidade com a Lei do Aeronauta e a RBAC 117.',
         kpiActiveDisruptions: 'Ocorrências com risco alto/médio',
         kpiHighFatigue: 'ocorrência(s) de risco alto',
-        kpiImpactedCount: 'Tripulantes impactados',
-        kpiBlockedRbac: 'bloqueados pela RBAC 117',
-        kpiCrewCompliance: 'Conformidade da tripulação',
-        kpiMonitoredFlights: 'Voos monitorados hoje',
+        kpiImpactedCount: 'Trocas realizadas',
+        kpiBlockedRbac: 'em repouso ou com restrição',
+        kpiCrewCompliance: 'Tripulantes em voo',
+        kpiMonitoredFlights: 'Tripulantes acompanhados',
         baseWord: 'Base',
         currentShift: 'turno atual',
         realtimeActivity: 'Atividade em tempo real',
-        fatigueRiskTitle: 'Risco de fadiga da tripulação (acumulado)',
-        blockedLegend: 'Bloqueados',
-        compliantLegend: 'Conformes',
-        rbacComplianceTitle: 'Conformidade RBAC 117',
+        fatigueRiskTitle: 'Restrições na operação simulada',
+        blockedLegend: 'Em repouso ou com restrição',
+        compliantLegend: 'Demais tripulantes',
+        rbacComplianceTitle: 'Horas dentro do limite configurado',
         disruptionsTitle: 'Disrupções',
         disruptionsSubtitle: 'Ocorrências operacionais registradas no banco, independentes das escalas publicadas.',
         filterAll: 'Todas',
@@ -1327,10 +1261,10 @@ async function iniciarPainel() {
         baseWord: 'Base',
         currentShift: 'current shift',
         realtimeActivity: 'Real-time activity',
-        fatigueRiskTitle: 'Crew fatigue risk (accumulated)',
+        fatigueRiskTitle: 'Restrictions in the simulated operation',
         blockedLegend: 'Blocked',
         compliantLegend: 'Compliant',
-        rbacComplianceTitle: 'Regulatory Compliance',
+        rbacComplianceTitle: 'Hours within the configured limit',
         disruptionsTitle: 'Disruptions',
         disruptionsSubtitle: 'Operational occurrences recorded in the database, independent of published schedules.',
         filterAll: 'All',
@@ -1464,10 +1398,10 @@ async function iniciarPainel() {
         baseWord: 'Base',
         currentShift: 'turno actual',
         realtimeActivity: 'Actividad en tiempo real',
-        fatigueRiskTitle: 'Riesgo de fatiga de la tripulación (acumulado)',
-        blockedLegend: 'Bloqueados',
-        compliantLegend: 'Conformes',
-        rbacComplianceTitle: 'Cumplimiento Normativo',
+        fatigueRiskTitle: 'Restricciones en la operación simulada',
+        blockedLegend: 'Em repouso ou com restrição',
+        compliantLegend: 'Demais tripulantes',
+        rbacComplianceTitle: 'Horas dentro del límite configurado',
         disruptionsTitle: 'Disrupciones',
         disruptionsSubtitle: 'Incidencias operativas registradas en la base de datos, independientes de las escalas publicadas.',
         filterAll: 'Todas',
@@ -1889,72 +1823,39 @@ async function iniciarPainel() {
       widgetFatigue.addEventListener('click', () => {
         const blocked = document.getElementById('blockedCountNum');
         const count = blocked ? blocked.textContent : '3';
-        openModal('Relatório Acumulado de Fadiga (RBAC 117)', `Atualmente existem ${count} registros de tripulantes bloqueados ou em risco considerando todo o histórico de execuções.`);
+        openModal('Restrições na operação simulada', `${count} tripulantes estão em repouso ou com restrição no estado atual da operação simulada.`);
       });
     }
 
     if (widgetCompliance) {
       widgetCompliance.addEventListener('click', () => {
         const val = document.getElementById('progressValText');
-        openModal('Índice Acumulado de Conformidade', `Índice de conformidade geral calculado sobre todos os registros operacionais e simulações do histórico.`);
+        openModal('Limites de jornada na simulação', `Percentual de tripulantes com horas acumuladas dentro do limite configurado na operação simulada.`);
       });
     }
 
     function atualizarPainelAcumulado() {
-      try {
-        const todosVoos = obterTodosVoosHistorico();
-        const total = todosVoos.length;
-        let blockedCount = 0;
-        todosVoos.forEach(d => {
-          if (d.bloqueado) blockedCount++;
-        });
-
-        const compliantCount = total - blockedCount;
-        const percentCompliant = total > 0 ? Math.round((compliantCount / total) * 100) : 100;
-
-        const fatigueDonut = document.getElementById('fatigueDonut');
-        const blockedCountNum = document.getElementById('blockedCountNum');
-        const totalCrewNum = document.getElementById('totalCrewNum');
-        const blockedTextNum = document.getElementById('blockedTextNum');
-        const compliantTextNum = document.getElementById('compliantTextNum');
-        const progressFill = document.getElementById('progressFill');
-        const progressValText = document.getElementById('progressValText');
-        const kpiComplianceVal = document.getElementById('kpiComplianceVal');
-        const kpiComplianceHint = document.getElementById('kpiComplianceHint');
-        const kpiImpactedCount = document.getElementById('kpiImpactedCount');
-        const kpiBlockedRbacHint = document.getElementById('kpiBlockedRbacHint');
-        const kpiMonitoredTotal = document.getElementById('kpiMonitoredTotal');
-        const totalCrewCountText = document.getElementById('totalCrewCountText');
-
-        if (blockedCountNum) blockedCountNum.textContent = blockedCount;
-        if (totalCrewNum) totalCrewNum.textContent = total;
-        if (totalCrewCountText) totalCrewCountText.textContent = (dadosOperacionais || []).length;
-        if (blockedTextNum) blockedTextNum.textContent = blockedCount;
-        if (compliantTextNum) compliantTextNum.textContent = compliantCount;
-        if (kpiImpactedCount) kpiImpactedCount.textContent = total;
-        if (kpiMonitoredTotal) kpiMonitoredTotal.textContent = total;
-
-        const lang = settings.idioma || 'pt-BR';
-        const dict = translations[lang] || translations['pt-BR'];
-
-        if (kpiBlockedRbacHint) {
-          kpiBlockedRbacHint.textContent = `${blockedCount} ${dict.kpiBlockedRbac}`;
-        }
-
-        if (fatigueDonut) {
-          if (blockedCount === 0) {
-            fatigueDonut.style.background = 'conic-gradient(var(--green) 0% 100%)';
-          } else {
-            const percentCompl = (compliantCount / total) * 100;
-            fatigueDonut.style.background = `conic-gradient(var(--green) 0% ${percentCompl}%, var(--red) ${percentCompl}% 100%)`;
-          }
-        }
-
-        if (progressFill) progressFill.style.width = percentCompliant + '%';
-        if (progressValText) progressValText.textContent = percentCompliant + '%';
-        if (kpiComplianceVal) kpiComplianceVal.textContent = percentCompliant + '%';
-        if (kpiComplianceHint) kpiComplianceHint.textContent = `${compliantCount} ${dict.ofWord || 'de'} ${total} ${dict.crewMembersWord || 'tripulantes'} conformes`;
-      } catch(e) {}
+      const d = window.estadoOperacao;
+      const ativo = d && d.iniciada;
+      const set = (id, valor) => { const el = document.getElementById(id); if (el) el.textContent = valor; };
+      set('kpiImpactedCount', ativo ? d.total_mudancas : '—');
+      set('kpiComplianceVal', ativo ? d.em_voo : '—');
+      set('kpiMonitoredTotal', ativo ? d.tripulantes : '—');
+      set('kpiBlockedRbacHint', 'trocas na operação simulada');
+      set('kpiComplianceHint', ativo ? d.concluidos + ' voos concluídos' : 'Aguardando início da operação');
+      set('blockedCountNum', ativo ? d.restritos ?? '—' : '—');
+      set('totalCrewNum', ativo ? d.tripulantes : '—');
+      set('blockedTextNum', ativo ? d.restritos ?? '—' : '—');
+      set('compliantTextNum', ativo && d.restritos !== undefined ? d.tripulantes - d.restritos : '—');
+      const percentual = ativo && d.tripulantes && d.dentro_limite !== undefined ? Math.round(d.dentro_limite / d.tripulantes * 100) : null;
+      set('progressValText', percentual === null ? '—' : percentual + '%');
+      const barra = document.getElementById('progressFill');
+      if (barra) barra.style.width = (percentual ?? 0) + '%';
+      const donut = document.getElementById('fatigueDonut');
+      if (donut && ativo && d.tripulantes && d.restritos !== undefined) {
+        const livres = 100 - d.restritos / d.tripulantes * 100;
+        donut.style.background = `conic-gradient(var(--green) 0% ${livres}%, var(--red) ${livres}% 100%)`;
+      }
     }
 
     function atualizarBotoesHistorico() {
@@ -2096,160 +1997,55 @@ async function iniciarPainel() {
       };
     }
 
-    let cenarioJornadas = null;
-    const usarJornadas = document.getElementById('usarJornadasSimuladas');
-    const dataJornada = document.getElementById('simJornadaData');
-    dataJornada.value = new Date().toISOString().slice(0, 10);
-
-    function modoJornadasSimuladas() { return Boolean(usarJornadas.checked && cenarioJornadas); }
-    function atualizarModoJornadas() {
-      const ativo = modoJornadasSimuladas();
-      document.getElementById('btnAplicar').disabled = ativo;
-      document.getElementById('jornadaModoStatus').textContent = ativo
-        ? 'Modo fictício: use Simular replanejamento. A publicação está desativada para este cenário.'
-        : 'A otimização usa as jornadas do banco.';
-    }
-    usarJornadas.addEventListener('change', atualizarModoJornadas);
-    document.getElementById('formSimularJornadas').addEventListener('change', () => {
-      cenarioJornadas = null;
-      usarJornadas.checked = false;
-      usarJornadas.disabled = true;
-      document.getElementById('jornadaSimPreview').hidden = true;
-      document.getElementById('jornadaSimStatus').textContent = 'Gere a prévia novamente após alterar os parâmetros.';
-      atualizarModoJornadas();
-    });
-    document.getElementById('formSimularJornadas').addEventListener('submit', async e => {
-      e.preventDefault();
-      const status = document.getElementById('jornadaSimStatus');
-      const button = document.getElementById('btnGerarJornadas');
-      button.disabled = true;
-      status.textContent = 'Gerando jornadas fictícias…';
-      try {
-        const res = await fetchComPrazo(`${API_URL}/jornadas/simular`, {
-          method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ seed: Number(document.getElementById('simJornadaSeed').value),
-            perfil: document.getElementById('simJornadaPerfil').value, data: dataJornada.value })
+    window.estadoOperacao = null;
+    function mostrarOperacao(dados) {
+      window.estadoOperacao = dados;
+      atualizarPainelAcumulado();
+      const button = document.getElementById('btnOperacao');
+      button.textContent = dados.rodando ? 'Pausar operação' : dados.concluida ? 'Iniciar nova operação' :
+        dados.iniciada ? 'Continuar operação' : 'Iniciar operação simulada';
+      document.getElementById('operacaoStatus').textContent = dados.erro || (!dados.iniciada
+        ? 'Pronto para iniciar com os tripulantes e voos cadastrados.'
+        : (dados.rodando ? 'Operação em andamento · ' : dados.concluida ? 'Operação concluída · ' : 'Operação pausada · ') + dados.relogio);
+      document.getElementById('operacaoResumo').textContent = dados.iniciada
+        ? dados.tripulantes + ' tripulantes acompanhados · ' + dados.em_voo + ' em voo · ' + dados.em_repouso +
+          ' em repouso · ' + dados.concluidos + ' voos concluídos · ' + dados.total_mudancas + ' troca(s) realizada(s).'
+        : '';
+      document.getElementById('operacaoPendencias').textContent = dados.aguardando
+        ? dados.aguardando + ' voo(s) aguardando tripulação apta na origem.' : (dados.nao_atendidos ? dados.nao_atendidos + ' voo(s) não atendidos nos dias anteriores por falta de tripulação apta.' : '');
+      const rows = document.getElementById('remanejamentosRows');
+      rows.replaceChildren();
+      (dados.mudancas || []).forEach(m => {
+        const tr = document.createElement('tr');
+        const horario = String(Math.floor(m.minuto / 60) % 24).padStart(2, '0') + ':' + String(m.minuto % 60).padStart(2, '0');
+        [horario, m.voo, m.saiu, m.entrou, m.local, m.motivo].forEach(valor => {
+          const td = document.createElement('td'); td.textContent = valor; tr.appendChild(td);
         });
+        rows.appendChild(tr);
+      });
+      document.getElementById('remanejamentosVazio').hidden = Boolean((dados.mudancas || []).length);
+    }
+    window.carregarOperacao = async function () {
+      try {
+        const res = await fetchComPrazo(`${API_URL}/operacao`, { credentials: 'include' });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        mostrarOperacao(await res.json());
+      } catch (e) { document.getElementById('operacaoStatus').textContent = 'Não foi possível consultar a operação: ' + e.message; }
+    };
+    document.getElementById('btnOperacao').addEventListener('click', async e => {
+      e.target.disabled = true;
+      document.getElementById('operacaoStatus').textContent = 'Atualizando operação…';
+      try {
+        const acao = window.estadoOperacao && window.estadoOperacao.rodando ? 'pausar' : 'iniciar';
+        const res = await fetchComPrazo(`${API_URL}/operacao/${acao}`, { method: 'POST', credentials: 'include' });
         if (res.status === 401) { window.location.href = 'login.html'; return; }
         const dados = await res.json();
         if (!res.ok) throw new Error(dados.erro || 'HTTP ' + res.status);
-        cenarioJornadas = dados;
-        const rows = document.getElementById('jornadaSimRows');
-        rows.replaceChildren();
-        dados.jornadas.slice(0, 20).forEach(j => {
-          const row = document.createElement('tr');
-          [j.nome, j.cargo, j.base, horasFormatadas(j.horas_acumuladas), horasFormatadas(j.limite_horas),
-            j.descanso_ok ? 'Cumprido' : 'Insuficiente', j.aclimatado ? 'Sim' : 'Não'].forEach(texto => {
-            const td = document.createElement('td'); td.textContent = texto; row.appendChild(td);
-          });
-          rows.appendChild(row);
-        });
-        const r = dados.resumo;
-        status.textContent = r.total + ' jornadas fictícias · ' + r.sem_descanso + ' sem descanso · ' +
-          r.nao_aclimatados + ' não aclimatados · ' + r.no_limite + ' no limite ou acima. Prévia de até 20 tripulantes.';
-        document.getElementById('jornadaSimPreview').hidden = false;
-        usarJornadas.disabled = false;
-        usarJornadas.checked = true;
-        atualizarModoJornadas();
-      } catch (err) { status.textContent = 'Não foi possível gerar jornadas: ' + err.message; }
-      finally { button.disabled = false; }
+        mostrarOperacao(dados);
+      } catch (err) { document.getElementById('operacaoStatus').textContent = 'Operação não iniciada/alterada: ' + err.message; }
+      finally { e.target.disabled = false; }
     });
-
-    function executarMotor(gravar) {
-      if (gravar && modoJornadasSimuladas()) {
-        document.getElementById('liveStatus').textContent = 'Cenários fictícios não podem ser publicados.';
-        return;
-      }
-      var aviso = document.getElementById('liveStatus');
-      var btnS = document.getElementById('btnSimular');
-      var btnA = document.getElementById('btnAplicar');
-      var rotuloS = btnS ? btnS.innerText : '';
-      var rotuloA = btnA ? btnA.innerText : '';
-
-      if (btnS) { btnS.disabled = true; btnS.innerText = 'Executando...'; }
-      if (btnA) { btnA.disabled = true; }
-      if (aviso) {
-        aviso.style.color = 'var(--text-600-solid)';
-        aviso.textContent = gravar
-          ? 'Executando o motor e publicando a escala...'
-          : 'Simulando — a escala publicada nao sera alterada.';
-      }
-
-      var escalaAntes = capturarEscalaAtual();
-
-      fetch(API_URL + '/escalas/otimizar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ limite_voos: modoJornadasSimuladas() ? Number(document.getElementById('simJornadaVoos').value) : 15, gravar: gravar === true,
-          ...(modoJornadasSimuladas() ? {
-            data: cenarioJornadas.parametros.data,
-            simulacao_jornadas: { seed: cenarioJornadas.parametros.seed, perfil: cenarioJornadas.parametros.perfil }
-          } : {})
-        })
-      })
-        .then(function (res) {
-          return res.json().then(function (dados) { return { status: res.status, dados: dados }; });
-        })
-        .then(function (r) {
-          if (r.status === 401) { window.location.href = 'login.html'; return; }
-
-          if (r.status === 409) {
-            var causas = (r.dados.diagnostico && r.dados.diagnostico.causas) || [];
-            if (aviso) {
-              aviso.style.color = 'var(--red)';
-              aviso.textContent = (r.dados.status === 'CONFLITO' ? 'Publicação não concluída: ' : 'Inviável: ') + (causas.length ? causas.join(' ') : r.dados.mensagem || 'Revise o cenário.');
-            }
-            return;
-          }
-
-          if (r.status !== 200) {
-            if (aviso) {
-              aviso.style.color = 'var(--red)';
-              aviso.textContent = (r.dados.mensagem || r.dados.erro || 'O motor não convergiu.') + (r.dados.dica ? ' ' + r.dados.dica : '');
-            }
-            return;
-          }
-
-          var d = r.dados;
-          var linhas = (d.alocacoes || []).map(alocacaoParaLinha);
-
-          if (gravar) {
-            atualizarEscalasPublicadas(linhas);
-          } else {
-            var backup = dadosOperacionais;
-            dadosOperacionais = linhas;
-            try { gerarEscalasDinamicas(); } finally { dadosOperacionais = backup; }
-          }
-
-          var mudancas = compararEscalas(escalaAntes, linhas);
-
-          var resumo = d.status + ' · ' + d.total_alocacoes + ' alocacao(oes) · ' +
-                       'conformidade ' + d.conformidade + '% · ' + d.wall_time_seconds + 's';
-
-          if (aviso) {
-            aviso.style.color = gravar ? 'var(--green)' : 'var(--text-600-solid)';
-            aviso.textContent = (gravar ? 'Escala publicada: ' : 'Simulacao (nao publicada): ') + resumo + (d.origem_jornadas === 'simulacao' ? ' · JORNADAS FICTÍCIAS · seed ' + d.simulacao_jornadas.parametros.seed + ' · ' + d.simulacao_jornadas.parametros.perfil : '');
-          }
-
-          var eng = document.getElementById('engineLabel');
-          if (eng) eng.textContent = 'Motor CP-SAT — ' + d.status;
-
-          if (gravar) { mostrarMudancas(mudancas, resumo); }
-        })
-        .catch(function (err) {
-          console.error('Falha na otimizacao:', err);
-          if (aviso) {
-            aviso.style.color = 'var(--red)';
-            aviso.textContent = 'Nao foi possivel falar com o motor.';
-          }
-        })
-        .finally(function () {
-          if (btnS) { btnS.disabled = false; btnS.innerText = rotuloS; }
-          if (btnA) { btnA.disabled = modoJornadasSimuladas(); btnA.innerText = rotuloA; }
-        });
-    }
-
 
     // ---------------------------------------------------------------------
     // PAINEL DE MUDANCAS
@@ -2344,7 +2140,6 @@ async function iniciarPainel() {
       }
     }
 
-    var rodarMotor = executarMotor;
 
 let feedItemsData = [];
     let feedAoVivo = [];
@@ -2582,15 +2377,10 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
 
     function montarLinhaTripulante(t) {
       const tr = document.createElement('tr');
-      const statusClasse = t.status === 'Reserva' ? 'over' : '';
-      tr.innerHTML = `
-        <td class="hours">${t.id}</td>
-        <td><span class="crew-name">${t.nome_completo}</span></td>
-        <td>${t.cargo}</td>
-        <td class="hours">${t.base}</td>
-        <td><span class="limit-tag">${t.status}</span></td>
-      `;
-      void statusClasse;
+      [t.id, t.nome_completo, t.cargo, t.base, t.status, t.local_atual || t.base,
+        t.jornada_simulada || '—', t.situacao_atual || 'Sem operação simulada'].forEach(valor => {
+        const td = document.createElement('td'); td.textContent = valor; tr.appendChild(td);
+      });
       return tr;
     }
 
@@ -2639,7 +2429,7 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
       if (aviso) { aviso.style.color = 'var(--text-600-solid)'; aviso.textContent = texto('crewLoading', 'Carregando...'); }
 
       const filtros = new URLSearchParams();
-      filtros.set('limite', '300');
+      filtros.set('limite', '1000');
       if (estadoTripulantes.base) filtros.set('base', estadoTripulantes.base);
       if (estadoTripulantes.cargo) filtros.set('cargo', estadoTripulantes.cargo);
       if (estadoTripulantes.status) filtros.set('status', estadoTripulantes.status);
@@ -2764,18 +2554,17 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
       console.error('Modulo de escalas nao carregou:', e);
     }
 
-    window.carregarEscalasDoBanco(true);
 
     const screens = document.querySelectorAll('.screen');
     const navButtons = document.querySelectorAll('.nav-btn[data-screen]');
     
     function switchScreen(name) {
       try {
-        if (name === 'escalas' && typeof window.carregarEscalasDoBanco === 'function') {
-          window.carregarEscalasDoBanco(true);
+        if (name === 'escalas' && typeof window.carregarOperacao === 'function') {
+          window.carregarOperacao();
         }
-        if (name === 'tripulantes' && typeof window.carregarTripulantes === 'function') {
-          window.carregarTripulantes(false);
+        if (name === 'tripulantes') {
+          carregarTripulantes(true);
         }
       } catch (e) { console.error('gancho escalas:', e); }
 
@@ -2942,54 +2731,16 @@ setInterval(carregarMapaMalha, 300000);  // 5 min: a malha muda pouco
       });
     });
 
-    const btnSimular = document.getElementById('btnSimular');
-    const btnAplicar = document.getElementById('btnAplicar');
-    const btnDesfazer = document.getElementById('btnDesfazer');
-    const liveStatus = document.getElementById('liveStatus');
-    const engineLabel = document.getElementById('engineLabel');
-    let dadosSnapshotSimulacao = null;
-
-    function showStatus(msg, kind) {
-      try {
-        if (!liveStatus) return;
-        liveStatus.textContent = msg;
-        liveStatus.className = 'show ' + (kind === 'blocked' ? 'blocked-msg' : 'ok-msg');
-      } catch(e) {}
-    }
-
-    if (btnSimular) {
-      btnSimular.addEventListener('click', function () {
-        rodarMotor(false);
-      });
-    }
-
-
-    if (btnAplicar) {
-      btnAplicar.addEventListener('click', function () {
-        rodarMotor(true);
-      });
-    }
-
-    if (btnDesfazer) {
-      btnDesfazer.addEventListener('click', () => {
-        if (dadosSnapshotSimulacao) {
-          dadosOperacionais = JSON.parse(JSON.stringify(dadosSnapshotSimulacao));
-          dadosSnapshotSimulacao = null;
-        }
-        try {
-          localStorage.setItem('skysync_dados_operacionais', JSON.stringify(dadosOperacionais));
-        } catch(e){}
-
-        gerarDisruptionsDinamicas();
-        gerarEscalasDinamicas();
-
-        if (engineLabel) engineLabel.textContent = 'Ativo — otimizado com sucesso';
-        showStatus('Simulação desfeita. As disrupções e escalas anteriores foram restauradas.', 'blocked');
-        if (btnDesfazer) btnDesfazer.disabled = true;
-      });
-    }
     carregarPerfil();
     window.carregarDisrupcoes();
+    window.carregarOperacao();
+    setInterval(() => {
+      if (!document.hidden) {
+        window.carregarOperacao();
+        const tripulantes = document.getElementById('screen-tripulantes');
+        if (tripulantes && !tripulantes.hidden) carregarTripulantes(true);
+      }
+    }, 5000);
     setInterval(() => { if (!document.hidden) window.carregarDisrupcoes(); }, 60000);
   } catch (err) {
     console.error("Erro geral recuperado no SkySync:", err);

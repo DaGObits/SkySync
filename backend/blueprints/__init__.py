@@ -11,6 +11,7 @@ from blueprints import (
     jornadas_simulacao,
     otimizacao,
     perfil,
+    operacao,
     tripulantes,
 )
 
@@ -19,6 +20,7 @@ from blueprints import (
 TODOS = (
     auth.bp,
     perfil.bp,
+    operacao.bp,
     jornadas_simulacao.bp,
     disrupcoes.bp,
     escalas.bp,
@@ -41,5 +43,6 @@ __all__ = [
     "jornadas_simulacao",
     "otimizacao",
     "perfil",
+    "operacao",
     "tripulantes",
 ]
