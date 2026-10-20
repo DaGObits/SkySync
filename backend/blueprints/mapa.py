@@ -46,7 +46,8 @@ def _projetar(lat: float, lon: float, largura: int, altura: int) -> tuple[float,
 
     fator = math.cos(math.radians(LAT_REF))
 
-    lon_min, lon_max = -74.0, -34.0
+    # Inclui Fernando de Noronha no enquadramento.
+    lon_min, lon_max = -74.0, -32.0
     lat_min, lat_max = -34.0, 6.0
 
     x = (lon - lon_min) / (lon_max - lon_min) * largura

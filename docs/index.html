@@ -655,7 +655,7 @@
             <svg id="radarSimulado" viewBox="0 0 900 900" role="group" aria-label="Mapa dos voos simulados. Selecione um avião para ver a tripulação.">
               <defs><pattern id="simGrade" width="90" height="90" patternUnits="userSpaceOnUse"><path d="M 90 0 L 0 0 0 90" fill="none" stroke="#204052" stroke-width="1"/></pattern></defs>
               <rect x="-900" y="-900" width="2700" height="2700" fill="url(#simGrade)"/>
-              <polygon id="simContorno" class="sim-pais"/>
+              <image id="simContorno" href="assets/brasil.svg" x="0" y="0" width="900" height="900" aria-hidden="true"/>
               <g id="simRotas"></g><g id="simAeroportos"></g><g id="simAvioes"></g>
             </svg>
             <aside>
@@ -826,7 +826,7 @@
 
       <div class="setting-card" style="margin-bottom:20px">
         <h2 class="setting-card-title">Estado da aplicação</h2>
-        <p>Interface: <strong id="interfaceVersion">simulacao-mapa-1</strong></p>
+        <p>Interface: <strong id="interfaceVersion">simulacao-mapa-2</strong></p>
         <p id="sessionStatus" role="status">Verificando sessão…</p>
         <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
         <p id="connectionStatus" role="status">Aguardando verificação.</p>
@@ -2088,7 +2088,6 @@ async function iniciarPainel() {
         document.getElementById('radarStatus').textContent = 'O mapa aguarda a atualização do backend da simulação.';
         return;
       }
-      document.getElementById('simContorno').setAttribute('points', (mapa.contorno || []).map(p => p.join(',')).join(' '));
       const rotas = document.getElementById('simRotas'); rotas.replaceChildren();
       const aeroportos = document.getElementById('simAeroportos'); aeroportos.replaceChildren();
       (mapa.aeroportos || []).forEach(a => {
