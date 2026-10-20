@@ -410,10 +410,26 @@
   .radar-card { grid-column: 1 / -1; min-width: 0; }
   .radar-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
   .radar-toolbar .monitor-h { margin: 0; }
-  .radar-link { display: inline-flex; align-items: center; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; color: var(--text-900); text-decoration: none; font-size: .85rem; }
-  .radar-link:hover { background: var(--surface-alt); }
-  .radar-note { font-size: .82rem; color: var(--text-600-solid); margin: 10px 0; }
-  #radarFrame { display: block; height: clamp(380px, 65vh, 680px); width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-alt); }
+  .radar-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+  .radar-controls button { padding: 7px 12px; background: var(--surface); color: var(--text-900); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+  .radar-note { font-size: .85rem; color: var(--text-600-solid); margin: 10px 0; }
+  .radar-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(210px, 1fr); gap: 16px; }
+  #radarSimulado { display: block; width: 100%; height: clamp(350px, 65vh, 620px); background: #0d2234; border-radius: 10px; touch-action: none; }
+  .sim-pais { fill: #183b48; stroke: #3d6975; stroke-width: 2; }
+  .sim-rota { stroke: #62c7df; stroke-width: 1.8; stroke-dasharray: 5 6; opacity: .45; }
+  .sim-aeroporto { fill: #8ed8e8; }
+  .sim-espera { fill: #ffc44e; }
+  .sim-label { fill: #cee8ee; font: 13px var(--mono); paint-order: stroke; stroke: #0d2234; stroke-width: 3; }
+  .sim-aviao { cursor: pointer; outline: none; transition: transform 1s linear; }
+  .sim-aviao.pausado { transition: none; }
+  .sim-aviao path { fill: #ffcf33; stroke: #17212f; stroke-width: 1.2; }
+  .sim-aviao:hover path, .sim-aviao:focus path, .sim-aviao.selecionado path { fill: white; stroke: #2997de; stroke-width: 2; }
+  .radar-seletor { display: block; margin-bottom: 8px; font-size: .85rem; }
+  #radarVoo { width: 100%; padding: 8px; margin-bottom: 12px; background: var(--surface); color: var(--text-900); border: 1px solid var(--border); border-radius: 6px; }
+  #radarDetalhes { padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-size: .85rem; }
+  #radarDetalhes h3 { margin: 0 0 10px; }
+  #radarDetalhes ul { padding-left: 18px; }
+  @media (max-width: 700px) { .radar-layout { grid-template-columns: 1fr; } }
   .radar-stats { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   @media (max-width: 650px) { .radar-stats { grid-template-columns: 1fr; } }
 
@@ -626,14 +642,29 @@
       <div class="monitor-grid">
         <div class="monitor-card radar-card">
           <div class="radar-toolbar">
-            <h2 class="section-sub monitor-h">Radar de voos ao vivo</h2>
-            <a class="radar-link" id="radarAbrir" href="https://www.flightradar24.com/simple_index.php?lat=-14&amp;lon=-52&amp;z=4" target="_blank" rel="noopener noreferrer">Abrir em nova aba ↗</a>
+            <h2 class="section-sub monitor-h">Mapa da operação simulada</h2>
+            <div class="radar-controls">
+              <button type="button" id="radarMenos" aria-label="Diminuir zoom">−</button>
+              <button type="button" id="radarMais" aria-label="Aumentar zoom">+</button>
+              <button type="button" id="radarBrasil">Brasil</button>
+              <button type="button" id="radarControlar">Controlar operação</button>
+            </div>
           </div>
-          <p class="radar-note">Voos ao vivo sobre o Brasil · Flightradar24</p>
-          <iframe id="radarFrame" title="Radar de voos ao vivo — Flightradar24"
-            src="https://www.flightradar24.com/simple_index.php?lat=-14&amp;lon=-52&amp;z=4"
-            allow="fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-          <p class="radar-note" id="radarFonte">Cobertura e atualização conforme o Flightradar24. Se o radar não aparecer aqui, use “Abrir em nova aba”.</p>
+          <p class="radar-note" id="radarStatus" role="status">Consultando operação simulada…</p>
+          <div class="radar-layout">
+            <svg id="radarSimulado" viewBox="0 0 900 900" role="group" aria-label="Mapa dos voos simulados. Selecione um avião para ver a tripulação.">
+              <defs><pattern id="simGrade" width="90" height="90" patternUnits="userSpaceOnUse"><path d="M 90 0 L 0 0 0 90" fill="none" stroke="#204052" stroke-width="1"/></pattern></defs>
+              <rect x="-900" y="-900" width="2700" height="2700" fill="url(#simGrade)"/>
+              <polygon id="simContorno" class="sim-pais"/>
+              <g id="simRotas"></g><g id="simAeroportos"></g><g id="simAvioes"></g>
+            </svg>
+            <aside>
+              <label class="radar-seletor" for="radarVoo">Voo em andamento</label>
+              <select id="radarVoo" disabled><option value="">Nenhum voo em andamento</option></select>
+              <div id="radarDetalhes" aria-label="Detalhes do voo simulado">Selecione um avião para acompanhar sua rota e tripulação.</div>
+            </aside>
+          </div>
+          <p class="radar-note" id="radarFonte">Simulação · trajetos aproximados entre aeroportos · 1 segundo equivale a 1 minuto de operação. Amarelo nos aeroportos indica voos aguardando tripulação.</p>
         </div>
 
         <div class="monitor-card radar-stats">
@@ -795,7 +826,7 @@
 
       <div class="setting-card" style="margin-bottom:20px">
         <h2 class="setting-card-title">Estado da aplicação</h2>
-        <p>Interface: <strong id="interfaceVersion">radar-2</strong></p>
+        <p>Interface: <strong id="interfaceVersion">simulacao-mapa-1</strong></p>
         <p id="sessionStatus" role="status">Verificando sessão…</p>
         <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
         <p id="connectionStatus" role="status">Aguardando verificação.</p>
@@ -2000,9 +2031,141 @@ async function iniciarPainel() {
       };
     }
 
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const avioesSimulados = new Map();
+    let vooSelecionado = null;
+    let zoomSimulado = 1;
+    let centroSimulado = [450, 450];
+    function elementoSVG(tag, attrs = {}, texto) {
+      const el = document.createElementNS(svgNS, tag);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      if (texto !== undefined) el.textContent = texto;
+      return el;
+    }
+    function dimensionarAvioesSimulados() {
+      const svg = document.getElementById('radarSimulado');
+      const lado = Math.min(svg.clientWidth, svg.clientHeight);
+      if (!lado) return;
+      const escala = 900 / zoomSimulado / lado;
+      for (const g of avioesSimulados.values()) {
+        g.firstChild.setAttribute('transform', 'rotate(' + g.dataset.rumo + ') scale(' + escala + ')');
+      }
+    }
+    window.addEventListener('resize', dimensionarAvioesSimulados);
+    function zoomMapa(fator) {
+      zoomSimulado = Math.max(1, Math.min(4, zoomSimulado * fator));
+      const lado = 900 / zoomSimulado;
+      document.getElementById('radarSimulado').setAttribute('viewBox',
+        [centroSimulado[0] - lado / 2, centroSimulado[1] - lado / 2, lado, lado].join(' '));
+      dimensionarAvioesSimulados();
+    }
+    function detalhesVooSimulado() {
+      const el = document.getElementById('radarDetalhes');
+      const voo = ((window.estadoOperacao || {}).mapa || {}).voos?.find(v => v.id === vooSelecionado);
+      el.replaceChildren();
+      if (!voo) {
+        el.textContent = vooSelecionado ? 'Esse voo não está mais em andamento. Selecione outro avião.'
+          : 'Selecione um avião para acompanhar sua rota e tripulação.';
+        return;
+      }
+      const titulo = document.createElement('h3'); titulo.textContent = voo.codigo; el.appendChild(titulo);
+      [voo.origem.iata + ' → ' + voo.destino.iata,
+       voo.progresso + '% do trajeto · faltam ' + voo.restante,
+       'Atraso simulado: ' + voo.atraso_minutos + ' min'].forEach(texto => {
+        const p = document.createElement('p'); p.textContent = texto; el.appendChild(p);
+      });
+      const lista = document.createElement('ul');
+      (voo.tripulacao || []).forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p.nome + ' · ' + p.cargo + ' · jornada ' + p.jornada + ' / ' + p.limite;
+        lista.appendChild(li);
+      });
+      el.appendChild(lista);
+    }
+    function mostrarMapaSimulado(dados) {
+      const mapa = dados.mapa;
+      if (!mapa) {
+        document.getElementById('radarStatus').textContent = 'O mapa aguarda a atualização do backend da simulação.';
+        return;
+      }
+      document.getElementById('simContorno').setAttribute('points', (mapa.contorno || []).map(p => p.join(',')).join(' '));
+      const rotas = document.getElementById('simRotas'); rotas.replaceChildren();
+      const aeroportos = document.getElementById('simAeroportos'); aeroportos.replaceChildren();
+      (mapa.aeroportos || []).forEach(a => {
+        const g = elementoSVG('g');
+        g.appendChild(elementoSVG('circle', { cx: a.x, cy: a.y, r: a.aguardando ? 6 : 4, class: a.aguardando ? 'sim-espera' : 'sim-aeroporto' }));
+        g.appendChild(elementoSVG('title', {}, a.iata + ' · ' + a.cidade + (a.aguardando ? ' · ' + a.aguardando + ' voo(s) aguardando tripulação' : '')));
+        g.appendChild(elementoSVG('text', { x: a.x + 8, y: a.y - 8, class: 'sim-label' }, a.iata));
+        aeroportos.appendChild(g);
+      });
+      const seletor = document.getElementById('radarVoo');
+      seletor.replaceChildren();
+      const opcao = document.createElement('option'); opcao.value = '';
+      opcao.textContent = (mapa.voos || []).length ? 'Selecione um voo' : 'Nenhum voo em andamento';
+      seletor.appendChild(opcao); seletor.disabled = !(mapa.voos || []).length;
+      const ids = new Set();
+      (mapa.voos || []).forEach(v => {
+        const option = document.createElement('option'); option.value = v.id;
+        option.textContent = v.codigo + ' · ' + v.origem.iata + ' → ' + v.destino.iata;
+        seletor.appendChild(option);
+        ids.add(v.id);
+        rotas.appendChild(elementoSVG('line', { x1: v.origem.x, y1: v.origem.y, x2: v.destino.x, y2: v.destino.y, class: 'sim-rota' }));
+        let g = avioesSimulados.get(v.id);
+        if (!g) {
+          g = elementoSVG('g', { tabindex: '0', role: 'button', 'data-voo': v.id });
+          const desenho = elementoSVG('g');
+          desenho.appendChild(elementoSVG('circle', { r: 22, fill: 'transparent' }));
+          desenho.appendChild(elementoSVG('path', { d: 'M0 -14 L2 -2 L13 5 L13 8 L2 4 L2 11 L6 14 L-6 14 L-2 11 L-2 4 L-13 8 L-13 5 L-2 -2 Z' }));
+          g.appendChild(desenho);
+          g.appendChild(elementoSVG('title'));
+          const selecionar = () => { vooSelecionado = v.id; mostrarMapaSimulado(window.estadoOperacao); };
+          g.addEventListener('click', selecionar);
+          g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selecionar(); } });
+          document.getElementById('simAvioes').appendChild(g); avioesSimulados.set(v.id, g);
+        }
+        g.setAttribute('class', 'sim-aviao' + (dados.rodando ? '' : ' pausado') + (v.id === vooSelecionado ? ' selecionado' : ''));
+        g.style.transform = 'translate(' + v.x + 'px, ' + v.y + 'px)';
+        g.dataset.rumo = v.rumo;
+        g.setAttribute('aria-label', 'Voo simulado ' + v.codigo + ': ' + v.origem.iata + ' para ' + v.destino.iata);
+        g.lastChild.textContent = v.codigo + ' · ' + v.progresso + '%';
+      });
+      for (const [id, g] of avioesSimulados) { if (!ids.has(id)) { g.remove(); avioesSimulados.delete(id); } }
+      document.getElementById('radarStatus').textContent = !dados.iniciada
+        ? 'Inicie a operação em Escalas para acompanhar os voos simulados.'
+        : (dados.rodando ? 'Simulação em andamento · ' : 'Simulação pausada · ') + dados.relogio + ' · ' +
+          (mapa.voos || []).length + ' voo(s) no mapa · ' + (dados.aguardando || 0) + ' aguardando tripulação' +
+          (mapa.sem_coordenadas ? ' · ' + mapa.sem_coordenadas + ' voo(s) sem coordenadas cadastradas' : '');
+      seletor.value = vooSelecionado || '';
+      dimensionarAvioesSimulados();
+      detalhesVooSimulado();
+    }
+    document.getElementById('radarVoo').addEventListener('change', e => {
+      vooSelecionado = e.target.value || null; mostrarMapaSimulado(window.estadoOperacao);
+    });
+    document.getElementById('radarMais').addEventListener('click', () => zoomMapa(1.5));
+    document.getElementById('radarMenos').addEventListener('click', () => zoomMapa(1 / 1.5));
+    document.getElementById('radarBrasil').addEventListener('click', () => { centroSimulado = [450, 450]; zoomSimulado = 1; zoomMapa(1); });
+    document.getElementById('radarControlar').addEventListener('click', () => document.querySelector('.nav-btn[data-screen="escalas"]').click());
+    let arrastoMapa = null;
+    const svgMapa = document.getElementById('radarSimulado');
+    svgMapa.addEventListener('pointerdown', e => {
+      if (e.target.closest('.sim-aviao')) return;
+      arrastoMapa = { x: e.clientX, y: e.clientY, centro: centroSimulado.slice() };
+      svgMapa.setPointerCapture(e.pointerId);
+    });
+    svgMapa.addEventListener('pointermove', e => {
+      if (!arrastoMapa) return;
+      const escala = 900 / zoomSimulado / Math.min(svgMapa.clientWidth, svgMapa.clientHeight);
+      centroSimulado = [arrastoMapa.centro[0] - (e.clientX - arrastoMapa.x) * escala,
+                        arrastoMapa.centro[1] - (e.clientY - arrastoMapa.y) * escala];
+      zoomMapa(1);
+    });
+    ['pointerup', 'pointercancel'].forEach(tipo => svgMapa.addEventListener(tipo, () => { arrastoMapa = null; }));
+
     window.estadoOperacao = null;
     function mostrarOperacao(dados) {
       window.estadoOperacao = dados;
+      mostrarMapaSimulado(dados);
       atualizarPainelAcumulado();
       const button = document.getElementById('btnOperacao');
       button.textContent = dados.rodando ? 'Pausar operação' : dados.concluida ? 'Iniciar nova operação' :
@@ -2034,7 +2197,10 @@ async function iniciarPainel() {
         if (res.status === 401) { window.location.href = 'login.html'; return; }
         if (!res.ok) throw new Error('HTTP ' + res.status);
         mostrarOperacao(await res.json());
-      } catch (e) { document.getElementById('operacaoStatus').textContent = 'Não foi possível consultar a operação: ' + e.message; }
+      } catch (e) {
+        document.getElementById('operacaoStatus').textContent = 'Não foi possível consultar a operação: ' + e.message;
+        document.getElementById('radarStatus').textContent = 'Atualização da simulação indisponível. Aguardando nova consulta; últimas posições mantidas.';
+      }
     };
     document.getElementById('btnOperacao').addEventListener('click', async e => {
       e.target.disabled = true;
@@ -2392,6 +2558,7 @@ async function iniciarPainel() {
           window.carregarDisrupcoes();
         }
 
+        if (name === 'painel') requestAnimationFrame(dimensionarAvioesSimulados);
         const target = document.getElementById('screen-' + name);
         if (target) target.focus();
       } catch(e) {}

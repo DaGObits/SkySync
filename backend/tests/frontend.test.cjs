@@ -47,48 +47,63 @@ function estado(rodando = true) {
 }
 
 for (const file of ['docs/index.html', 'backend/static/index.html']) {
-  test(`${file}: radar incorporado, link alternativo e nenhuma consulta às fontes pelo Render`, async () => {
-    let consultasFonte = 0;
+  test(`${file}: mapa acompanha operação, pausa, tripulação e pouso sem serviços externos`, async () => {
+    const aeroporto = (iata, x, y) => ({ iata, cidade: iata, x, y });
+    const voo = { id: 'A', codigo: 'TEST-A', origem: aeroporto('GRU', 600, 650), destino: aeroporto('MAO', 300, 250),
+      x: 450, y: 450, rumo: -30, progresso: 50, restante: '00h30', atraso_minutos: 0,
+      tripulacao: [{ nome: '<img src=x onerror=alert(1)>', cargo: 'Comandante', jornada: '00h30', limite: '11h00' }] };
+    let op = { ...estado(), mapa: { contorno: [[100,100],[800,100],[700,800]], aeroportos: [voo.origem, voo.destino], voos: [voo], sem_coordenadas: 0 } };
+    const externas = [];
     const { page, browser, errors } = await abrir(file, async (r, u) => {
-      if (u.pathname.startsWith('/api/ao-vivo')) consultasFonte++;
-      if (u.hostname !== 'www.flightradar24.com') return false;
-      assert.equal(u.pathname, '/simple_index.php');
-      assert.equal(u.searchParams.get('lat'), '-14');
-      assert.equal(u.searchParams.get('lon'), '-52');
-      assert.equal(u.searchParams.get('z'), '4');
-      await r.fulfill({ contentType: 'text/html', body: '<html><body><p>Radar externo de teste</p></body></html>' }); return true;
+      if (/flightradar|opensky|adsb|airplanes|openstreetmap/.test(u.hostname) || u.pathname.startsWith('/api/ao-vivo')) externas.push(u.href);
+      if (u.pathname !== '/api/operacao') return false;
+      await r.fulfill({ json: op }); return true;
     });
     try {
-      await page.frameLocator('#radarFrame').getByText('Radar externo de teste').waitFor();
-      const iframe = page.locator('#radarFrame');
-      assert.match(await iframe.getAttribute('title'), /Flightradar24/);
-      const link = page.locator('#radarAbrir');
-      assert.equal(await link.getAttribute('href'), await iframe.getAttribute('src'));
-      assert.equal(await link.getAttribute('target'), '_blank');
-      assert.match(await link.getAttribute('rel'), /noopener/);
-      assert.equal(await page.locator('#mapaMalha, #radarMapa, #radarBusca, .radar-aviao').count(), 0);
-      await page.clock.install();
-      await page.clock.fastForward(65000);
-      assert.equal(consultasFonte, 0);
-      await page.locator('.nav-btn[data-screen="tripulantes"]').click();
-      await page.locator('.nav-btn[data-screen="painel"]').click();
-      assert.equal(await iframe.isVisible(), true);
+      await page.waitForFunction(() => document.querySelectorAll('.sim-aviao').length === 1);
+      assert.equal(await page.locator('iframe').count(), 0);
+      assert.match(await page.locator('#radarStatus').textContent(), /Simulação em andamento/);
+      await page.locator('#radarVoo').selectOption('A');
+      assert.match(await page.locator('.sim-aviao').getAttribute('class'), /selecionado/);
+      await page.locator('.sim-aviao').press('Enter');
+      assert.match(await page.locator('#radarDetalhes').textContent(), /TEST-A.*GRU → MAO.*50%.*00h30.*Comandante.*11h00/s);
+      assert.equal(await page.locator('#radarDetalhes img').count(), 0);
+      voo.x = 500; voo.progresso = 70;
+      await page.evaluate(() => window.carregarOperacao());
+      assert.match(await page.locator('.sim-aviao').getAttribute('style'), /500px/);
+      assert.match(await page.locator('#radarDetalhes').textContent(), /70%/);
+      op.rodando = false;
+      await page.evaluate(() => window.carregarOperacao());
+      assert.match(await page.locator('#radarStatus').textContent(), /Simulação pausada/);
+      assert.match(await page.locator('.sim-aviao').getAttribute('class'), /pausado/);
+      await page.locator('#radarMais').click();
+      assert.notEqual(await page.locator('#radarSimulado').getAttribute('viewBox'), '0 0 900 900');
+      await page.locator('#radarBrasil').click();
+      assert.equal(await page.locator('#radarSimulado').getAttribute('viewBox'), '0 0 900 900');
+      op.mapa.voos = [];
+      await page.evaluate(() => window.carregarOperacao());
+      assert.equal(await page.locator('.sim-aviao').count(), 0);
+      assert.match(await page.locator('#radarDetalhes').textContent(), /não está mais em andamento/);
       await page.setViewportSize({ width: 390, height: 844 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-      const bounds = await iframe.boundingBox();
-      assert.ok(bounds.width <= 390 && bounds.height >= 380);
+      await page.locator('#radarControlar').click();
+      assert.equal(await page.locator('#screen-escalas').isVisible(), true);
+      assert.deepEqual(externas, []);
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   });
 
-  test(`${file}: link alternativo permanece acessível quando radar externo é bloqueado`, async () => {
-    const { page, browser, errors } = await abrir(file);
+  test(`${file}: mapa orienta iniciar e mantém posições quando consulta falha`, async () => {
+    let falha = false;
+    const { page, browser, errors } = await abrir(file, async (r, u) => {
+      if (u.pathname !== '/api/operacao') return false;
+      await r.fulfill({ status: falha ? 503 : 200, json: { iniciada: false, mapa: { contorno: [], aeroportos: [], voos: [] } } }); return true;
+    });
     try {
-      assert.equal(await page.locator('#radarAbrir').isVisible(), true);
-      assert.match(await page.locator('#radarFonte').textContent(), /Se o radar não aparecer/);
-      assert.equal(await page.locator('#radarStatus').count(), 0);
-      await page.locator('.nav-btn[data-screen="escalas"]').click();
-      assert.equal(await page.locator('#screen-escalas').isVisible(), true);
+      await page.waitForFunction(() => document.getElementById('radarStatus').textContent.includes('Inicie a operação'));
+      falha = true;
+      await page.evaluate(() => window.carregarOperacao());
+      assert.match(await page.locator('#radarStatus').textContent(), /últimas posições mantidas/);
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   });
