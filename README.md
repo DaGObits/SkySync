@@ -208,6 +208,30 @@ merge, sem nova chave. Endpoints autenticados: `GET /api/operacao`,
 Os endpoints antigos de cenários continuam disponíveis para compatibilidade,
 mas os seus formulários e botões foram removidos da interface.
 
+### Radar de voos ao vivo
+
+O painel inicial mostra um mapa interativo com posições reais via ADS-B, no lugar
+do desenho da malha cadastrada. É possível ampliar, arrastar, buscar o identificador
+do voo e clicar no avião para ver altitude, velocidade, rumo e horário da posição.
+O radar é independente da operação simulada; não cria disrupções nem identifica
+tripulantes a bordo.
+
+`GET /api/ao-vivo?limite=500` consulta OpenSky e, na falha, airplanes.live em cinco
+pontos do Brasil (cobertura parcial). O servidor atualiza o cache de cinco minutos
+em uma thread por worker, iniciada sob demanda, sem bloquear o worker HTTP.
+Durante a primeira consulta o radar avisa que está atualizando e consulta o cache
+a cada cinco segundos; depois consulta a cada minuto, sem requisições simultâneas.
+Falhas externas mantêm a última observação e mostram aviso, com nova tentativa
+após pelo menos um minuto. Sem posições válidas, nenhum avião é inventado.
+Não há movimento interpolado entre observações nem garantia de cobertura completa.
+Os limites das fontes públicas podem interromper as atualizações.
+
+Leaflet 1.9.4 e sua licença BSD estão em `assets/leaflet` nas duas versões da página.
+O navegador carrega os tiles de `tile.openstreetmap.org`, com atribuição visível.
+Se os tiles falharem, um aviso informa que o fundo está indisponível.
+Após o merge, publicar Pages e Render; não há nova chave ou migração de banco.
+A versão da interface em Configurações é `radar-1`.
+
 ### Disrupções operacionais
 
 A aba **Disrupções** consulta `GET /api/disrupcoes`, que lê a tabela existente
