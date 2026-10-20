@@ -22,6 +22,9 @@ async function abrir(file, responder = async () => false) {
     const url = new URL(route.request().url());
     if (await responder(route, url)) return;
     if (url.origin !== 'http://localhost') return route.abort();
+    if (url.pathname === '/assets/brasil.svg') {
+      return route.fulfill({ contentType: 'image/svg+xml', body: readFileSync(resolve(__dirname, '../..', dirname(file), 'assets/brasil.svg')) });
+    }
     if (['/', '/index.html', '/login.html'].includes(url.pathname)) {
       const arquivo = url.pathname === '/login.html' ? dirname(file) + '/login.html' : file;
       return route.fulfill({ contentType: 'text/html', body: readFileSync(resolve(__dirname, '../..', arquivo), 'utf8') });
@@ -62,6 +65,7 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
     try {
       await page.waitForFunction(() => document.querySelectorAll('.sim-aviao').length === 1);
       assert.equal(await page.locator('iframe').count(), 0);
+      assert.equal(await page.locator('#simContorno').getAttribute('href'), 'assets/brasil.svg');
       assert.match(await page.locator('#radarStatus').textContent(), /Simulação em andamento/);
       await page.locator('#radarVoo').selectOption('A');
       assert.match(await page.locator('.sim-aviao').getAttribute('class'), /selecionado/);

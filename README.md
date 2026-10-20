@@ -230,13 +230,19 @@ válidas são contabilizados em um aviso, sem receber posições inventadas. Os
 controles de zoom, arrasto e **Brasil** alteram apenas a visualização. Falhas na
 consulta preservam as últimas posições com aviso; os GETs não avançam a operação.
 
+O fundo usa o contorno Natural Earth 1:10.000.000, incluindo ilhas, no arquivo local
+`assets/brasil.svg`. Aeroportos e fundo compartilham a mesma projeção; o enquadramento
+inclui Fernando de Noronha. Fonte, licença e instruções de regeneração estão em
+`backend/dados/geografia/README.md`. O SVG é carregado uma vez e pode ser cacheado,
+sem enviar seus 11 mil pontos em cada consulta da simulação.
+
 O mapa é SVG local, sem iframe, API de rastreamento ou tiles externos. Não precisa
 de conta, chave ou mudança de plano. Não representa tráfego real; a Aviationstack
 continua independente e usada para as disrupções reais. Os endpoints antigos
 `/api/ao-vivo` continuam disponíveis para compatibilidade, sem uso pelo painel.
 
 Após o merge, publicar **Render e Pages**, sem migração de banco. A versão exibida
-em Configurações é `simulacao-mapa-1`. Estados de simulação já existentes são
+em Configurações é `simulacao-mapa-2`. Estados de simulação já existentes são
 compatíveis, inclusive voos de dias seguintes e decolagens fora do horário previsto.
 
 ### Disrupções operacionais
