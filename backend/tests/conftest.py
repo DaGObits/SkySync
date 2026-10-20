@@ -37,11 +37,9 @@ CAMINHO_BANCO = Path(os.getenv("SKYSYNC_TEST_DB", str(RAIZ / ".teste_skysync.db"
 #: `aeroportos` NÃO está aqui: é dado de referência, e o `dados.malha` lê dela.
 TABELAS = [
     "operacao_simulada",
-    "importacao_voos_eventos",
-    "importacao_voos_estado",
+    "disrupcoes_simuladas",
     "execucoes_otimizacao",
     "historico_escalas",
-    "disrupcoes",
     "escalas",
     "jornadas",
     "voos",

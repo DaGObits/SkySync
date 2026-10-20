@@ -99,29 +99,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_historico_versao ON historico_escalas (vers
 CREATE INDEX IF NOT EXISTS ix_historico_criado_em ON historico_escalas (criado_em DESC);
 
 -- ---------------------------------------------------------------------------
--- Disrupcoes operacionais
--- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS disrupcoes (
-    id         SERIAL PRIMARY KEY,
-    voo        TEXT        NOT NULL,
-    tripulante TEXT        NOT NULL DEFAULT '',
-    cargo      TEXT        NOT NULL DEFAULT '',
-    risco      TEXT        NOT NULL DEFAULT 'baixo'
-                           CHECK (risco IN ('alto', 'medio', 'baixo')),
-    descricao  TEXT        NOT NULL DEFAULT '',
-    rota       TEXT        NOT NULL DEFAULT '',
-    horario    TEXT        NOT NULL DEFAULT '',
-    horas      TEXT        NOT NULL DEFAULT '',
-    limit_rbac TEXT        NOT NULL DEFAULT '',
-    solucao    TEXT        NOT NULL DEFAULT '',
-    bloqueado  BOOLEAN     NOT NULL DEFAULT FALSE,
-    base       TEXT        NOT NULL DEFAULT '',
-    criado_em  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS ix_disrupcoes_base ON disrupcoes (base);
-
--- ---------------------------------------------------------------------------
 -- Execucoes do otimizador (auditoria + dados do capitulo de resultados)
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS execucoes_otimizacao (
@@ -155,26 +132,19 @@ CREATE TABLE IF NOT EXISTS schema_version (
 INSERT INTO schema_version (versao) VALUES (4)
     ON CONFLICT (versao) DO NOTHING;
 
--- Não altera os registros manuais nem os dados operacionais existentes.
-CREATE TABLE IF NOT EXISTS importacao_voos_estado (
-    fonte TEXT PRIMARY KEY,
-    proxima_consulta TEXT NOT NULL,
-    ultima_tentativa TEXT,
-    ultimo_sucesso TEXT,
-    ultimo_erro TEXT,
-    dia_cota TEXT NOT NULL,
-    chamadas_dia INTEGER NOT NULL DEFAULT 0,
-    parcial BOOLEAN NOT NULL DEFAULT FALSE
-);
-CREATE TABLE IF NOT EXISTS importacao_voos_eventos (
-    chave TEXT PRIMARY KEY,
-    disrupcao_id INTEGER UNIQUE NOT NULL REFERENCES disrupcoes(id) ON DELETE CASCADE,
-    fonte TEXT NOT NULL DEFAULT 'aviationstack',
-    observado_em TEXT NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS operacao_simulada (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     estado TEXT NOT NULL,
     atualizado_em TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS disrupcoes_simuladas (
+    id TEXT PRIMARY KEY,
+    operacao_id TEXT NOT NULL,
+    risco TEXT NOT NULL,
+    ativo BOOLEAN NOT NULL,
+    minuto INTEGER NOT NULL,
+    atualizado_minuto INTEGER NOT NULL,
+    registro TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_disrupcoes_simuladas_operacao ON disrupcoes_simuladas (operacao_id, ativo, atualizado_minuto);

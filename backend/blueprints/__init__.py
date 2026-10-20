@@ -1,7 +1,6 @@
 """Blueprints da API do SkySync."""
 
 from blueprints import (
-    ao_vivo,
     auth,
     cenarios,
     disrupcoes,
@@ -28,13 +27,11 @@ TODOS = (
     cenarios.bp,
     tripulantes.bp,
     escalas_voos.bp,
-    ao_vivo.bp,
     mapa.bp,
 )
 
 __all__ = [
     "TODOS",
-    "ao_vivo",
     "auth",
     "cenarios",
     "disrupcoes",

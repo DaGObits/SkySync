@@ -618,7 +618,7 @@
 
       <div class="kpi-grid">
         <button type="button" class="kpi-card" data-screen="disrupcoes">
-          <span class="kpi-label" data-i18n="kpiActiveDisruptions">Ocorrências com risco alto/médio</span>
+          <span class="kpi-label" data-i18n="kpiActiveDisruptions">Disrupções em andamento</span>
           <span class="kpi-value" id="kpiActiveCount"><span class="kpi-loading" aria-label="Carregando"></span></span>
           <span class="kpi-hint" id="kpiHighFatigueHint" data-i18n="kpiHighFatigue">ocorrência(s) de risco alto</span>
         </button>
@@ -695,29 +695,17 @@
     <!-- ABA DE DISRUPÇÕES -->
     <section class="screen" id="screen-disrupcoes" aria-labelledby="disrupcoes-h" tabindex="-1" hidden>
       <h1 id="disrupcoes-h"><span data-i18n="disruptionsTitle">Disrupções</span> <span class="count-pill" id="alertCount">—</span></h1>
-      <p class="lede" data-i18n="disruptionsSubtitle">Ocorrências operacionais registradas no banco, independentes das escalas publicadas.</p>
+      <p class="lede" data-i18n="disruptionsSubtitle">Atrasos, falta de tripulação e remanejamentos registrados automaticamente na operação simulada.</p>
       
       <div class="disruptions-toolbar">
         <button type="button" class="filter-btn active" data-filter="all" data-i18n="filterAll">Todas</button>
         <button type="button" class="filter-btn" data-filter="alto" data-i18n="filterHigh">Risco Alto</button>
         <button type="button" class="filter-btn" data-filter="medio" data-i18n="filterMedium">Risco Médio</button>
-        <button type="button" class="filter-btn" data-filter="baixo" data-i18n="filterNormal">Normal</button>
+        <button type="button" class="filter-btn" data-filter="encerradas" data-i18n="filterNormal">Encerradas</button>
       </div>
 
       <button type="button" class="btn-secondary" id="btnAtualizarDisrupcoes">Atualizar ocorrências</button>
-      <p id="importacaoStatus" role="status">Verificando importação automática…</p>
-      <p id="disruptionsStatus" role="status">Carregando ocorrências…</p>
-      <details style="margin:16px 0">
-        <summary>Registrar ocorrência operacional</summary>
-        <form id="formDisrupcao" style="display:grid;gap:12px;margin:16px 0;max-width:600px">
-          <label>Voo <input class="setting-input" id="disrupcaoVoo" required maxlength="30" placeholder="Código do voo"></label>
-          <label>Descrição <textarea class="setting-input" id="disrupcaoDescricao" required minlength="5" maxlength="2000"></textarea></label>
-          <label>Risco <select class="setting-select" id="disrupcaoRisco"><option value="medio">Médio</option><option value="alto">Alto</option><option value="baixo">Baixo</option></select></label>
-          <label>Rota (opcional) <input class="setting-input" id="disrupcaoRota" maxlength="100"></label>
-          <button class="btn-primary" id="btnRegistrarDisrupcao" type="submit">Salvar ocorrência</button>
-          <p id="disrupcaoRegistroStatus" role="status"></p>
-        </form>
-      </details>
+      <p id="disruptionsStatus" role="status">Carregando ocorrências da simulação…</p>
 
       <div class="alert-grid" id="disruptionsGrid">
         <!-- Preenchido dinamicamente com histórico completo -->
@@ -826,7 +814,7 @@
 
       <div class="setting-card" style="margin-bottom:20px">
         <h2 class="setting-card-title">Estado da aplicação</h2>
-        <p>Interface: <strong id="interfaceVersion">simulacao-mapa-2</strong></p>
+        <p>Interface: <strong id="interfaceVersion">simulacao-integrada-1</strong></p>
         <p id="sessionStatus" role="status">Verificando sessão…</p>
         <button type="button" class="btn-secondary" id="btnDiagnostico">Verificar conexão</button>
         <p id="connectionStatus" role="status">Aguardando verificação.</p>
@@ -1149,7 +1137,7 @@ async function iniciarPainel() {
         menuSettings: 'Configurações',
         panelTitle: 'Painel de replanejamento — Base',
         panelSubtitle: 'Acompanhamento em tempo real de disrupções, jornadas e conformidade com a Lei do Aeronauta e a RBAC 117.',
-        kpiActiveDisruptions: 'Ocorrências com risco alto/médio',
+        kpiActiveDisruptions: 'Disrupções em andamento',
         kpiHighFatigue: 'ocorrência(s) de risco alto',
         kpiImpactedCount: 'Trocas realizadas',
         kpiBlockedRbac: 'em repouso ou com restrição',
@@ -1163,11 +1151,11 @@ async function iniciarPainel() {
         compliantLegend: 'Demais tripulantes',
         rbacComplianceTitle: 'Horas dentro do limite configurado',
         disruptionsTitle: 'Disrupções',
-        disruptionsSubtitle: 'Ocorrências operacionais registradas no banco, independentes das escalas publicadas.',
+        disruptionsSubtitle: 'Atrasos, falta de tripulação e remanejamentos registrados automaticamente na operação simulada.',
         filterAll: 'Todas',
         filterHigh: 'Risco Alto',
         filterMedium: 'Risco Médio',
-        filterNormal: 'Normal',
+        filterNormal: 'Encerradas',
         schedulesTitle: 'Escalas cruzadas afetadas',
         schedulesSubtitle: 'Jornada acumulada e conformidade dos tripulantes envolvidos nas disrupções ativas e rotas regulares.',
         crewMembersWord: 'tripulantes',
@@ -1286,7 +1274,7 @@ async function iniciarPainel() {
         menuSettings: 'Settings',
         panelTitle: 'Rescheduling Dashboard — Base',
         panelSubtitle: 'Real-time tracking of disruptions, crew duties, and compliance with aviation regulations.',
-        kpiActiveDisruptions: 'High/medium risk occurrences',
+        kpiActiveDisruptions: 'Ongoing disruptions',
         kpiHighFatigue: 'high risk occurrence(s)',
         kpiImpactedCount: 'Impacted crew members',
         kpiBlockedRbac: 'blocked by regulations',
@@ -1300,11 +1288,11 @@ async function iniciarPainel() {
         compliantLegend: 'Compliant',
         rbacComplianceTitle: 'Hours within the configured limit',
         disruptionsTitle: 'Disruptions',
-        disruptionsSubtitle: 'Operational occurrences recorded in the database, independent of published schedules.',
+        disruptionsSubtitle: 'Delays, crew shortages and reassignments from the simulated operation.',
         filterAll: 'All',
         filterHigh: 'High Risk',
         filterMedium: 'Medium Risk',
-        filterNormal: 'Normal',
+        filterNormal: 'Encerradas',
         schedulesTitle: 'Affected Cross-Schedules',
         schedulesSubtitle: 'Accumulated duty time and compliance of crew members involved in active disruptions.',
         crewMembersWord: 'crew members',
@@ -1423,7 +1411,7 @@ async function iniciarPainel() {
         menuSettings: 'Configuración',
         panelTitle: 'Panel de reprogramación — Base',
         panelSubtitle: 'Seguimiento en tiempo real de disrupciones, jornadas y cumplimiento normativo.',
-        kpiActiveDisruptions: 'Incidencias de riesgo alto/medio',
+        kpiActiveDisruptions: 'Disrupciones en curso',
         kpiHighFatigue: 'incidencia(s) de riesgo alto',
         kpiImpactedCount: 'Tripulantes afectados',
         kpiBlockedRbac: 'bloqueados por regulaciones',
@@ -1437,11 +1425,11 @@ async function iniciarPainel() {
         compliantLegend: 'Demais tripulantes',
         rbacComplianceTitle: 'Horas dentro del límite configurado',
         disruptionsTitle: 'Disrupciones',
-        disruptionsSubtitle: 'Incidencias operativas registradas en la base de datos, independientes de las escalas publicadas.',
+        disruptionsSubtitle: 'Retrasos, falta de tripulación y reasignaciones de la operación simulada.',
         filterAll: 'Todas',
         filterHigh: 'Riesgo Alto',
         filterMedium: 'Riesgo Medio',
-        filterNormal: 'Normal',
+        filterNormal: 'Encerradas',
         schedulesTitle: 'Tripulaciones afectadas',
         schedulesSubtitle: 'Jornada acumulada y cumplimiento de los tripulantes involucrados.',
         crewMembersWord: 'tripulantes',
@@ -1600,6 +1588,8 @@ async function iniciarPainel() {
     let filtroAtual = 'all';
     let disrupcoesDoBanco = [];
     let disrupcoesCarregadas = false;
+    let resumoDisrupcoes = { ativas: 0, altas: 0 };
+    let consultandoDisrupcoes = false;
 
     function carregarDadosLocais() {
       try {
@@ -1662,12 +1652,13 @@ async function iniciarPainel() {
       const grid = document.getElementById('disruptionsGrid');
       if (!grid) return;
       grid.replaceChildren();
-      const filtradas = disrupcoesDoBanco.filter(d => filtroAtual === 'all' || d.risco === filtroAtual);
+      const filtradas = disrupcoesDoBanco.filter(d => filtroAtual === 'all' ||
+        (filtroAtual === 'encerradas' ? !d.ativo : d.risco === filtroAtual));
       if (!filtradas.length) {
         const mensagem = document.createElement('p');
         mensagem.textContent = !disrupcoesCarregadas ? 'Aguardando consulta de ocorrências.' :
           disrupcoesDoBanco.length ? 'Nenhuma ocorrência nesta categoria.' :
-          'Nenhuma ocorrência registrada. Use o formulário para registrar uma disrupção operacional.';
+          'Nenhuma disrupção nesta operação. Inicie ou continue a simulação em Escalas para acompanhar os eventos.';
         grid.appendChild(mensagem);
       }
       filtradas.forEach(d => {
@@ -1681,8 +1672,12 @@ async function iniciarPainel() {
         const descricao = document.createElement('p');
         descricao.textContent = d.descricao;
         const meta = document.createElement('p');
-        meta.textContent = [d.rota, d.horario, d.fonte === 'aviationstack' ? 'Fonte: Aviationstack' : 'Registro manual'].filter(Boolean).join(' · ');
-        article.append(titulo, risco, descricao, meta);
+        meta.textContent = [d.rota, d.horario, d.status, 'Simulação'].filter(Boolean).join(' · ');
+        const solucao = document.createElement('p');
+        solucao.textContent = d.tipo === 'remanejamento'
+          ? 'Tripulação remanejada na origem. Selecione para ver as trocas e seus motivos.'
+          : d.solucao ? 'Resultado: ' + d.solucao : '';
+        article.append(titulo, risco, descricao, meta, solucao);
         // Dados da ocorrência são texto, nunca HTML executável.
         article.tabIndex = 0;
         article.setAttribute('role', 'button');
@@ -1696,32 +1691,16 @@ async function iniciarPainel() {
         });
         grid.appendChild(article);
       });
-      const ativas = disrupcoesDoBanco.filter(d => d.risco !== 'baixo').length;
-      document.getElementById('alertCount').textContent = disrupcoesCarregadas ? ativas + ' com risco alto/médio' : '—';
+      const ativas = resumoDisrupcoes.ativas;
+      document.getElementById('alertCount').textContent = disrupcoesCarregadas ? ativas + ' em andamento' : '—';
       document.getElementById('kpiActiveCount').textContent = disrupcoesCarregadas ? ativas : '—';
-      const altas = disrupcoesDoBanco.filter(d => d.risco === 'alto').length;
-      document.getElementById('kpiHighFatigueHint').textContent = disrupcoesCarregadas ? altas + ' ocorrência(s) de risco alto' : 'Aguardando ocorrências';
-    }
-
-    async function carregarStatusImportacao() {
-      const status = document.getElementById('importacaoStatus');
-      try {
-        const res = await fetchComPrazo(`${API_URL}/disrupcoes/importacao/status`, { credentials: 'include' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const dados = await res.json();
-        if (!dados.configurada) {
-          status.textContent = 'Importação automática aguardando a chave AVIATIONSTACK_API_KEY no Render.';
-          return;
-        }
-        const sucesso = dados.ultimo_sucesso ? new Date(dados.ultimo_sucesso).toLocaleString() : 'nenhuma consulta concluída';
-        status.textContent = 'Aviationstack · Saídas de ' + dados.aeroporto + ' · Última consulta: ' + sucesso +
-          (dados.agendador_ativo === false ? ' · Agendador não iniciado: confira o Start Command do Render.' : '') +
-          (dados.ultimo_erro ? ' · ' + dados.ultimo_erro : '') +
-          (dados.parcial ? ' · Cobertura parcial: a consulta retornou somente a primeira página de voos.' : '');
-      } catch (e) { status.textContent = 'Importação automática indisponível: ' + e.message; }
+      const altas = resumoDisrupcoes.altas;
+      document.getElementById('kpiHighFatigueHint').textContent = disrupcoesCarregadas ? altas + ' em andamento com risco alto' : 'Aguardando ocorrências';
     }
 
     window.carregarDisrupcoes = async function () {
+      if (consultandoDisrupcoes) return;
+      consultandoDisrupcoes = true;
       const status = document.getElementById('disruptionsStatus');
       status.textContent = 'Consultando ocorrências…';
       try {
@@ -1731,42 +1710,15 @@ async function iniciarPainel() {
         const dados = await res.json();
         if (!Array.isArray(dados.disrupcoes)) throw new Error('Resposta de ocorrências inválida');
         disrupcoesDoBanco = dados.disrupcoes;
+        resumoDisrupcoes = { ativas: dados.ativas || 0, altas: dados.altas || 0 };
         disrupcoesCarregadas = true;
         gerarDisruptionsDinamicas();
-        status.textContent = dados.retornados + ' de ' + dados.total + ' ocorrência(s) registrada(s).';
-        await carregarStatusImportacao();
+        status.textContent = dados.retornados + ' de ' + dados.total + ' ocorrência(s) da simulação · ' + resumoDisrupcoes.ativas + ' em andamento. Atualização automática.';
       } catch (e) {
         status.textContent = 'Não foi possível carregar as disrupções: ' + e.message;
-      }
+      } finally { consultandoDisrupcoes = false; }
     };
     document.getElementById('btnAtualizarDisrupcoes').addEventListener('click', window.carregarDisrupcoes);
-    document.getElementById('formDisrupcao').addEventListener('submit', async e => {
-      e.preventDefault();
-      const status = document.getElementById('disrupcaoRegistroStatus');
-      const button = document.getElementById('btnRegistrarDisrupcao');
-      button.disabled = true;
-      status.textContent = 'Salvando ocorrência…';
-      try {
-        const res = await fetchComPrazo(`${API_URL}/disrupcoes`, {
-          method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            voo: document.getElementById('disrupcaoVoo').value,
-            descricao: document.getElementById('disrupcaoDescricao').value,
-            risco: document.getElementById('disrupcaoRisco').value,
-            rota: document.getElementById('disrupcaoRota').value
-          })
-        });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
-        const dados = await res.json();
-        if (!res.ok) throw new Error(dados.campos ? Object.values(dados.campos).join(' ') : dados.erro || 'HTTP ' + res.status);
-        e.target.reset();
-        status.textContent = 'Ocorrência salva no banco.';
-        await window.carregarDisrupcoes();
-      } catch (err) {
-        status.textContent = 'Ocorrência não confirmada: ' + err.message + '. Atualize a lista antes de tentar novamente.';
-      } finally { button.disabled = false; }
-    });
-
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -2164,6 +2116,7 @@ async function iniciarPainel() {
     window.estadoOperacao = null;
     function mostrarOperacao(dados) {
       window.estadoOperacao = dados;
+      window.carregarDisrupcoes();
       mostrarMapaSimulado(dados);
       atualizarPainelAcumulado();
       const button = document.getElementById('btnOperacao');
@@ -2717,7 +2670,6 @@ async function iniciarPainel() {
         if (tripulantes && !tripulantes.hidden) carregarTripulantes(true);
       }
     }, 5000);
-    setInterval(() => { if (!document.hidden) window.carregarDisrupcoes(); }, 60000);
   } catch (err) {
     console.error("Erro geral recuperado no SkySync:", err);
   }

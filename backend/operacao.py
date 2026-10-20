@@ -1,6 +1,6 @@
 """Operação simulada contínua: posição, voo, repouso e remanejamentos.
 
-Não modifica jornadas/voos/escalas operacionais nem ocorrências da Aviationstack.
+Mantém jornadas, posições e ocorrências da simulação em tabelas isoladas.
 O relógio avança 60 vezes mais rápido enquanto a simulação e o servidor rodam.
 """
 import copy
@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 from flask import current_app
 from db import transacao
 from models import Tripulante, Voo
+from disrupcoes_simulacao import registrar, resolver, salvar_pendentes
 from optimizer.solver import otimizar, OtimizacaoInviavel
 
 CARGOS = ['Comandante', 'Copiloto', 'Comissário', 'Comissário', 'Comissário']
@@ -141,6 +142,7 @@ def _decolar(estado, v, minuto):
             if sum(p['cargo'] == cargo for p in aptos) < quantidade:
                 v['status'] = 'Aguardando tripulação'
                 v['motivo'] = f'Sem {quantidade} substituto(s) de {cargo} apto(s) em {v["origem"]}'
+                registrar(estado, v, 'tripulacao', minuto, descricao=v['motivo'], solucao='Aguardando tripulação apta no aeroporto de origem.')
                 return
         try:
             solucao = otimizar(v['origem'], [Tripulante(id=p['id'], nome=p['nome'], cargo=p['cargo'],
@@ -153,6 +155,7 @@ def _decolar(estado, v, minuto):
         except (OtimizacaoInviavel, RuntimeError):
             v['status'] = 'Aguardando tripulação'
             v['motivo'] = 'Não foi encontrada composição viável na origem.'
+            registrar(estado, v, 'tripulacao', minuto, descricao=v['motivo'], solucao='Aguardando composição viável pelo otimizador.')
             return
         reservas = {}
         for a in solucao.alocacoes:
@@ -160,6 +163,7 @@ def _decolar(estado, v, minuto):
         for i, cargo in enumerate(CARGOS):
             if escolhidos[i] is None:
                 escolhidos[i] = reservas[cargo].pop(0)
+    trocas = []
     for anterior, novo in zip(v['plano'], escolhidos):
         if anterior != novo:
             antigo, atual = trip.get(anterior), trip[novo]
@@ -168,8 +172,20 @@ def _decolar(estado, v, minuto):
                 'local': atual['local'], 'cargo': atual['cargo'],
                 'motivo': impedimento(antigo, v, minuto) or 'Completar tripulação',
                 'jornada': hhmm(atual['horas']), 'limite': hhmm(atual['limite'])})
+            trocas.append(estado['mudancas'][-1])
             estado['total_mudancas'] += 1
     estado['mudancas'] = estado['mudancas'][-200:]
+    if trocas:
+        registrar(estado, v, 'remanejamento', minuto, risco='medio', ativo=False,
+                  descricao=f'{len(trocas)} substituição(ões) para viabilizar o voo.',
+                  solucao='; '.join(m['saiu'] + ' → ' + m['entrou'] + ' (' + m['cargo'] + '): ' + m['motivo'] for m in trocas), detalhes=trocas)
+    resolver(estado, v, 'tripulacao', minuto, 'Tripulação apta alocada na origem; voo decolou.')
+    atraso_partida = max(0, minuto - v['partida'])
+    acrescimo = max(0, v['duracao'] - v['prevista'])
+    if atraso_partida or acrescimo:
+        registrar(estado, v, 'atraso', minuto, risco='alto' if atraso_partida + acrescimo >= 60 else 'medio',
+                  descricao=f'Atraso simulado: partida {atraso_partida} min após o previsto e acréscimo de {acrescimo} min à duração.',
+                  solucao='Voo em andamento; acompanhamento até o pouso.')
     v.update(status='Em voo', alocados=escolhidos, pouso=minuto+v['duracao'], motivo='')
     for tid in escolhidos:
         trip[tid]['voo'] = v['id']
@@ -177,6 +193,11 @@ def _decolar(estado, v, minuto):
 
 
 def proximo_dia(estado):
+    for v in estado['voos'].values():
+        if v['status'] != 'Concluído':
+            registrar(estado, v, 'tripulacao', estado['minuto'],
+                      descricao=v.get('motivo') or 'Voo não atendido no ciclo da simulação.',
+                      solucao='Ciclo encerrado sem tripulação apta para executar o voo.', ativo=False, status='Não atendida')
     estado['dia_ciclo'] += 1
     estado['concluidos_anteriores'] += sum(v['status'] == 'Concluído' for v in estado['voos'].values())
     estado['nao_atendidos'] += sum(v['status'] != 'Concluído' for v in estado['voos'].values())
@@ -211,6 +232,7 @@ def avancar_estado(estado, ate):
         for v in estado['voos'].values():
             if v['status'] == 'Em voo' and minuto >= v['pouso']:
                 v['status'] = 'Concluído'
+                resolver(estado, v, 'atraso', minuto, 'Voo concluído; tripulação chegou ao destino.')
             if v['status'] in ('Programado', 'Aguardando tripulação') and v['partida'] <= minuto:
                 _decolar(estado, v, minuto)
         estado['minuto'] = minuto
@@ -226,6 +248,7 @@ def preparar_banco():
         if not current_app.config.get('TESTING'):
             conn.execute('SELECT pg_advisory_xact_lock(5739201)')
         conn.execute((Path(__file__).parent / 'migrations' / 'operacao.sql').read_text())
+        conn.execute((Path(__file__).parent / 'migrations' / 'disrupcoes_simuladas.sql').read_text())
 
 
 def _lock(conn):
@@ -240,6 +263,7 @@ def ler_estado():
 
 
 def _salvar(conn, estado, agora):
+    salvar_pendentes(conn, estado)
     conn.execute('''INSERT INTO operacao_simulada (id,estado,atualizado_em) VALUES (1,%s,%s)
         ON CONFLICT(id) DO UPDATE SET estado=excluded.estado,atualizado_em=excluded.atualizado_em''',
         (json.dumps(estado, ensure_ascii=False), agora.isoformat()))
