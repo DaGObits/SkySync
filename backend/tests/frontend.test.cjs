@@ -49,6 +49,35 @@ function estado(rodando = true) {
 }
 
 for (const file of ['docs/index.html', 'backend/static/index.html']) {
+  test(file + ': planejador escolhe o substituto antes de liberar o voo', async () => {
+    const pendente = {id:'V1', codigo:'TEST-1', origem:'GRU', destino:'MAO'};
+    let equipe = null;
+    const operacao = () => ({...estado(), operacao_id:'teste', pendentes:equipe ? [] : [pendente]});
+    const {page, browser} = await abrir(file, async (route, url) => {
+      if (url.pathname === '/api/operacao') {
+        await route.fulfill({json:operacao()}); return true;
+      }
+      if (url.pathname !== '/api/operacao/replanejamento/V1') return false;
+      if (route.request().method() === 'POST') {
+        equipe = route.request().postDataJSON().equipe;
+        await route.fulfill({json:operacao()});
+      } else {
+        await route.fulfill({json:{operacao_id:'teste', vagas:[{cargo:'Comandante', nome:'Ana',
+          motivo:'Em outro voo', opcoes:[{id:'R1', nome:'Bia'}, {id:'R2', nome:'Lia'}]}]}});
+      }
+      return true;
+    });
+    try {
+      await page.locator('.nav-btn[data-screen="escalas"]').click();
+      await page.getByText('Escolher substitutos', {exact:true}).click();
+      await page.locator('#vagasEquipe select').selectOption('R2');
+      assert.equal(equipe, null);
+      await page.getByText('Confirmar equipe e liberar voo', {exact:true}).click();
+      await page.getByText('Equipe confirmada. Voo liberado na simulação.').waitFor();
+      assert.deepEqual(equipe, ['R2']);
+    } finally { await browser.close(); }
+  });
+
   test(`${file}: mapa acompanha operação, pausa, tripulação e pouso sem serviços externos`, async () => {
     const aeroporto = (iata, x, y) => ({ iata, cidade: iata, x, y });
     const voo = { id: 'A', codigo: 'TEST-A', origem: aeroporto('GRU', 600, 650), destino: aeroporto('MAO', 300, 250),

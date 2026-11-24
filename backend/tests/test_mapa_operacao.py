@@ -1,7 +1,7 @@
 import copy
 
 from mapa_operacao import snapshot_mapa
-from operacao import novo_estado, avancar_estado
+from operacao import novo_estado, avancar_estado, aplicar_equipe
 from test_operacao import grupo, malha
 
 AEROPORTOS = [dict(iata='GRU', cidade='Guarulhos', latitude=-23.43, longitude=-46.47),
@@ -85,6 +85,8 @@ def test_mapa_mostra_tripulacao_remanejada_em_vez_do_plano_original(monkeypatch)
     assert estado['voos']['B']['plano'] == ['G' + str(i) for i in range(5)]
     estado['voos']['A']['duracao'] = 120
     avancar_estado(estado, 100)
+    assert estado['voos']['B']['status'] == 'Aguardando tripulação'
+    aplicar_equipe(estado, estado['voos']['B'], ['R' + str(i) for i in range(5)])
     mapa = snapshot_mapa(estado, AEROPORTOS)
     voo = next(v for v in mapa['voos'] if v['id'] == 'B')
     assert {p['nome'] for p in voo['tripulacao']} == {'R' + str(i) for i in range(5)}

@@ -13,9 +13,7 @@ from zoneinfo import ZoneInfo
 
 from flask import current_app
 from db import transacao
-from models import Tripulante, Voo
 from disrupcoes_simulacao import registrar, resolver, salvar_pendentes
-from optimizer.solver import otimizar, OtimizacaoInviavel
 
 CARGOS = ['Comandante', 'Copiloto', 'Comissário', 'Comissário', 'Comissário']
 INTERVALO_SOLO = 30
@@ -125,44 +123,39 @@ def novo_estado(pessoas, voos, dia=None):
     return estado
 
 
-def _decolar(estado, v, minuto):
-    trip = estado['tripulantes']
-    escolhidos, faltantes = [], {}
+def vagas_replanejamento(estado, v):
+    minuto = estado['minuto']
+    pessoas = estado['tripulantes']
+    vagas = []
     for cargo, tid in zip(CARGOS, v['plano']):
-        p = trip.get(tid)
-        if p and p['cargo'] == cargo and not impedimento(p, v, minuto):
-            escolhidos.append(tid)
-        else:
-            escolhidos.append(None)
-            faltantes[cargo] = faltantes.get(cargo, 0) + 1
-    if faltantes:
-        aptos = [p for p in trip.values() if p['id'] not in escolhidos and p['cargo'] in faltantes
-                 and not impedimento(p, v, minuto)]
-        for cargo, quantidade in faltantes.items():
-            if sum(p['cargo'] == cargo for p in aptos) < quantidade:
+        pessoa = pessoas.get(tid)
+        motivo = impedimento(pessoa, v, minuto)
+        if pessoa and pessoa['cargo'] != cargo:
+            motivo = 'Cargo incompatível'
+        vagas.append({'cargo': cargo, 'anterior': tid, 'nome': pessoa['nome'] if pessoa else 'Sem designação',
+                      'motivo': motivo})
+    fixos = {vaga['anterior'] for vaga in vagas if not vaga['motivo']}
+    for vaga in vagas:
+        if vaga['motivo']:
+            vaga['opcoes'] = [{'id': p['id'], 'nome': p['nome']} for p in pessoas.values()
+                              if p['id'] not in fixos and p['cargo'] == vaga['cargo']
+                              and not impedimento(p, v, minuto)]
+    return vagas
+
+
+def _decolar(estado, v, minuto, escolhidos=None):
+    trip = estado['tripulantes']
+    if escolhidos is None:
+        escolhidos = v['plano']
+        for cargo, tid in zip(CARGOS, escolhidos):
+            p = trip.get(tid)
+            motivo = impedimento(p, v, minuto)
+            if motivo or p['cargo'] != cargo:
                 v['status'] = 'Aguardando tripulação'
-                v['motivo'] = f'Sem {quantidade} substituto(s) de {cargo} apto(s) em {v["origem"]}'
-                registrar(estado, v, 'tripulacao', minuto, descricao=v['motivo'], solucao='Aguardando tripulação apta no aeroporto de origem.')
+                v['motivo'] = f"{cargo}: {motivo or 'Cargo incompatível'}"
+                registrar(estado, v, 'tripulacao', minuto, descricao=v['motivo'],
+                          solucao='Aguardando decisão do planejador.')
                 return
-        try:
-            solucao = otimizar(v['origem'], [Tripulante(id=p['id'], nome=p['nome'], cargo=p['cargo'],
-                base=p['local'], horas_acumuladas=p['horas']/60, limite_horas=p['limite']/60,
-                descanso_ok=p['descanso_ok'], aclimatado=p['aclimatado']) for p in aptos],
-                [Voo(id=v['id'], codigo=v['codigo'], origem=v['origem'], destino=v['destino'],
-                     duracao_horas=v['duracao']/60, pouso_noturno=v['noturno'])],
-                limite_horas=max(p['limite'] for p in aptos)/60, max_time_seconds=1,
-                composicao=faltantes, bases_por_regiao={})
-        except (OtimizacaoInviavel, RuntimeError):
-            v['status'] = 'Aguardando tripulação'
-            v['motivo'] = 'Não foi encontrada composição viável na origem.'
-            registrar(estado, v, 'tripulacao', minuto, descricao=v['motivo'], solucao='Aguardando composição viável pelo otimizador.')
-            return
-        reservas = {}
-        for a in solucao.alocacoes:
-            reservas.setdefault(a.cargo, []).append(a.tripulante_id)
-        for i, cargo in enumerate(CARGOS):
-            if escolhidos[i] is None:
-                escolhidos[i] = reservas[cargo].pop(0)
     trocas = []
     for anterior, novo in zip(v['plano'], escolhidos):
         if anterior != novo:
@@ -328,6 +321,31 @@ def iniciar_ou_pausar(rodando):
     return estado
 
 
+def aplicar_equipe(estado, voo, equipe):
+    vagas = vagas_replanejamento(estado, voo)
+    if len(equipe) != len(vagas) or len(set(equipe)) != len(vagas):
+        raise ValueError('Selecione uma pessoa diferente para cada vaga.')
+    for tid, vaga in zip(equipe, vagas):
+        permitidos = {p['id'] for p in vaga['opcoes']} if vaga['motivo'] else {vaga['anterior']}
+        if tid not in permitidos:
+            raise ValueError('A disponibilidade mudou. Consulte os candidatos novamente.')
+    _decolar(estado, voo, estado['minuto'], equipe)
+
+
+def replanejar(voo_id, operacao_id, equipe):
+    with transacao() as conn:
+        _lock(conn)
+        linha = conn.execute('SELECT * FROM operacao_simulada WHERE id=1').fetchone()
+        estado = json.loads(linha['estado']) if linha else {}
+        voo = estado.get('voos', {}).get(voo_id)
+        if not voo or voo['status'] != 'Aguardando tripulação' or operacao_id != estado.get('operacao_id'):
+            raise ValueError('O voo já não está pendente nesta operação.')
+        sincronizar_pessoas(conn, estado)
+        aplicar_equipe(estado, voo, equipe)
+        _salvar(conn, estado, datetime.fromisoformat(linha['atualizado_em']))
+    return estado
+
+
 def executar_passo(agora=None):
     agora = agora or datetime.now(timezone.utc)
     with transacao() as conn:
@@ -373,6 +391,9 @@ def resumo(estado):
     voos = list(estado['voos'].values())
     return {'iniciada': True, 'rodando': estado['rodando'], 'concluida': estado['concluida'],
         'relogio': str(date.fromisoformat(estado['dia']) + timedelta(days=estado['minuto']//1440)) + ' · ' + hhmm(estado['minuto']%1440),
+        'operacao_id': estado.get('operacao_id'),
+        'pendentes': [{'id': v['id'], 'codigo': v['codigo'], 'origem': v['origem'], 'destino': v['destino']}
+                      for v in voos if v['status'] == 'Aguardando tripulação'],
         'tripulantes': len(estado['tripulantes']),
         'em_voo': sum(bool(p['voo']) for p in estado['tripulantes'].values()),
         'em_repouso': sum(bool(p['descanso_ate']) for p in estado['tripulantes'].values()),
