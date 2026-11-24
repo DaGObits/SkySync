@@ -370,11 +370,11 @@ Senha nunca é guardada em texto. O login devolve a **mesma** mensagem para e-ma
 | Método | Rota | Descrição |
 |---|---|---|
 | `POST` | `/api/otimizacao` | Roda o solver sobre os dados enviados no corpo |
-| `POST` | `/api/escalas/otimizar` | Roda sobre `voos` + `jornadas` do banco **e grava** o resultado |
+| `POST` | `/api/escalas/otimizar` | Otimiza com jornadas cadastradas ou fictícias |
+| `POST` | `/api/escalas/propostas` | Simula uma proposta ou aprova uma proposta revisada |
 
-O `POST /api/escalas/otimizar` é o que fecha o ciclo: ele lê as tabelas, resolve, grava em `escalas` com a análise, e **atualiza o acumulado em `jornadas`**. A próxima execução já enxerga as horas da anterior — o sistema tem memória.
+A simulação devolve as alocações e um `proposta_id` para revisão. Para aprovar, o mesmo usuário envia `{"gravar": true, "proposta_id": 123}` à mesma rota. A aprovação grava as alocações revisadas e atualiza as jornadas do período em uma transação. Repetir a aprovação de uma proposta já aplicada devolve zero novas gravações. Uma proposta desatualizada exige nova simulação.
 
-Parâmetro `gravar: true` persiste o resultado; sem ele, apenas calcula.
 
 ---
 
