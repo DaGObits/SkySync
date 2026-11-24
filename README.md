@@ -155,9 +155,9 @@ python app.py
 pytest -v
 ```
 
-### Operação simulada e remanejamentos automáticos
+### Operação simulada e replanejamento manual
 
-Em **Escalas**, clique em **Iniciar operação simulada**. Esse é o único controle:
+Em **Escalas**, clique em **Iniciar operação simulada**. Esse controle comanda o relógio:
 depois ele alterna entre **Pausar operação** e **Continuar operação**, preservando
 o progresso. Não é necessário escolher seed, perfil, data ou publicar cenários.
 
@@ -177,13 +177,15 @@ Durante a execução, o sistema:
 
 - atualiza horas e posição dos tripulantes, em memória e na tabela isolada de estado;
 - preserva as designações ainda viáveis;
-- usa CP-SAT para completar a composição quando alguém ficou impedido;
-- só seleciona substitutos livres no aeroporto de partida, com cargo, descanso,
+- mostra o voo pendente em **Escalas** quando alguém fica impedido;
+- permite escolher substitutos livres no aeroporto de partida, com cargo, descanso,
   aclimatação e jornada compatíveis; não transfere ninguém instantaneamente;
 - deixa o voo aguardando quando não há equipe completa e tenta novamente após
   a evolução da operação;
 - sincroniza novos cadastros e bloqueia futuras designações de pessoas marcadas
   indisponíveis, sem mudar a posição de quem já está na simulação.
+
+Em **Escolher substitutos**, revise as vagas, selecione os nomes e clique em **Confirmar equipe e liberar voo**. O servidor verifica novamente cada escolha antes de registrar a troca.
 
 A tabela mostra apenas mudanças: **voo, quem saiu, quem entrou, local e motivo**.
 Na aba **Tripulantes**, consulte local atual, jornada simulada e situação de cada
@@ -212,7 +214,7 @@ mas os seus formulários e botões foram removidos da interface.
 ### Mapa da operação simulada
 
 O painel inicial mostra os voos da **mesma operação persistida** que acumula as
-horas dos tripulantes e dispara os remanejamentos. O mapa recebe o snapshot no
+horas dos tripulantes e registra os remanejamentos confirmados. O mapa recebe o snapshot no
 `GET /api/operacao` já consultado a cada cinco segundos. Iniciar, continuar e
 pausar em **Escalas** também atualiza o mapa. O botão **Controlar operação** abre
 essa aba; não há outro relógio ou simulação paralela.

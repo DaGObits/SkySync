@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from db import transacao
-from operacao import novo_estado, avancar_estado, ler_estado, executar_passo, situacao
+from operacao import novo_estado, avancar_estado, ler_estado, executar_passo, situacao, aplicar_equipe
 
 CARGOS=['Comandante','Copiloto','Comissário','Comissário','Comissário']
 
@@ -40,6 +40,9 @@ def test_remaneja_somente_substitutos_aptos_no_aeroporto(atraso):
     estado=novo_estado(grupo('G','GRU')+grupo('R','MAO',True),malha())
     assert estado['voos']['B']['plano']==['G'+str(i) for i in range(5)]
     avancar_estado(estado,100)
+    assert estado['voos']['B']['status']=='Aguardando tripulação'
+    assert estado['mudancas']==[]
+    aplicar_equipe(estado,estado['voos']['B'],['R'+str(i) for i in range(5)])
     assert estado['voos']['B']['status']=='Em voo'
     assert set(estado['voos']['B']['alocados'])=={'R'+str(i) for i in range(5)}
     assert len(estado['mudancas'])==5
@@ -77,6 +80,8 @@ def test_substitui_ao_exceder_limite_e_nao_usa_descansando(atraso):
     for i in range(5):
         estado['tripulantes']['G'+str(i)]['horas']=600
     avancar_estado(estado,1)
+    assert estado['voos']['A']['status']=='Aguardando tripulação'
+    aplicar_equipe(estado,estado['voos']['A'],['R'+str(i) for i in range(5)])
     assert set(estado['voos']['A']['alocados'])=={'R'+str(i) for i in range(5)}
     assert all('excede' in m['motivo'] for m in estado['mudancas'])
     outro=novo_estado(pessoas,malha()[:1])
@@ -147,6 +152,17 @@ def test_novo_tripulante_entra_e_indisponivel_e_remanejado(usuario_logado,dados_
         executar_passo(datetime.fromisoformat(inicio)+timedelta(seconds=5))
         estado=ler_estado()
         assert estado['tripulantes']['G0']['habilitado'] is False
+        assert estado['tripulantes']['NOVO']['voo'] is None
+    url='/api/operacao/replanejamento/A'
+    opcoes=usuario_logado.get(url).get_json()
+    assert opcoes['vagas'][0]['opcoes']==[{'id':'NOVO','nome':'Nova reserva'}]
+    pedido={'operacao_id':opcoes['operacao_id'],'equipe':['R0','G1','G2','G3','G4']}
+    assert usuario_logado.post(url,json=pedido).status_code==409
+    pedido['equipe'][0]='NOVO'
+    assert usuario_logado.post(url,json=pedido).status_code==200
+    assert usuario_logado.post(url,json=pedido).status_code==409
+    with dados_operacao.app_context():
+        estado=ler_estado()
         assert estado['tripulantes']['NOVO']['voo']=='A'
         assert estado['mudancas'][0]['entrou']=='Nova reserva'
         assert estado['mudancas'][0]['motivo']=='Indisponível no cadastro'
@@ -154,6 +170,8 @@ def test_novo_tripulante_entra_e_indisponivel_e_remanejado(usuario_logado,dados_
 
 def test_proximo_dia_preserva_posicao_e_reinicia_jornada_apos_repouso(atraso):
     estado=novo_estado(grupo('G','GRU')+grupo('R','MAO',True),malha())
+    avancar_estado(estado,100)
+    aplicar_equipe(estado,estado['voos']['B'],['R'+str(i) for i in range(5)])
     avancar_estado(estado,200)
     assert estado['tripulantes']['R0']['base']=='MAO'
     assert estado['tripulantes']['R0']['local']=='GRU'

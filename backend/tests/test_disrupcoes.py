@@ -4,7 +4,7 @@ import pytest
 from datetime import datetime, timedelta, timezone
 
 from db import transacao
-from operacao import novo_estado, avancar_estado, ler_estado, executar_passo, _salvar
+from operacao import novo_estado, avancar_estado, ler_estado, executar_passo, _salvar, aplicar_equipe
 from test_operacao import grupo, malha, dados_operacao, atraso
 
 
@@ -35,9 +35,10 @@ def test_lista_vazia_e_validacao(usuario_logado):
 def test_atraso_remanejamento_resolucao_e_persistencia(usuario_logado, app, monkeypatch):
     estado = estado_atrasado(monkeypatch)
     avancar_estado(estado, 100)
+    aplicar_equipe(estado, estado['voos']['B'], ['R'+str(i) for i in range(5)])
     salvar(app, estado)
     dados = usuario_logado.get('/api/disrupcoes').json
-    assert dados['total'] == 2
+    assert dados['total'] == 3
     assert dados['ativas'] == dados['altas'] == 1
     atraso_voo = next(e for e in dados['disrupcoes'] if e['tipo'] == 'atraso')
     trocas = next(e for e in dados['disrupcoes'] if e['tipo'] == 'remanejamento')
@@ -49,7 +50,7 @@ def test_atraso_remanejamento_resolucao_e_persistencia(usuario_logado, app, monk
     avancar_estado(estado, 121)
     salvar(app, estado)
     depois = usuario_logado.get('/api/disrupcoes').json
-    assert depois['total'] == 2 and depois['ativas'] == 0
+    assert depois['total'] == 3 and depois['ativas'] == 0
     assert next(e for e in depois['disrupcoes'] if e['id'] == atraso_voo['id'])['status'] == 'Resolvida'
     antes = copy.deepcopy(depois)
     assert usuario_logado.get('/api/disrupcoes').json == antes
@@ -102,8 +103,8 @@ def test_limite_nao_trunca_contagens_e_nova_operacao_nao_mistura(usuario_logado,
     estado = estado_atrasado(monkeypatch)
     avancar_estado(estado, 100); salvar(app, estado)
     dados = usuario_logado.get('/api/disrupcoes?limite=1').json
-    assert dados['total'] == 2 and dados['retornados'] == 1 and dados['ativas'] == 1
-    assert usuario_logado.get('/api/disrupcoes?risco=medio').json['total'] == 1
+    assert dados['total'] == 2 and dados['retornados'] == 1 and dados['ativas'] == 2
+    assert usuario_logado.get('/api/disrupcoes?risco=alto').json['total'] == 2
     outra = estado_atrasado(monkeypatch)
     avancar_estado(outra, 1); salvar(app, outra)
     assert usuario_logado.get('/api/disrupcoes').json['total'] == 1

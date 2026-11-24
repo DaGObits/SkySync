@@ -715,12 +715,21 @@
     <section class="screen" id="screen-escalas" aria-labelledby="escalas-h" tabindex="-1" hidden>
       <h1 id="escalas-h">Remanejamentos da operação</h1>
       <p class="lede">Os tripulantes cumprem os voos cadastrados, acumulam horas e mudam de localização ao pousar.
-        Quando a escala precisar de uma troca, o sistema procura um substituto apto no aeroporto de partida.</p>
+        Quando a escala precisar de uma troca, escolha os substitutos aptos no aeroporto de partida e confirme a nova equipe.</p>
       <button class="btn btn-primary" type="button" id="btnOperacao">Iniciar operação simulada</button>
       <p id="operacaoStatus" role="status">Consultando operação…</p>
       <p id="operacaoResumo"></p>
       <p>Simulação acelerada: 1 segundo equivale a 1 minuto. Acompanhe posição e jornada na aba Tripulantes.</p>
       <p id="operacaoPendencias" role="status"></p>
+      <div id="replanejamentoManual" hidden>
+        <label>Voo pendente <select id="vooPendente"></select></label>
+        <button type="button" class="btn btn-ghost" id="consultarEquipe">Escolher substitutos</button>
+        <form id="escolhaEquipe" hidden>
+          <div id="vagasEquipe"></div>
+          <button type="submit" class="btn btn-primary">Confirmar equipe e liberar voo</button>
+        </form>
+      </div>
+      <p role="status" id="statusEquipe"></p>
       <div class="table-wrap"><table>
         <thead><tr><th>Quando</th><th>Voo</th><th>Saiu</th><th>Entrou</th><th>Local do substituto</th><th>Motivo</th></tr></thead>
         <tbody id="remanejamentosRows"></tbody>
@@ -2128,7 +2137,80 @@ async function iniciarPainel() {
     ['pointerup', 'pointercancel'].forEach(tipo => svgMapa.addEventListener(tipo, () => { arrastoMapa = null; }));
 
     window.estadoOperacao = null;
+    const vooPendente = document.getElementById('vooPendente');
+    const escolhaEquipe = document.getElementById('escolhaEquipe');
+    const vagasEquipe = document.getElementById('vagasEquipe');
+    const statusEquipe = document.getElementById('statusEquipe');
+    let consultaEquipe = 0;
+    function fecharEscolha() {
+      consultaEquipe++;
+      escolhaEquipe.hidden = true;
+      vagasEquipe.replaceChildren();
+    }
+    vooPendente.addEventListener('change', fecharEscolha);
+    document.getElementById('consultarEquipe').addEventListener('click', async () => {
+      fecharEscolha();
+      const consulta = consultaEquipe;
+      const url = API_URL + '/operacao/replanejamento/' + encodeURIComponent(vooPendente.value);
+      statusEquipe.textContent = 'Consultando disponibilidade…';
+      try {
+        const res = await fetchComPrazo(url, {credentials: 'include'});
+        const dados = await res.json();
+        if (consulta !== consultaEquipe) return;
+        if (!res.ok) throw new Error(dados.erro);
+        const campos = dados.vagas.map(vaga => {
+          const linha = document.createElement('p');
+          vagasEquipe.appendChild(linha);
+          if (!vaga.motivo) {
+            linha.textContent = vaga.cargo + ' · ' + vaga.nome + ' (mantido)';
+            return null;
+          }
+          const label = document.createElement('label');
+          label.textContent = vaga.cargo + ' · ' + vaga.nome + ' — ' + vaga.motivo + '. Substituto ';
+          const campo = document.createElement('select');
+          campo.required = true;
+          campo.add(new Option(vaga.opcoes.length ? 'Escolha uma pessoa' : 'Nenhum candidato apto', ''));
+          vaga.opcoes.forEach(p => campo.add(new Option(p.nome + ' (' + p.id + ')', p.id)));
+          label.appendChild(campo); linha.appendChild(label);
+          return campo;
+        });
+        escolhaEquipe.hidden = false;
+        escolhaEquipe.querySelector('button').disabled = dados.vagas.some(v => v.motivo && !v.opcoes.length);
+        statusEquipe.textContent = '';
+        escolhaEquipe.onsubmit = async e => {
+          e.preventDefault();
+          const equipe = campos.map((campo, i) => campo ? campo.value : dados.vagas[i].anterior);
+          if (new Set(equipe).size !== equipe.length) {
+            statusEquipe.textContent = 'Escolha uma pessoa diferente para cada vaga.'; return;
+          }
+          escolhaEquipe.querySelector('button').disabled = true;
+          try {
+            const resp = await fetchComPrazo(url, {method: 'POST', credentials: 'include',
+              headers: {'Content-Type':'application/json'}, body: JSON.stringify({operacao_id: dados.operacao_id, equipe})});
+            const resultado = await resp.json();
+            if (!resp.ok) throw new Error(resultado.erro);
+            fecharEscolha();
+            mostrarOperacao(resultado);
+            statusEquipe.textContent = 'Equipe confirmada. Voo liberado na simulação.';
+          } catch (erro) {
+            fecharEscolha();
+            statusEquipe.textContent = erro.message + ' Consulte os substitutos novamente.';
+          }
+        };
+      } catch (erro) { if (consulta === consultaEquipe) statusEquipe.textContent = erro.message; }
+    });
     function mostrarOperacao(dados) {
+      const pendentes = dados.pendentes || [];
+      const anterior = vooPendente.value;
+      const mesmaOperacao = window.estadoOperacao?.operacao_id === dados.operacao_id;
+      if (!mesmaOperacao || !pendentes.some(v => v.id === anterior)) fecharEscolha();
+      const assinatura = JSON.stringify(pendentes);
+      if (vooPendente.dataset.lista !== assinatura) {
+        vooPendente.replaceChildren(...pendentes.map(v => new Option(v.codigo + ' · ' + v.origem + ' → ' + v.destino, v.id)));
+        if (pendentes.some(v => v.id === anterior)) vooPendente.value = anterior;
+        vooPendente.dataset.lista = assinatura;
+      }
+      document.getElementById('replanejamentoManual').hidden = !pendentes.length;
       window.estadoOperacao = dados;
       window.carregarDisrupcoes();
       mostrarMapaSimulado(dados);
