@@ -122,7 +122,8 @@ for (const file of ['docs/index.html', 'backend/static/index.html']) {
     });
     try {
       await page.locator('.nav-btn[data-screen="escalas"]').click();
-      assert.equal(await page.locator('#formSimularJornadas, #simJornadaSeed, #btnAplicar, #crewTable').count(), 0);
+      assert.equal(await page.locator('#btnAplicar').isDisabled(), true);
+      assert.equal(await page.locator('#formSimularJornadas, #simJornadaSeed, #crewTable').count(), 0);
       await page.locator('#btnOperacao').click();
       await page.waitForFunction(() => document.getElementById('btnOperacao').textContent === 'Pausar operação');
       assert.equal(inicios, 1);

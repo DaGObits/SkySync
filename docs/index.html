@@ -726,6 +726,20 @@
         <tbody id="remanejamentosRows"></tbody>
       </table></div>
       <p id="remanejamentosVazio">Nenhum remanejamento necessário até agora.</p>
+      <h2 class="section-sub" id="acoes-h" data-i18n="simulationActionsTitle">Simulação e ações</h2>
+      <div class="actions">
+        <button class="btn btn-ghost" id="btnSimular" type="button" data-i18n="btnSimulate">Simular replanejamento</button>
+        <button class="btn btn-success" id="btnAplicar" disabled type="button" >Aprovar e aplicar</button>
+        <button class="btn btn-primary" id="btnDesfazer" type="button" disabled >Descartar proposta</button>
+        <span class="actions-note" >A simulação recalcula jornadas sem alterar a escala publicada.</span>
+      </div>
+      <div id="proposalStatus" role="status" aria-live="polite"></div>
+      <div id="proposalPreview" class="table-wrap" hidden>
+        <table><caption>Proposta para revisão</caption>
+          <thead><tr><th>Voo</th><th>Rota</th><th>Tripulante</th><th>Cargo</th><th>Horas após o voo</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </section>
 
     
@@ -2658,6 +2672,67 @@ async function iniciarPainel() {
         updateScaleState(scale);
         try { localStorage.setItem('skysync-scale', scale); } catch(e) {}
       });
+    });
+
+    const btnSimular = document.getElementById('btnSimular');
+    const btnAplicar = document.getElementById('btnAplicar');
+    const btnDesfazer = document.getElementById('btnDesfazer');
+    const preview = document.getElementById('proposalPreview');
+    const statusProposta = document.getElementById('proposalStatus');
+    let propostaId = null;
+
+    function limparProposta() {
+      propostaId = null;
+      preview.hidden = true;
+      preview.querySelector('tbody').replaceChildren();
+      btnAplicar.disabled = true;
+      btnDesfazer.disabled = true;
+    }
+
+    async function processarProposta(aprovar) {
+      if (aprovar && (!propostaId || !window.confirm('Aprovar esta proposta e atualizar as jornadas?'))) return;
+      if (!aprovar) limparProposta();
+      btnSimular.disabled = btnAplicar.disabled = btnDesfazer.disabled = true;
+      statusProposta.textContent = aprovar ? 'Aplicando proposta…' : 'Calculando proposta…';
+      try {
+        const resposta = await fetch(API_URL + '/escalas/propostas', {
+          method: 'POST', credentials: 'include', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(aprovar ? {gravar: true, proposta_id: propostaId} : {limite_voos: 15})
+        });
+        if (resposta.status === 401) { window.location.href = 'login.html'; return; }
+        const dados = await resposta.json();
+        if (!resposta.ok) {
+          if (resposta.status === 409) limparProposta();
+          throw new Error(dados.diagnostico?.causas?.join(' ') || dados.erro || dados.mensagem || 'Falha ao processar a proposta.');
+        }
+        if (aprovar) {
+          limparProposta();
+          statusProposta.textContent = 'Escala aprovada. ' + dados.total_alocacoes + ' alocações confirmadas.';
+          return;
+        }
+        const corpo = preview.querySelector('tbody');
+        for (const a of dados.alocacoes) {
+          const linha = corpo.insertRow();
+          for (const valor of [a.voo, a.rota, a.tripulante, a.cargo, (a.horas_antes + a.duracao_horas).toFixed(2)]) {
+            linha.insertCell().textContent = valor;
+          }
+        }
+        propostaId = dados.proposta_id;
+        preview.hidden = false;
+        statusProposta.textContent = 'Revise as ' + dados.total_alocacoes + ' alocações propostas antes de aprovar.';
+      } catch (erro) {
+        statusProposta.textContent = erro.message || 'Falha ao comunicar com o servidor.';
+      } finally {
+        btnSimular.disabled = false;
+        btnAplicar.disabled = btnDesfazer.disabled = !propostaId;
+      }
+    }
+
+    btnSimular.addEventListener('click', () => processarProposta(false));
+    btnAplicar.addEventListener('click', () => processarProposta(true));
+    btnDesfazer.addEventListener('click', () => {
+      limparProposta();
+      statusProposta.textContent = 'Proposta descartada.';
     });
 
     carregarPerfil();

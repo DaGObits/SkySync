@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 from datetime import date
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify, request, session
 
 from blueprints.auth import login_obrigatorio
 from db import transacao
@@ -248,6 +248,16 @@ def listar_escalas():
 @bp.post("/escalas/otimizar")
 @login_obrigatorio
 def otimizar_e_gravar():
+    return _otimizar(proposta=False)
+
+
+@bp.post("/escalas/propostas")
+@login_obrigatorio
+def propostas():
+    return _otimizar(proposta=True)
+
+
+def _otimizar(proposta):
     """Roda CP-SAT com jornadas da data ou um cenário fictício em memória.
 
     Este e o endpoint que fecha o ciclo: antes dele, a otimizacao recebia tudo
@@ -278,6 +288,10 @@ def otimizar_e_gravar():
     simulacao = corpo.get('simulacao_jornadas')
     if simulacao is not None and gravar:
         return jsonify({'erro': 'Jornadas simuladas não podem publicar uma escala. Use gravar=false.'}), 400
+    if proposta and simulacao is not None:
+        return jsonify({"erro": "A aprovação requer jornadas cadastradas."}), 400
+    if proposta and gravar:
+        return _aprovar(corpo.get("proposta_id"))
     try:
         cenario = montar_cenario(simulacao, dia) if simulacao is not None else None
     except ValueError as exc:
@@ -291,13 +305,16 @@ def otimizar_e_gravar():
         return jsonify({"erro": "limite_voos deve ser um número"}), 400
 
     with transacao() as conexao:
+        filtro = """AND NOT EXISTS (
+            SELECT 1 FROM escalas e WHERE e.voo_id = voos.id AND e.data = %s
+        )""" if proposta else ""
         linhas_voos = conexao.execute(
-            """
-            SELECT id, codigo, origem, destino, duracao_horas, pouso_noturno
-            FROM voos WHERE status = 'Programado'
+            f"""
+            SELECT id, codigo, origem, destino, partida, chegada, duracao_horas, pouso_noturno
+            FROM voos WHERE status = 'Programado' {filtro}
             ORDER BY partida LIMIT %s
             """,
-            (limite_voos,),
+            (dia, limite_voos) if proposta else (limite_voos,),
         ).fetchall()
 
         if not linhas_voos:
@@ -313,7 +330,7 @@ def otimizar_e_gravar():
         )
         linhas_jornadas = conexao.execute(
             f"""
-            SELECT j.tripulante_id, t.nome, t.cargo, t.base,
+            SELECT j.tripulante_id, t.nome, t.cargo, t.base, t.status,
                    j.horas_acumuladas, j.limite_horas, j.descanso_ok, j.aclimatado
             FROM jornadas j
             JOIN tripulantes t ON t.id = j.tripulante_id
@@ -375,6 +392,8 @@ def otimizar_e_gravar():
     except RuntimeError as err:
         return jsonify({"status": "UNKNOWN", "mensagem": str(err)}), 500
 
+    if proposta:
+        return _salvar_proposta(solucao, dia, linhas_jornadas, linhas_voos)
     execucao_id = None
     gravadas, ignoradas = 0, 0
     if gravar:
@@ -479,3 +498,104 @@ def _gravar_escalas(solucao, dia: str, execucao_id) -> tuple[int, int]:
             j['horas_acumuladas'] = depois
             gravadas += 1
     return gravadas, ignoradas
+
+
+def _salvar_proposta(solucao, dia, linhas_jornadas, linhas_voos):
+    resposta = solucao.to_dict()
+    resposta["data"] = dia
+    propostas = resposta["alocacoes"]
+    jornadas = {j["tripulante_id"]: j for j in linhas_jornadas}
+    voos_por_id = {v["id"]: v for v in linhas_voos}
+    for item in propostas:
+        jornada = jornadas[item["tripulante_id"]]
+        item["horas_antes"] = jornada["horas_acumuladas"]
+        item["limite_aplicado"] = min(jornada["limite_horas"], current_app.config["SOLVER_DEFAULT_HOUR_LIMIT"])
+    detalhes = {
+        "usuario_id": session["usuario_id"], "aprovada": False, "resultado": resposta,
+        "jornadas": {a["tripulante_id"]: jornadas[a["tripulante_id"]] for a in propostas},
+        "voos": {a["voo_id"]: voos_por_id[a["voo_id"]] for a in propostas},
+    }
+    with transacao() as conexao:
+        execucao = conexao.execute(
+            """INSERT INTO execucoes_otimizacao
+               (base, status_solver, wall_time_seconds, objetivo_valor, conformidade,
+                total_tripulantes, total_voos, total_alocacoes, variaveis_criadas,
+                total_bloqueados, detalhes_json)
+               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+            (solucao.base, solucao.status, solucao.wall_time_seconds, solucao.objetivo,
+             solucao.conformidade, len(linhas_jornadas), len(linhas_voos), len(propostas),
+             solucao.variaveis_criadas, solucao.tripulantes_bloqueados, json.dumps(detalhes)),
+        ).fetchone()
+    return jsonify({**resposta, "proposta_id": execucao["id"], "escalas_gravadas": 0})
+
+
+def _aprovar(proposta_id):
+    if type(proposta_id) is not int or not 0 < proposta_id <= 2147483647:
+        return jsonify({"erro": "Simule e revise a proposta antes de aprovar."}), 400
+    with transacao() as conexao:
+        registro = conexao.execute(
+            "SELECT detalhes_json FROM execucoes_otimizacao WHERE id = %s FOR UPDATE",
+            (proposta_id,),
+        ).fetchone()
+        proposta = (registro or {}).get("detalhes_json") or {}
+        if proposta.get("usuario_id") != session["usuario_id"]:
+            return jsonify({"erro": "Proposta não encontrada."}), 404
+        resultado = proposta["resultado"]
+        dia = resultado["data"]
+        itens = resultado["alocacoes"]
+        resposta = {"proposta_id": proposta_id, "data": dia, "total_alocacoes": len(itens)}
+        if proposta["aprovada"]:
+            return jsonify({**resposta, "escalas_gravadas": 0})
+        # Mesma ordem de bloqueio em todas as aprovações, inclusive concorrentes.
+        voos = conexao.execute(
+            """SELECT id, codigo, origem, destino, partida, chegada, duracao_horas, pouso_noturno
+               FROM voos WHERE id = ANY(%s) AND status = 'Programado' ORDER BY id FOR UPDATE""",
+            (list(proposta["voos"]),),
+        ).fetchall()
+        jornadas = conexao.execute(
+            """SELECT j.tripulante_id, t.nome, t.cargo, t.base, t.status, j.horas_acumuladas,
+                      j.limite_horas, j.descanso_ok, j.aclimatado
+               FROM jornadas j JOIN tripulantes t ON t.id = j.tripulante_id
+               WHERE j.periodo = %s AND j.tripulante_id = ANY(%s)
+               ORDER BY j.tripulante_id FOR UPDATE OF j,t""",
+            (dia, list(proposta["jornadas"])),
+        ).fetchall()
+        conflito = conexao.execute(
+            "SELECT 1 FROM escalas WHERE data = %s AND voo_id = ANY(%s) LIMIT 1",
+            (dia, list(proposta["voos"])),
+        ).fetchone()
+        if (conflito or {v["id"]: v for v in voos} != proposta["voos"]
+                or {j["tripulante_id"]: j for j in jornadas} != proposta["jornadas"]):
+            return jsonify({"erro": "Os dados da escala mudaram. Simule novamente."}), 409
+
+        # Verifique toda a proposta antes da primeira escrita.
+        for a in itens:
+            duracao = proposta["voos"][a["voo_id"]]["duracao_horas"]
+            teto = min(a["limite_aplicado"], current_app.config["SOLVER_DEFAULT_HOUR_LIMIT"])
+            if a["horas_antes"] + duracao > teto + 1e-9:
+                return jsonify({"erro": "A proposta excede o limite de jornada."}), 409
+        for a in itens:
+            voo = proposta["voos"][a["voo_id"]]
+            duracao = voo["duracao_horas"]
+            depois = a["horas_antes"] + duracao
+            limite = min(a["limite_aplicado"], current_app.config["SOLVER_DEFAULT_HOUR_LIMIT"])
+            conexao.execute(
+                """INSERT INTO escalas
+                   (tripulante_id, voo_id, data, cargo, origem, destino, duracao_horas,
+                    horas_antes, horas_depois, limite_aplicado, ocupacao_percentual,
+                    conforme, motivo, status, execucao_id)
+                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,TRUE,%s,'confirmado',%s)""",
+                (a["tripulante_id"], voo["id"], dia, a["cargo"], voo["origem"], voo["destino"],
+                 duracao, a["horas_antes"], depois, limite, round(100 * depois / limite, 1),
+                 "Proposta aprovada pelo planejador", proposta_id),
+            )
+            conexao.execute(
+                """UPDATE jornadas SET horas_voadas = horas_voadas + %s,
+                   horas_acumuladas = horas_acumuladas + %s, voos_no_periodo = voos_no_periodo + 1,
+                   atualizado_em = NOW() WHERE tripulante_id = %s AND periodo = %s""",
+                (duracao, duracao, a["tripulante_id"], dia),
+            )
+        proposta["aprovada"] = True
+        conexao.execute("UPDATE execucoes_otimizacao SET detalhes_json = %s WHERE id = %s",
+                        (json.dumps(proposta), proposta_id))
+    return jsonify({**resposta, "escalas_gravadas": len(itens)})
